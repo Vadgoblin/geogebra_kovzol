@@ -27,7 +27,7 @@ import org.geogebra.common.kernel.geos.GeoSegment;
 import org.geogebra.common.kernel.prover.AbstractProverReciosMethod;
 import org.geogebra.common.kernel.prover.ProverBotanasMethod;
 import org.geogebra.common.kernel.prover.ProverCNIMethod;
-import org.geogebra.common.kernel.prover.ProverPureSymbolicMethod;
+import org.geogebra.common.kernel.prover.ProverCNIMethodReal;import org.geogebra.common.kernel.prover.ProverPureSymbolicMethod;
 import org.geogebra.common.kernel.prover.polynomial.PPolynomial;
 import org.geogebra.common.kernel.scripting.CmdShowProof;
 import org.geogebra.common.main.Localization;
@@ -765,7 +765,7 @@ public abstract class Prover {
 			result = override(openGeoProver(currentEngine));
 			return;
 		} else if (currentEngine == ProverEngine.CNI_PROVER) {
-			result = override(ProverCNIMethod.prove(this));
+			result = override(ProverCNIMethod.prove(this, ProverCNIMethodReal::new)); // !!
 			return;
 		}
 	}
