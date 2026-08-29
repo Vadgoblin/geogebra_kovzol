@@ -133,7 +133,7 @@ public class ProverCNIMethodReal implements ProverMethod {
 							String exampleLabel = getUniqueLabel(ge);
 							data.prover.addProofLine(data.loc.getPlainDefault("CNIPrimedSymbols",
 									"Denote point %0 by %1 in a symbolic manner.",
-									exampleLabel, exampleLabel + CommonData.PRIME));
+									exampleLabel, exampleLabel + PRIME));
 							primedNotationExplained = true;
 						}
 
@@ -851,10 +851,10 @@ public class ProverCNIMethodReal implements ProverMethod {
 				return null; // Not implemented.
 			}
 			if (rel1.startsWith("perppar") || rel2.startsWith("perppar")) {
-				c.warning = CommonData.WARNING_PERPENDICULAR_OR_PARALLEL;
+				c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
 			}
 			if (rel1.startsWith("isosc") || rel2.startsWith("isosc")) {
-				c.warning = CommonData.WARNING_EQUALITY_OR_COLLINEAR;
+				c.warning = WARNING_EQUALITY_OR_COLLINEAR;
 			}
 			c.realRelation = rel1 + "\n" + rel2;
 			return c;
@@ -870,10 +870,10 @@ public class ProverCNIMethodReal implements ProverMethod {
 				return null; // Not implemented.
 			}
 			if (rel1.startsWith("perppar")) {
-				c.warning = CommonData.WARNING_PERPENDICULAR_OR_PARALLEL;
+				c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
 			}
 			if (rel1.startsWith("isosc")) {
-				c.warning = CommonData.WARNING_EQUALITY_OR_COLLINEAR;
+				c.warning = WARNING_EQUALITY_OR_COLLINEAR;
 			}
 			c.realRelation = rel1 + "\n" + rel2;
 			return c;
@@ -900,10 +900,10 @@ public class ProverCNIMethodReal implements ProverMethod {
 				GeoPoint gE = ((GeoLine) p).getEndPoint();
 				c.realRelation = online((GeoPoint) ge, (GeoLine) p);
 				if (c.realRelation.startsWith("perppar")) {
-					c.warning = CommonData.WARNING_PERPENDICULAR_OR_PARALLEL;
+					c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
 				}
 				if (c.realRelation.startsWith("isosc")) {
-					c.warning = CommonData.WARNING_EQUALITY_OR_COLLINEAR;
+					c.warning = WARNING_EQUALITY_OR_COLLINEAR;
 				}
 				return c;
 			}
@@ -959,7 +959,7 @@ public class ProverCNIMethodReal implements ProverMethod {
 				// Now we create the declaration:
 				String Pl = getUniqueLabel(P);
 				String Cl = getUniqueLabel(C);
-				String ctVar = CommonData.VARIABLE_CYCLOTOMIC + prim;
+				String ctVar = VARIABLE_CYCLOTOMIC + prim;
 				c.declaration =
 						gel + ":=" + Cl + "+(" + Pl + "-" + Cl + ")*" + ctVar; // complex rotation
 				c.zeroRelation = minpoly; // set the minimal polynomial as an extra relation
@@ -999,7 +999,7 @@ public class ProverCNIMethodReal implements ProverMethod {
 			for (int i = num + 1; i < outputObjects.length; i++) {
 				if (ge.equals(outputObjects[i])) {
 					int whichPoint = i - num + 1;
-					String ctVar = CommonData.VARIABLE_CYCLOTOMIC + num;
+					String ctVar = VARIABLE_CYCLOTOMIC + num;
 					c.declaration = gel + ":=" + Bl + "+(" + Bl + "-" + Al + ")*(";
 					for (int j = 1; j < whichPoint; j++) {
 						if (j > 1) {
@@ -1065,7 +1065,7 @@ public class ProverCNIMethodReal implements ProverMethod {
 			GeoLine g = (GeoLine) input[0];
 			GeoLine h = (GeoLine) input[1];
 			c.realRelation = perppar(g, h);
-			c.warning = CommonData.WARNING_PERPENDICULAR_OR_PARALLEL;
+			c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
 			return c;
 		}
 		if (ae instanceof AlgoAreEqual) {
@@ -1185,7 +1185,7 @@ public class ProverCNIMethodReal implements ProverMethod {
 						GeoPoint B = (GeoPoint) ((AlgoAnglePoints) gae).getB();
 						GeoPoint C = (GeoPoint) ((AlgoAnglePoints) gae).getC();
 						c.realRelation = anglex(A, B, B, C, rot);
-						c.warning = CommonData.WARNING_ANGLE;
+						c.warning = WARNING_ANGLE;
 						return c;
 					}
 					return null; // Unimplemented.
@@ -1201,7 +1201,7 @@ public class ProverCNIMethodReal implements ProverMethod {
 			} else if (o == Operation.PERPENDICULAR) {
 				Log.debug("Warning: Testing perpendicularity AND parallelism simultaneously");
 				c.realRelation = perppar((GeoLine) ge1, (GeoLine) ge2);
-				c.warning = CommonData.WARNING_PERPENDICULAR_OR_PARALLEL;
+				c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
 				return c;
 			} else if (o == Operation.IS_ELEMENT_OF) {
 				if (ge1 instanceof GeoPoint && ge2 instanceof GeoLine) {
@@ -1530,27 +1530,27 @@ public class ProverCNIMethodReal implements ProverMethod {
 			GeoPoint D = (GeoPoint) s2.getEndPoint();
 			if (A.equals(C)) {
 				c.realRelation = isosc(A, B, D);
-				c.warning = CommonData.WARNING_EQUALITY_OR_COLLINEAR;
+				c.warning = WARNING_EQUALITY_OR_COLLINEAR;
 				return c;
 			}
 			if (A.equals(D)) {
 				c.realRelation = isosc(A, B, C);
-				c.warning = CommonData.WARNING_EQUALITY_OR_COLLINEAR;
+				c.warning = WARNING_EQUALITY_OR_COLLINEAR;
 				return c;
 			}
 			if (B.equals(C)) {
 				c.realRelation = isosc(B, A, D);
-				c.warning = CommonData.WARNING_EQUALITY_OR_COLLINEAR;
+				c.warning = WARNING_EQUALITY_OR_COLLINEAR;
 				return c;
 			}
 			if (B.equals(D)) {
 				c.realRelation = isosc(B, A, C);
-				c.warning = CommonData.WARNING_EQUALITY_OR_COLLINEAR;
+				c.warning = WARNING_EQUALITY_OR_COLLINEAR;
 				return c;
 			}
 			// General method (but we do not use it in general, to keep readability):
 			c.realRelation = equal(A, B, C, D);
-			c.warning = CommonData.WARNING_EQUALITY_OR_COLLINEAR;
+			c.warning = WARNING_EQUALITY_OR_COLLINEAR;
 			return c;
 		}
 		if (ge1 instanceof GeoAngle && ge2 instanceof GeoAngle) {
@@ -1574,7 +1574,7 @@ public class ProverCNIMethodReal implements ProverMethod {
 	}
 
 	public String cyclotomicPolynomial(int n) {
-		String ctVar = CommonData.VARIABLE_CYCLOTOMIC + n;
+		String ctVar = VARIABLE_CYCLOTOMIC + n;
 		String minpolyP = "subst(expand(r2e(cyclotomic(" + n + "))),x=" + ctVar + ")";
 		return executeGiac(minpolyP);
 	}
@@ -1605,7 +1605,7 @@ public class ProverCNIMethodReal implements ProverMethod {
 						|| !Character.isLetterOrDigit(out.charAt(idx + lab.length()));
 				sb.append(out, i, idx);
 				if (beforeOk && afterOk) {
-					sb.append(lab).append(CommonData.PRIME);
+					sb.append(lab).append(PRIME);
 				} else {
 					sb.append(lab);
 				}
@@ -1644,7 +1644,7 @@ public class ProverCNIMethodReal implements ProverMethod {
 			sb.append(s, i, idx);
 			sb.append(s, idx, end);
 			if (!alreadyPrimed && afterOk) {
-				sb.append(CommonData.PRIME);
+				sb.append(PRIME);
 			}
 			i = end;
 		}
@@ -1675,7 +1675,7 @@ public class ProverCNIMethodReal implements ProverMethod {
 			if (vars.length() > 0) {
 				vars.append(",");
 			}
-			vars.append(lab).append(CommonData.PRIME);   // A',B',C',O',...
+			vars.append(lab).append(PRIME);   // A',B',C',O',...
 		}
 
 		// handle divisor (divisor = 0)

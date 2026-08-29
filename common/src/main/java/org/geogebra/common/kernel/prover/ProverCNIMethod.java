@@ -49,6 +49,7 @@ import org.geogebra.common.util.Prover.ProofResult;
 import org.geogebra.common.util.debug.Log;
 
 import static org.geogebra.common.cas.giac.CASgiac.ggbGiac;
+import static org.geogebra.common.kernel.prover.ProverMethod.PRIME;
 
 import com.himamis.retex.editor.share.util.Unicode;
 
@@ -125,7 +126,7 @@ public class ProverCNIMethod {
 
 	private static boolean containsPrimedPointLabel(TreeSet<String> labels) {
 		for (String lab : labels) {
-			if (lab != null && lab.contains(CommonData.PRIME)) {
+			if (lab != null && lab.contains(PRIME)) {
 				return true;
 			}
 		}
