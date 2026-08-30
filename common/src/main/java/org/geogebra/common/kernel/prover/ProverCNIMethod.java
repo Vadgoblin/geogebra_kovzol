@@ -65,7 +65,6 @@ public class ProverCNIMethod implements ProverMethod {
 	private final ProverContext context;
 	List<String> declarations = new ArrayList<>();
 	List<String> realRelations = new ArrayList<>();
-	int realRelationsNo = 0;
 
 	boolean declarative = true;
 	boolean rMustBeZero = false;
@@ -151,8 +150,7 @@ public class ProverCNIMethod implements ProverMethod {
 				if (def.realRelation != null) {
 					String[] CASrealRelations = def.realRelation.split("\n");
 					for (String CASrealRelation : CASrealRelations) {
-						realRelationsNo++;
-						String expression = CASrealRelation + "=" + VARIABLE_R_STRING + realRelationsNo;
+						String expression = CASrealRelation + "=" + VARIABLE_R_STRING + realRelations.size();
 						realRelations.add(expression);
 						if (context.prover.getShowproof()) {
 							String rewriteProgram = "[" + context.predefs + expression + "][" + context.predefinitions.length + "]";
@@ -162,7 +160,7 @@ public class ProverCNIMethod implements ProverMethod {
 
 							explainAlgebricNotation();
 
-							String rk = VARIABLE_R_STRING + realRelationsNo; // e.g., r__1
+							String rk = VARIABLE_R_STRING + realRelations.size(); // e.g., r__1
 							String lhsProgram = executeGiac("lhs(" + expression2 + ")");
 							String lhs2 = addPrimesToLabels(lhsProgram, context.primeLabels);
 
@@ -231,8 +229,7 @@ public class ProverCNIMethod implements ProverMethod {
 			// A typical application is AreConcurrent.
 			for (int i = 0; i < nrRels - 1; i++) {
 				String CASrealRelation = CASrealRelations[i];
-				realRelationsNo++;
-				String expression = CASrealRelation + "=" + VARIABLE_R_STRING + realRelationsNo;
+				String expression = CASrealRelation + "=" + VARIABLE_R_STRING + realRelations.size();
 				realRelations.add(expression);
 				if (context.prover.getShowproof()) {
 					String rewriteProgram = "[" + context.predefs + expression + "][" + context.predefinitions.length + "]";
@@ -241,7 +238,7 @@ public class ProverCNIMethod implements ProverMethod {
 					context.prover.addProofLine(CmdShowProof.TEXT_EQUATION, lhs(expression) + "=" + expression2
 							+ com.himamis.retex.editor.share.util.Unicode.IS_ELEMENT_OF + "\u211D");
 
-					String rk = VARIABLE_R_STRING + realRelationsNo; // e.g., r__1
+					String rk = VARIABLE_R_STRING + realRelations.size(); // e.g., r__1
 					String lhsProgram = executeGiac("lhs(" + expression2 + ")");
 					String lhs2 = addPrimesToLabels(lhsProgram, context.primeLabels);
 
