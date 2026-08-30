@@ -897,59 +897,71 @@ public class ProverCNIMethod implements ProverMethod {
 			return null; // Not implemented.
 		}
 		if (ae instanceof AlgoRotatePoint) {
-			AlgoRotatePoint arp = (AlgoRotatePoint) ae;
-			GeoElement P = (GeoElement) arp.getInput(0); // rotated
-			GeoElement a = (GeoElement) arp.getInput(1); // angle
-			GeoElement C = (GeoElement) arp.getInput(2); // center
-			if (P instanceof GeoPoint && a instanceof GeoAngle && C instanceof GeoPoint) {
-				// This is taken from AlgoRotatePoint (Botana's method)
-				double angleDoubleVal = ((GeoAngle) a).getDouble();
-				double angleDoubleValDeg = angleDoubleVal / Math.PI * 180;
-				int angleValDeg = (int) angleDoubleValDeg;
-				if (!DoubleUtil.isInteger(angleDoubleValDeg)) {
-					// unhandled angle, not an integer degree
-					return null; // Unimplemented.
-				}
-				// Compute the gcd of the angle and 360 degrees. For 90 degrees, this is 90,
-				// for 120, this is 120, for 135, this is 45, for example.
-				long gcd = context.kernel.gcd(angleValDeg, 360);
-				// Which primitive root of unit will be used to describe the rotation?
-				long prim = Math.abs(360 / gcd); // This is 4 for 90 degrees, 3 for 120 degrees,
-				// 8 for 135 (~45) degrees.
-				// Create the minimal polynomial. E.g.: "expand(r2e(cyclotomic(8)))", for 135 degrees.
-				String minpoly = cyclotomicPolynomial((int) prim);
-				// Now we create the declaration:
-				String Pl = getUniqueLabel(P);
-				String Cl = getUniqueLabel(C);
-				String ctVar = VARIABLE_CYCLOTOMIC + prim;
-				c.declaration = gel + ":=" + Cl + "+(" + Pl + "-" + Cl + ")*" + ctVar; // complex rotation
-				c.zeroRelation = minpoly; // set the minimal polynomial as an extra relation
-				c.extraVariable = ctVar; // set the extra variable
-				return c;
-			}
+			return getCNIHypothesisDefinitionForAlgoRotatePoint((AlgoRotatePoint)ae, gel);
 		}
 		if (ae instanceof AlgoMirror) {
-			AlgoMirror am = (AlgoMirror) ae;
-			GeoElement P = (GeoElement) am.getInput(0);
-			GeoElement M = (GeoElement) am.getInput(1);
-			if (P instanceof GeoPoint && M instanceof  GeoPoint) {
-				String Pl = getUniqueLabel(P);
-				String Ml = getUniqueLabel(M);
-				c.declaration = gel + ":=" + Ml + "-(" + Pl + "-" + Ml + ")";
-				return c;
-			}
-			return null; // Not implemented.
+			return  getCNIHypothesisDefinitionForAlgoMirror((AlgoMirror)ae, gel);
 		}
 		if (ae instanceof AlgoPolygonRegular) {
-			return getCNIHypothesisDefinitionForAlgoPolygonRegular(ge, (AlgoPolygonRegular) ae, c, gel);
+			return getCNIHypothesisDefinitionForAlgoPolygonRegular(ge, (AlgoPolygonRegular) ae, gel);
 		}
 
 		// Unimplemented, but it should be handled...
 		return null;
 	}
 
-	private CNIDefinition getCNIHypothesisDefinitionForAlgoPolygonRegular(GeoElement ge, AlgoPolygonRegular ap, CNIDefinition c,
-			String gel) {
+	private CNIDefinition getCNIHypothesisDefinitionForAlgoRotatePoint(AlgoRotatePoint arp, String gel){
+		CNIDefinition c = new CNIDefinition();
+
+		GeoElement P = (GeoElement) arp.getInput(0); // rotated
+		GeoElement a = (GeoElement) arp.getInput(1); // angle
+		GeoElement C = (GeoElement) arp.getInput(2); // center
+		if (P instanceof GeoPoint && a instanceof GeoAngle && C instanceof GeoPoint) {
+			// This is taken from AlgoRotatePoint (Botana's method)
+			double angleDoubleVal = ((GeoAngle) a).getDouble();
+			double angleDoubleValDeg = angleDoubleVal / Math.PI * 180;
+			int angleValDeg = (int) angleDoubleValDeg;
+			if (!DoubleUtil.isInteger(angleDoubleValDeg)) {
+				// unhandled angle, not an integer degree
+				return null; // Unimplemented.
+			}
+			// Compute the gcd of the angle and 360 degrees. For 90 degrees, this is 90,
+			// for 120, this is 120, for 135, this is 45, for example.
+			long gcd = context.kernel.gcd(angleValDeg, 360);
+			// Which primitive root of unit will be used to describe the rotation?
+			long prim = Math.abs(360 / gcd); // This is 4 for 90 degrees, 3 for 120 degrees,
+			// 8 for 135 (~45) degrees.
+			// Create the minimal polynomial. E.g.: "expand(r2e(cyclotomic(8)))", for 135 degrees.
+			String minpoly = cyclotomicPolynomial((int) prim);
+			// Now we create the declaration:
+			String Pl = getUniqueLabel(P);
+			String Cl = getUniqueLabel(C);
+			String ctVar = VARIABLE_CYCLOTOMIC + prim;
+			c.declaration = gel + ":=" + Cl + "+(" + Pl + "-" + Cl + ")*" + ctVar; // complex rotation
+			c.zeroRelation = minpoly; // set the minimal polynomial as an extra relation
+			c.extraVariable = ctVar; // set the extra variable
+			return c;
+		}
+
+		return null;
+	}
+
+	private CNIDefinition getCNIHypothesisDefinitionForAlgoMirror(AlgoMirror am, String gel){
+		CNIDefinition c = new CNIDefinition();
+		GeoElement P = (GeoElement) am.getInput(0);
+		GeoElement M = (GeoElement) am.getInput(1);
+		if (P instanceof GeoPoint && M instanceof  GeoPoint) {
+			String Pl = getUniqueLabel(P);
+			String Ml = getUniqueLabel(M);
+			c.declaration = gel + ":=" + Ml + "-(" + Pl + "-" + Ml + ")";
+			return c;
+		}
+		return null; // Not implemented.
+	}
+
+	private CNIDefinition getCNIHypothesisDefinitionForAlgoPolygonRegular(GeoElement ge, AlgoPolygonRegular ap, String gel) {
+		CNIDefinition c = new CNIDefinition();
+
 		GeoPoint A = (GeoPoint) ap.getInput(0);
 		GeoPoint B = (GeoPoint) ap.getInput(1);
 		String Al = getUniqueLabel(A);
