@@ -1180,11 +1180,11 @@ public class ProverCNIMethodAsd {
 	 * @param ge the input GeoElement
 	 * @return the label as String
 	 */
-	static String getUniqueLabel(GeoElement ge) {
+	private static String getUniqueLabel(GeoElement ge) {
 		return ge.getLabelSimple().replace("_{","").replace("}", "");
 	}
 
-	static String removeTail(String input, int length) {
+	private static String removeTail(String input, int length) {
 		if (input.length() >= length) {
 			return input.substring(0, input.length() - length);
 		}
@@ -1206,14 +1206,14 @@ public class ProverCNIMethodAsd {
 	}
 
 	// This is already present in the class Compute. TODO: Unify the code.
-	static String removeHeadTail(String input, int length) {
+	private static String removeHeadTail(String input, int length) {
 		if (input.length() >= 2 * length) {
 			return input.substring(length, input.length() - length);
 		}
 		return input;
 	}
 
-	static String collinear(GeoElement ge1, GeoElement ge2, GeoElement ge3) {
+	private static String collinear(GeoElement ge1, GeoElement ge2, GeoElement ge3) {
 		TreeSet<GeoElement> collPoints = new TreeSet<>();
 		collPoints.add(ge1);
 		collPoints.add(ge2);
@@ -1227,7 +1227,7 @@ public class ProverCNIMethodAsd {
 		return ret;
 	}
 
-	static String concyclic(GeoElement ge1, GeoElement ge2, GeoElement ge3, GeoElement ge4) {
+	private static String concyclic(GeoElement ge1, GeoElement ge2, GeoElement ge3, GeoElement ge4) {
 		TreeSet<GeoElement> concPoints = new TreeSet<>();
 		concPoints.add(ge1);
 		concPoints.add(ge2);
@@ -1242,7 +1242,7 @@ public class ProverCNIMethodAsd {
 		return ret;
 	}
 
-	static String parallel(GeoPoint ge1, GeoPoint ge2, GeoPoint ge3, GeoPoint ge4) {
+	private static String parallel(GeoPoint ge1, GeoPoint ge2, GeoPoint ge3, GeoPoint ge4) {
 		String ge1l = getUniqueLabel(ge1);
 		String ge2l = getUniqueLabel(ge2);
 		String ge3l = getUniqueLabel(ge3);
@@ -1265,7 +1265,7 @@ public class ProverCNIMethodAsd {
 		return "par(" + ge1l + "," + ge2l + "," + ge3l + "," + ge4l + ")";
 	}
 
-	static String parallel(GeoLine g, GeoLine h) {
+	private static String parallel(GeoLine g, GeoLine h) {
 		/* In general, here we need a much more sophisticated way.
 		 * It is possible that g or h is defined with a point and an algo (maybe parallelism or perpendicularity),
 		 * but the definition can go arbitrary deeply, so here some recursive way would be more general.
@@ -1305,7 +1305,7 @@ public class ProverCNIMethodAsd {
 		return null; // Not yet implemented.
 	}
 
-	static String perppar(GeoPoint ge1, GeoPoint ge2, GeoPoint ge3, GeoPoint ge4) {
+	private static String perppar(GeoPoint ge1, GeoPoint ge2, GeoPoint ge3, GeoPoint ge4) {
 		String ge1l = getUniqueLabel(ge1);
 		String ge2l = getUniqueLabel(ge2);
 		String ge3l = getUniqueLabel(ge3);
@@ -1328,7 +1328,7 @@ public class ProverCNIMethodAsd {
 		return "perppar(" + ge1l + "," + ge2l + "," + ge3l + "," + ge4l + ")";
 	}
 
-	static String perppar(GeoLine g, GeoLine h) {
+	private static String perppar(GeoLine g, GeoLine h) {
 		GeoPoint gS = g.getStartPoint();
 		GeoPoint gE = g.getEndPoint();
 		GeoPoint hS = h.getStartPoint();
@@ -1336,7 +1336,7 @@ public class ProverCNIMethodAsd {
 		return perppar(gS, gE, hS, hE);
 	}
 
-	static String isosc(GeoPoint ge1, GeoPoint ge2, GeoPoint ge3) {
+	private static String isosc(GeoPoint ge1, GeoPoint ge2, GeoPoint ge3) {
 		String ge1l = getUniqueLabel(ge1);
 		String ge2l = getUniqueLabel(ge2);
 		String ge3l = getUniqueLabel(ge3);
@@ -1344,7 +1344,7 @@ public class ProverCNIMethodAsd {
 	}
 
 	// |AB|=|CD|
-	static String equal(GeoPoint A, GeoPoint B, GeoPoint C, GeoPoint D) {
+	private static String equal(GeoPoint A, GeoPoint B, GeoPoint C, GeoPoint D) {
 		String Al = getUniqueLabel(A);
 		String Bl = getUniqueLabel(B);
 		String Cl = getUniqueLabel(C);
@@ -1352,7 +1352,7 @@ public class ProverCNIMethodAsd {
 		return "isosc(" + Dl + "," + Bl + "+" + Dl + "-" + Al + "," + Cl + ")";
 	}
 
-	static String eqangle(GeoElement ge1, GeoElement ge2, GeoElement ge3, GeoElement ge4,
+	private static String eqangle(GeoElement ge1, GeoElement ge2, GeoElement ge3, GeoElement ge4,
 			GeoElement ge5, GeoElement ge6) {
 		String ge1l = getUniqueLabel(ge1);
 		String ge2l = getUniqueLabel(ge2);
@@ -1363,7 +1363,7 @@ public class ProverCNIMethodAsd {
 		return "eqangle(" + ge1l + "," + ge2l + "," + ge3l + "," + ge4l + "," + ge5l + "," + ge6l + ")";
 	}
 
-	static String eqanglemul(GeoElement ge1, GeoElement ge2, GeoElement ge3, GeoElement ge4,
+	private static String eqanglemul(GeoElement ge1, GeoElement ge2, GeoElement ge3, GeoElement ge4,
 			GeoElement ge5, GeoElement ge6, int n) {
 		String ge1l = getUniqueLabel(ge1);
 		String ge2l = getUniqueLabel(ge2);
@@ -1374,7 +1374,7 @@ public class ProverCNIMethodAsd {
 		return "eqanglemul(" + ge1l + "," + ge2l + "," + ge3l + "," + ge4l + "," + ge5l + "," + ge6l + "," + n + ")";
 	}
 
-	static String anglex(GeoElement ge1, GeoElement ge2, GeoElement ge3, GeoElement ge4,
+	private static String anglex(GeoElement ge1, GeoElement ge2, GeoElement ge3, GeoElement ge4,
 			long n) {
 		String ge1l = getUniqueLabel(ge1);
 		String ge2l = getUniqueLabel(ge2);
@@ -1383,7 +1383,7 @@ public class ProverCNIMethodAsd {
 		return "anglex(" + ge1l + "," + ge2l + "," + ge3l + "," + ge4l + "," + n + ")";
 	}
 
-	static String online(GeoPoint ge, GeoLine g) {
+	private static String online(GeoPoint ge, GeoLine g) {
 		GeoPoint gS = g.getStartPoint();
 		GeoPoint gE = g.getEndPoint();
 		if (gS != null && gE != null) {
@@ -1441,7 +1441,7 @@ public class ProverCNIMethodAsd {
 		return null; // Unimplemented.
 	}
 
-	static String oncircle(GeoPoint ge, GeoConic co) {
+	private static String oncircle(GeoPoint ge, GeoConic co) {
 		AlgoElement coAe = co.getParentAlgorithm();
 		if (coAe instanceof AlgoCircleTwoPoints) {
 			AlgoCircleTwoPoints actp = (AlgoCircleTwoPoints) coAe;
@@ -1459,7 +1459,7 @@ public class ProverCNIMethodAsd {
 		return null; // Unimplemented.
 	}
 
-	static ProverCNIMethodAsd.CNIDefinition equal(GeoElement ge1, GeoElement ge2) {
+	private static ProverCNIMethodAsd.CNIDefinition equal(GeoElement ge1, GeoElement ge2) {
 		ProverCNIMethodAsd.CNIDefinition c = new ProverCNIMethodAsd.CNIDefinition();;
 		if (ge1 instanceof GeoPoint && ge2 instanceof GeoPoint) {
 			GeoPoint P = (GeoPoint) ge1;
@@ -1523,13 +1523,13 @@ public class ProverCNIMethodAsd {
 		return null; // Missing implementation for equality of other objects.
 	}
 
-	public String cyclotomicPolynomial(int n) {
+	private String cyclotomicPolynomial(int n) {
 		String ctVar = VARIABLE_CYCLOTOMIC + n;
 		String minpolyP = "subst(expand(r2e(cyclotomic(" + n + "))),x=" + ctVar + ")";
 		return executeGiac(minpolyP);
 	}
 
-	public static String lhs(String eq) {
+	private static String lhs(String eq) {
 		int eqIndex = eq.indexOf("=");
 		return eq.substring(0, eqIndex);
 	}
