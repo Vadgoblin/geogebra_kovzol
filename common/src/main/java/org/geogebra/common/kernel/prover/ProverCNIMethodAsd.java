@@ -59,6 +59,14 @@ public class ProverCNIMethodAsd {
 		int warning = 0; // different interpretation than usual?
 		int specRestriction = 0; // number of disallowed fixed points
 	}
+
+	private static final String PRIME = "\u0027";
+	private static final int WARNING_PERPENDICULAR_OR_PARALLEL = 1;
+	private static final int WARNING_EQUALITY_OR_COLLINEAR = 2;
+	private static final int WARNING_ANGLE = 3;
+	private static final String VARIABLE_CYCLOTOMIC = "CT__";
+	private static final String VARIABLE_R_STRING = "r__"; // This must be a kind of unique string.
+	private static final String VARIABLE_I_STRING = "I_"; // This must be a kind of unique string.
 	
 	private ProverContext context;
 	
@@ -75,9 +83,6 @@ public class ProverCNIMethodAsd {
 		// to avoid that explanations are displayed multiple times
 		boolean primedNotationExplained = false;
 		boolean algebraicRelationExplained = false;
-
-		String VARIABLE_R_STRING = "r__"; // This must be a kind of unique string.
-		String VARIABLE_I_STRING = "I_"; // This must be a kind of unique string.
 
 		// All predecessors:
 		TreeSet<GeoElement> allPredecessors = context.statement.getAllPredecessors();
@@ -154,7 +159,7 @@ public class ProverCNIMethodAsd {
 							String exampleLabel = getUniqueLabel(ge);
 							context.prover.addProofLine(context.loc.getPlainDefault("CNIPrimedSymbols",
 									"Denote point %0 by %1 in a symbolic manner.",
-									exampleLabel, exampleLabel + Constants.PRIME));
+									exampleLabel, exampleLabel + PRIME));
 							primedNotationExplained = true;
 						}
 
@@ -200,14 +205,14 @@ public class ProverCNIMethodAsd {
 								toEliminateRhsVars.add(rk);
 							}
 
-							context.prover.addProofLine(CmdShowProof.EQUATION, rk + Constants.PRIME + ":=" + lhs2);
+							context.prover.addProofLine(CmdShowProof.EQUATION, rk + PRIME + ":=" + lhs2);
 						}
 					}
-					if (def.warning == Constants.WARNING_PERPENDICULAR_OR_PARALLEL) {
+					if (def.warning == WARNING_PERPENDICULAR_OR_PARALLEL) {
 						context.prover.addProofLine(CmdShowProof.PROBLEM, context.loc.getMenuDefault("PerpendicularityParallelism",
 								"Perpendicularity means perpendicularity or parallelism simultaneously."));
 					}
-					if (def.warning == Constants.WARNING_EQUALITY_OR_COLLINEAR) {
+					if (def.warning == WARNING_EQUALITY_OR_COLLINEAR) {
 						context.prover.addProofLine(CmdShowProof.PROBLEM, context.loc.getMenuDefault("EqualityCollinearity",
 								"Equality of lengths means equality or collinearity simultaneously."));
 					}
@@ -279,7 +284,7 @@ public class ProverCNIMethodAsd {
 						toEliminateRhsVars.add(rk);
 					}
 
-					context.prover.addProofLine(CmdShowProof.EQUATION, rk + Constants.PRIME + ":=" + lhs2);
+					context.prover.addProofLine(CmdShowProof.EQUATION, rk + PRIME + ":=" + lhs2);
 				}
 			}
 			String thesis = CASrealRelations[nrRels - 1] + "=" + VARIABLE_R_STRING;
@@ -302,19 +307,19 @@ public class ProverCNIMethodAsd {
 				context.prover.addProofLine(context.loc.getPlainDefault(
 						"CNIThesisAlgebraicForm",
 						"We now turn the thesis into an algebraic expression. The symbol %0 stands for this expression:",
-						VARIABLE_R_STRING + Constants.PRIME));
-				context.prover.addProofLine(CmdShowProof.EQUATION, VARIABLE_R_STRING + Constants.PRIME + ":=" + lhs2);
+						VARIABLE_R_STRING + PRIME));
+				context.prover.addProofLine(CmdShowProof.EQUATION, VARIABLE_R_STRING + PRIME + ":=" + lhs2);
 
-				if (def.warning == Constants.WARNING_PERPENDICULAR_OR_PARALLEL) {
+				if (def.warning == WARNING_PERPENDICULAR_OR_PARALLEL) {
 					context.prover.addProofLine(CmdShowProof.PROBLEM, context.loc.getMenuDefault("PerpendicularityParallelism",
 							"Perpendicularity means perpendicularity or parallelism simultaneously"));
 				}
-				if (def.warning == Constants.WARNING_EQUALITY_OR_COLLINEAR) {
+				if (def.warning == WARNING_EQUALITY_OR_COLLINEAR) {
 					context.prover.addProofLine(CmdShowProof.PROBLEM,
 							context.loc.getMenuDefault("EqualityCollinearity",
 									"Equality of lengths means equality or collinearity simultaneously."));
 				}
-				if (def.warning == Constants.WARNING_ANGLE) {
+				if (def.warning == WARNING_ANGLE) {
 					context.prover.addProofLine(CmdShowProof.PROBLEM,
 							context.loc.getMenuDefault("AngleAmbiguity",
 									"Angle equality means equality or equality to another specific angle simultaneously."));
@@ -346,7 +351,7 @@ public class ProverCNIMethodAsd {
 			if (i == 0 && maxSpecRestriction < 2) {
 				String spec1 = getUniqueLabel(ge) + ":=0";
 				if (context.prover.getShowproof() && context.prover.getShowEliminate()) {
-					specEqList.add(getUniqueLabel(ge) + Constants.PRIME + "=0");
+					specEqList.add(getUniqueLabel(ge) + PRIME + "=0");
 				}
 				specCode += spec1 + "\n";
 				if (context.prover.getShowproof()) {
@@ -357,7 +362,7 @@ public class ProverCNIMethodAsd {
 			if (i == 1 && maxSpecRestriction < 1) {
 				String spec2 = getUniqueLabel(ge) + ":=1";
 				if (context.prover.getShowproof() && context.prover.getShowEliminate()) {
-					specEqList.add(getUniqueLabel(ge) + Constants.PRIME + "=1");
+					specEqList.add(getUniqueLabel(ge) + PRIME + "=1");
 				}
 				specCode += spec2 + "\n";
 				if (context.prover.getShowproof()) {
@@ -511,7 +516,7 @@ public class ProverCNIMethodAsd {
 						"We now simplify both expressions. This makes them easier to compare:"));
 
 				context.prover.addProofLine(CmdShowProof.EQUATION,
-						VARIABLE_R_STRING + Constants.PRIME + Constants.PRIME + ":=" + rExprPrimed);
+						VARIABLE_R_STRING + PRIME + PRIME + ":=" + rExprPrimed);
 				context.prover.addProofLine(CmdShowProof.EQUATION, "Simplify(" + rExprPrimed + ")");
 
 				if (thesisDefinitionPrimed != null) {
@@ -675,7 +680,7 @@ public class ProverCNIMethodAsd {
 					context.prover.addProofLine(context.loc.getMenuDefault("CNISimplifyBoth",
 							"We now simplify both expressions. This makes them easier to compare:"));
 
-					context.prover.addProofLine(CmdShowProof.EQUATION, VARIABLE_R_STRING + Constants.PRIME + Constants.PRIME + ":=" + rExpr2Primed);
+					context.prover.addProofLine(CmdShowProof.EQUATION, VARIABLE_R_STRING + PRIME + PRIME + ":=" + rExpr2Primed);
 					context.prover.addProofLine(CmdShowProof.EQUATION, "Simplify(" + rExpr2Primed + ")");
 
 					if (thesisDefinitionPrimed != null) {
@@ -826,10 +831,10 @@ public class ProverCNIMethodAsd {
 				return null; // Not implemented.
 			}
 			if (rel1.startsWith("perppar") || rel2.startsWith("perppar")) {
-				c.warning = Constants.WARNING_PERPENDICULAR_OR_PARALLEL;
+				c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
 			}
 			if (rel1.startsWith("isosc") || rel2.startsWith("isosc")) {
-				c.warning = Constants.WARNING_EQUALITY_OR_COLLINEAR;
+				c.warning = WARNING_EQUALITY_OR_COLLINEAR;
 			}
 			c.realRelation = rel1 + "\n" + rel2;
 			return c;
@@ -845,10 +850,10 @@ public class ProverCNIMethodAsd {
 				return null; // Not implemented.
 			}
 			if (rel1.startsWith("perppar")) {
-				c.warning = Constants.WARNING_PERPENDICULAR_OR_PARALLEL;
+				c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
 			}
 			if (rel1.startsWith("isosc")) {
-				c.warning = Constants.WARNING_EQUALITY_OR_COLLINEAR;
+				c.warning = WARNING_EQUALITY_OR_COLLINEAR;
 			}
 			c.realRelation = rel1 + "\n" + rel2;
 			return c;
@@ -875,10 +880,10 @@ public class ProverCNIMethodAsd {
 				GeoPoint gE = ((GeoLine) p).getEndPoint();
 				c.realRelation = online((GeoPoint) ge, (GeoLine) p);
 				if (c.realRelation.startsWith("perppar")) {
-					c.warning = Constants.WARNING_PERPENDICULAR_OR_PARALLEL;
+					c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
 				}
 				if (c.realRelation.startsWith("isosc")) {
-					c.warning = Constants.WARNING_EQUALITY_OR_COLLINEAR;
+					c.warning = WARNING_EQUALITY_OR_COLLINEAR;
 				}
 				return c;
 			}
@@ -934,7 +939,7 @@ public class ProverCNIMethodAsd {
 				// Now we create the declaration:
 				String Pl = getUniqueLabel(P);
 				String Cl = getUniqueLabel(C);
-				String ctVar = Constants.VARIABLE_CYCLOTOMIC + prim;
+				String ctVar = VARIABLE_CYCLOTOMIC + prim;
 				c.declaration = gel + ":=" + Cl + "+(" + Pl + "-" + Cl + ")*" + ctVar; // complex rotation
 				c.zeroRelation = minpoly; // set the minimal polynomial as an extra relation
 				c.extraVariable = ctVar; // set the extra variable
@@ -973,7 +978,7 @@ public class ProverCNIMethodAsd {
 			for (int i = num + 1; i < outputObjects.length; i++) {
 				if (ge.equals(outputObjects[i])) {
 					int whichPoint = i - num + 1;
-					String ctVar = Constants.VARIABLE_CYCLOTOMIC + num;
+					String ctVar = VARIABLE_CYCLOTOMIC + num;
 					c.declaration = gel + ":=" + Bl + "+(" + Bl + "-" + Al + ")*(";
 					for (int j = 1; j < whichPoint; j++) {
 						if (j>1) {
@@ -1039,7 +1044,7 @@ public class ProverCNIMethodAsd {
 			GeoLine g = (GeoLine) input[0];
 			GeoLine h = (GeoLine) input[1];
 			c.realRelation = perppar(g, h);
-			c.warning = Constants.WARNING_PERPENDICULAR_OR_PARALLEL;
+			c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
 			return c;
 		}
 		if (ae instanceof AlgoAreEqual) {
@@ -1155,7 +1160,7 @@ public class ProverCNIMethodAsd {
 						GeoPoint B = (GeoPoint) ((AlgoAnglePoints) gae).getB();
 						GeoPoint C = (GeoPoint) ((AlgoAnglePoints) gae).getC();
 						c.realRelation = anglex(A, B, B, C, rot);
-						c.warning = Constants.WARNING_ANGLE;
+						c.warning = WARNING_ANGLE;
 						return c;
 					}
 					return null; // Unimplemented.
@@ -1171,7 +1176,7 @@ public class ProverCNIMethodAsd {
 			} else if (o == Operation.PERPENDICULAR) {
 				Log.debug("Warning: Testing perpendicularity AND parallelism simultaneously");
 				c.realRelation = perppar((GeoLine) ge1, (GeoLine) ge2);
-				c.warning = Constants.WARNING_PERPENDICULAR_OR_PARALLEL;
+				c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
 				return c;
 			} else if (o == Operation.IS_ELEMENT_OF) {
 				if (ge1 instanceof GeoPoint && ge2 instanceof GeoLine) {
@@ -1496,27 +1501,27 @@ public class ProverCNIMethodAsd {
 			GeoPoint D = (GeoPoint) s2.getEndPoint();
 			if (A.equals(C)) {
 				c.realRelation = isosc(A,B,D);
-				c.warning = Constants.WARNING_EQUALITY_OR_COLLINEAR;
+				c.warning = WARNING_EQUALITY_OR_COLLINEAR;
 				return c;
 			}
 			if (A.equals(D)) {
 				c.realRelation = isosc(A,B,C);
-				c.warning = Constants.WARNING_EQUALITY_OR_COLLINEAR;
+				c.warning = WARNING_EQUALITY_OR_COLLINEAR;
 				return c;
 			}
 			if (B.equals(C)) {
 				c.realRelation = isosc(B,A,D);
-				c.warning = Constants.WARNING_EQUALITY_OR_COLLINEAR;
+				c.warning = WARNING_EQUALITY_OR_COLLINEAR;
 				return c;
 			}
 			if (B.equals(D)) {
 				c.realRelation = isosc(B,A,C);
-				c.warning = Constants.WARNING_EQUALITY_OR_COLLINEAR;
+				c.warning = WARNING_EQUALITY_OR_COLLINEAR;
 				return c;
 			}
 			// General method (but we do not use it in general, to keep readability):
 			c.realRelation = equal(A,B,C,D);
-			c.warning = Constants.WARNING_EQUALITY_OR_COLLINEAR;
+			c.warning = WARNING_EQUALITY_OR_COLLINEAR;
 			return c;
 		}
 		if (ge1 instanceof GeoAngle && ge2 instanceof GeoAngle) {
@@ -1540,7 +1545,7 @@ public class ProverCNIMethodAsd {
 	}
 
 	public String cyclotomicPolynomial(int n) {
-		String ctVar = Constants.VARIABLE_CYCLOTOMIC + n;
+		String ctVar = VARIABLE_CYCLOTOMIC + n;
 		String minpolyP = "subst(expand(r2e(cyclotomic(" + n + "))),x=" + ctVar + ")";
 		return executeGiac(minpolyP);
 	}
@@ -1571,7 +1576,7 @@ public class ProverCNIMethodAsd {
 						|| !Character.isLetterOrDigit(out.charAt(idx + lab.length()));
 				sb.append(out, i, idx);
 				if (beforeOk && afterOk) {
-					sb.append(lab).append(Constants.PRIME);
+					sb.append(lab).append(PRIME);
 				} else {
 					sb.append(lab);
 				}
@@ -1610,7 +1615,7 @@ public class ProverCNIMethodAsd {
 			sb.append(s, i, idx);
 			sb.append(s, idx, end);
 			if (!alreadyPrimed && afterOk) {
-				sb.append(Constants.PRIME);
+				sb.append(PRIME);
 			}
 			i = end;
 		}
@@ -1641,7 +1646,7 @@ public class ProverCNIMethodAsd {
 			if (vars.length() > 0) {
 				vars.append(",");
 			}
-			vars.append(lab).append(Constants.PRIME);   // A',B',C',O',...
+			vars.append(lab).append(PRIME);   // A',B',C',O',...
 		}
 
 		// handle divisor (divisor = 0)
@@ -1701,7 +1706,7 @@ public class ProverCNIMethodAsd {
 
 	private static boolean containsPrimedPointLabel(TreeSet<String> labels) {
 		for (String lab : labels) {
-			if (lab != null && lab.contains(Constants.PRIME)) {
+			if (lab != null && lab.contains(PRIME)) {
 				return true;
 			}
 		}
