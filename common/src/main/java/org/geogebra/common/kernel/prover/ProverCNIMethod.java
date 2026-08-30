@@ -53,16 +53,16 @@ import com.himamis.retex.editor.share.util.Unicode;
 
 public class ProverCNIMethod {
 
-	private static Kernel kernel;
-
+	private static ProverContext context;
 
 	
 
 	public static ProofResult prove(Prover prover) {
+		context = new ProverContext();
 
-		GeoElement statement = prover.getStatement();
-		kernel = statement.getKernel();
-		Localization loc = kernel.getLocalization();
+		context.statement = prover.getStatement();
+		context.kernel = context.statement.getKernel();
+		context.loc = context.kernel.getLocalization();
 
 		String declarations = "";
 		String realRelations = "";
@@ -97,7 +97,7 @@ public class ProverCNIMethod {
 		}
 
 		// All predecessors:
-		TreeSet<GeoElement> allPredecessors = statement.getAllPredecessors();
+		TreeSet<GeoElement> allPredecessors = context.statement.getAllPredecessors();
 		// prime labels
 		TreeSet<String> primeLabels = new TreeSet<>();
 		// collect r_k definitions to print them in CAS later
@@ -120,7 +120,7 @@ public class ProverCNIMethod {
 		// inform user that variables sucha as A' will cause issues when the proof is displayed
 		if (prover.getShowproof() && containsPrimedPointLabel(primeLabels)) {
 			prover.addProofLine(CmdShowProof.PROBLEM,
-					loc.getMenuDefault("CNIPrimedLabelsWarning",
+					context.loc.getMenuDefault("CNIPrimedLabelsWarning",
 							"Warning: Labels that already contain a prime symbol can cause display problems in later proof steps."));
 		}
 
@@ -134,7 +134,7 @@ public class ProverCNIMethod {
 		String thesisDefinitionPrimed = null;
 
 		if (prover.getShowproof()) {
-			prover.addProofLine(loc.getMenuDefault("TheHypotheses", "The hypotheses:"));
+			prover.addProofLine(context.loc.getMenuDefault("TheHypotheses", "The hypotheses:"));
 		}
 		for (GeoPoint ge : allPredecessorPoints) {
 			if (ge.getParentAlgorithm() == null) {
@@ -156,7 +156,7 @@ public class ProverCNIMethod {
 				}
 
 				if (prover.getShowproof()) {
-					prover.addProofLine(loc.getPlain("ConsideringDefinitionA",
+					prover.addProofLine(context.loc.getPlain("ConsideringDefinitionA",
 							ge.getLabelSimple() + " = "
 									+ ge.getDefinition(
 									StringTemplate.defaultTemplate)));
@@ -169,7 +169,7 @@ public class ProverCNIMethod {
 
 						if (!primedNotationExplained) {
 							String exampleLabel = getUniqueLabel(ge);
-							prover.addProofLine(loc.getPlainDefault("CNIPrimedSymbols",
+							prover.addProofLine(context.loc.getPlainDefault("CNIPrimedSymbols",
 									"Denote point %0 by %1 in a symbolic manner.",
 									exampleLabel, exampleLabel + Constants.PRIME));
 							primedNotationExplained = true;
@@ -201,7 +201,7 @@ public class ProverCNIMethod {
 									+ Unicode.IS_ELEMENT_OF + "\u211D");
 
 							if (!algebraicRelationExplained) {
-								prover.addProofLine(loc.getPlainDefault("CNIAlgebraicRelations",
+								prover.addProofLine(context.loc.getPlainDefault("CNIAlgebraicRelations",
 										"We now turn geometric relations into algebraic expressions. The symbols %0, %1, ... stand for these expressions:",
 										VARIABLE_R_STRING + "1'",
 										VARIABLE_R_STRING + "2'"));
@@ -221,11 +221,11 @@ public class ProverCNIMethod {
 						}
 					}
 					if (def.warning == Constants.WARNING_PERPENDICULAR_OR_PARALLEL) {
-						prover.addProofLine(CmdShowProof.PROBLEM, loc.getMenuDefault("PerpendicularityParallelism",
+						prover.addProofLine(CmdShowProof.PROBLEM, context.loc.getMenuDefault("PerpendicularityParallelism",
 								"Perpendicularity means perpendicularity or parallelism simultaneously."));
 					}
 					if (def.warning == Constants.WARNING_EQUALITY_OR_COLLINEAR) {
-						prover.addProofLine(CmdShowProof.PROBLEM, loc.getMenuDefault("EqualityCollinearity",
+						prover.addProofLine(CmdShowProof.PROBLEM, context.loc.getMenuDefault("EqualityCollinearity",
 								"Equality of lengths means equality or collinearity simultaneously."));
 					}
 					realRelationalPoints.add(ge);
@@ -242,18 +242,18 @@ public class ProverCNIMethod {
 		// Adding the thesis. This is very similar to the code above:
 		ProverCNIMethodAsd.CNIDefinition def = null;
 		try {
-			def = getCNIThesisDefinition(statement);
+			def = getCNIThesisDefinition(context.statement);
 		} catch (Exception e) {
-			Log.debug("The CNI method does not yet fully implement " + statement.getParentAlgorithm().toString());
+			Log.debug("The CNI method does not yet fully implement " + context.statement.getParentAlgorithm().toString());
 			return ProofResult.UNKNOWN;
 		}
 		if (def == null) {
-			Log.debug("The CNI method does not yet implement " + statement.getParentAlgorithm().toString());
+			Log.debug("The CNI method does not yet implement " + context.statement.getParentAlgorithm().toString());
 			return ProofResult.UNKNOWN;
 		}
 		if (prover.getShowproof()) {
-			prover.addProofLine(loc.getMenuDefault("TheThesis", "The thesis:"));
-			prover.addProofLine(statement.getParentAlgorithm().getDefinition(StringTemplate.defaultTemplate));
+			prover.addProofLine(context.loc.getMenuDefault("TheThesis", "The thesis:"));
+			prover.addProofLine(context.statement.getParentAlgorithm().getDefinition(StringTemplate.defaultTemplate));
 		}
 		if (def.declaration != null) {
 			declarations += def.declaration;
@@ -316,24 +316,24 @@ public class ProverCNIMethod {
 
 				thesisDefinitionPrimed = lhs2;
 				
-				prover.addProofLine(loc.getPlainDefault(
+				prover.addProofLine(context.loc.getPlainDefault(
 						"CNIThesisAlgebraicForm",
 						"We now turn the thesis into an algebraic expression. The symbol %0 stands for this expression:",
 						VARIABLE_R_STRING + Constants.PRIME));
 				prover.addProofLine(CmdShowProof.EQUATION, VARIABLE_R_STRING + Constants.PRIME + ":=" + lhs2);
 
 				if (def.warning == Constants.WARNING_PERPENDICULAR_OR_PARALLEL) {
-					prover.addProofLine(CmdShowProof.PROBLEM, loc.getMenuDefault("PerpendicularityParallelism",
+					prover.addProofLine(CmdShowProof.PROBLEM, context.loc.getMenuDefault("PerpendicularityParallelism",
 							"Perpendicularity means perpendicularity or parallelism simultaneously"));
 				}
 				if (def.warning == Constants.WARNING_EQUALITY_OR_COLLINEAR) {
 					prover.addProofLine(CmdShowProof.PROBLEM,
-							loc.getMenuDefault("EqualityCollinearity",
+							context.loc.getMenuDefault("EqualityCollinearity",
 									"Equality of lengths means equality or collinearity simultaneously."));
 				}
 				if (def.warning == Constants.WARNING_ANGLE) {
 					prover.addProofLine(CmdShowProof.PROBLEM,
-							loc.getMenuDefault("AngleAmbiguity",
+							context.loc.getMenuDefault("AngleAmbiguity",
 									"Angle equality means equality or equality to another specific angle simultaneously."));
 				}
 				if (def.specRestriction > 0 && def.specRestriction > maxSpecRestriction) {
@@ -342,7 +342,7 @@ public class ProverCNIMethod {
 			}
 		}
 		if (def.declaration == null && def.realRelation == null) {
-			Log.debug("The CNI method does not yet fully implement " + statement.getParentAlgorithm().toString());
+			Log.debug("The CNI method does not yet fully implement " + context.statement.getParentAlgorithm().toString());
 			return ProofResult.UNKNOWN;
 		}
 		if (def.rMustBe0) {
@@ -351,7 +351,7 @@ public class ProverCNIMethod {
 
 		// Specialization.
 		if (prover.getShowproof()) {
-			prover.addProofLine(CmdShowProof.SPECIALIZATION, loc.getMenuDefault("WlogCoordinates",
+			prover.addProofLine(CmdShowProof.SPECIALIZATION, context.loc.getMenuDefault("WlogCoordinates",
 					"Without loss of generality, some coordinates can be fixed:"));
 		}
 		// Put the first two points into 0 and 1:
@@ -438,12 +438,12 @@ public class ProverCNIMethod {
 		// or there may be multiple polynomials in the form {{...,...,...}}
 
 		if (prover.getShowproof()) {
-			prover.addProofLine(loc.getMenuDefault("EliminateAllFreeVariables",
+			prover.addProofLine(context.loc.getMenuDefault("EliminateAllFreeVariables",
 					"We eliminate all variables that correspond to free points."));
 
 			if (prover.getShowEliminate()) {
 
-				prover.addProofLine(loc.getMenuDefault("CNIEliminateCommandInfo",
+				prover.addProofLine(context.loc.getMenuDefault("CNIEliminateCommandInfo",
 						"The next command does this elimination. It removes the free-point coordinates and keeps only the relation between the hypotheses and the thesis:"));
 
 				String ggbEliminateCommand = buildGeoGebraEliminateCommand(
@@ -466,7 +466,7 @@ public class ProverCNIMethod {
 			// The statement is quite probably false, but we cannot explicitly state this.
 			if (prover.getShowproof()) {
 				prover.addProofLine(CmdShowProof.PROBLEM,
-						loc.getMenuDefault("NoCorrespondenceBetweenHypothesesThesis",
+						context.loc.getMenuDefault("NoCorrespondenceBetweenHypothesesThesis",
 								"There is no correspondence between the hypotheses and the thesis."));
 			}
 			Log.debug("The elimination ideal is <0>, no conclusion.");
@@ -492,7 +492,7 @@ public class ProverCNIMethod {
 			// r cannot be expressed, the statement is probably false...
 			if (prover.getShowproof()) {
 				prover.addProofLine(CmdShowProof.PROBLEM,
-						loc.getMenuDefault("ThesisCannotBeExpressed",
+						context.loc.getMenuDefault("ThesisCannotBeExpressed",
 								"The thesis cannot be expressed with the hypotheses."));
 			}
 			Log.debug("The elimination ideal does not contain r_.");
@@ -502,7 +502,7 @@ public class ProverCNIMethod {
 		if (minDegreeI == 1) {
 			// r can be expressed by using r1, r2, ..., here r is linear.
 			if (prover.getShowproof()) {
-				prover.addProofLine(loc.getPlainDefault("ThesisACanBeExpressedAsRationalBecauseALinear",
+				prover.addProofLine(context.loc.getPlainDefault("ThesisACanBeExpressedAsRationalBecauseALinear",
 						"The thesis (%0) can be expressed as a rational expression of the hypotheses, because %0 is"
 								+ " linear in the following polynomial equation:", VARIABLE_R_STRING));
 				prover.addProofLine(minDegreeA[1] + "=0");
@@ -524,7 +524,7 @@ public class ProverCNIMethod {
 					simplifiedThesis = executeGiac("simplify(" + thesisDefinitionPrimed + ")");
 				}
 
-				prover.addProofLine(loc.getMenuDefault("CNISimplifyBoth",
+				prover.addProofLine(context.loc.getMenuDefault("CNISimplifyBoth",
 						"We now simplify both expressions. This makes them easier to compare:"));
 
 				prover.addProofLine(CmdShowProof.EQUATION,
@@ -539,14 +539,14 @@ public class ProverCNIMethod {
 				// if it simplifies to a number => inform user that this is not a mistake
 				if (isNumericConstant(simplifiedRExpr)) {
 					if (simplifiedThesis != null && simplifiedRExpr.equals(simplifiedThesis)) {
-						prover.addProofLine(loc.getMenuDefault("CNISimplifiedSameNumber",
+						prover.addProofLine(context.loc.getMenuDefault("CNISimplifiedSameNumber",
 								"Both simplified expressions are the same number. So the result matches the thesis."));
 					} else {
-						prover.addProofLine(loc.getMenuDefault("CNISimplifiedToNumber",
+						prover.addProofLine(context.loc.getMenuDefault("CNISimplifiedToNumber",
 								"The expression simplifies to a fixed number. This means the hypotheses already determine its value."));
 					}
 				} else if (thesisDefinitionPrimed != null) {
-					prover.addProofLine(loc.getMenuDefault("CNISimplifiedEqualThesis",
+					prover.addProofLine(context.loc.getMenuDefault("CNISimplifiedEqualThesis",
 							"If the simplified expressions are the same, then the result matches the thesis."));
 				}
 
@@ -562,7 +562,7 @@ public class ProverCNIMethod {
 							minDegreeA[1].equals("-" + VARIABLE_R_STRING)) {
 						if (prover.getShowproof()) {
 							prover.addProofLine(CmdShowProof.CONCLUSION,
-									loc.getMenuDefault("ThesisZeroStatementTrue",
+									context.loc.getMenuDefault("ThesisZeroStatementTrue",
 											"Since the thesis is zero, the statement is true."));
 						}
 						Log.debug("r_ is zero.");
@@ -570,17 +570,17 @@ public class ProverCNIMethod {
 					}
 					if (prover.getShowproof()) {
 						prover.addProofLine(CmdShowProof.PROBLEM,
-								loc.getMenuDefault("ThesisShouldBeZero",
+								context.loc.getMenuDefault("ThesisShouldBeZero",
 										"Since the thesis is not zero, the statement cannot be proven."));
 					}
 					Log.debug("r_ should be zero.");
 					return ProofResult.UNKNOWN; // maybe here we can result FALSE?
 				}
 				if (prover.getShowproof()) {
-					prover.addProofLine(loc.getMenuDefault("ThesisCanBeExpressedPolynomial",
+					prover.addProofLine(context.loc.getMenuDefault("ThesisCanBeExpressedPolynomial",
 							"The thesis can be expressed as a polynomial expression of the hypotheses."));
 					prover.addProofLine(CmdShowProof.CONCLUSION,
-							loc.getMenuDefault("HypothesesRealThesisReal",
+							context.loc.getMenuDefault("HypothesesRealThesisReal",
 									"Since all hypotheses are real expressions, the thesis must also be real."));
 				}
 				return ProofResult.TRUE;
@@ -590,10 +590,10 @@ public class ProverCNIMethod {
 			String divisor = executeGiac(program);
 			if (prover.getShowproof()) {
 				prover.addProofLine(
-						loc.getPlainDefault("SolvingForARequiresDivByB",
+						context.loc.getPlainDefault("SolvingForARequiresDivByB",
 								"Solving for %0 requires a division by %1.",
 								new String[]{VARIABLE_R_STRING, divisor}));
-				prover.addProofLine(loc.getMenuDefault("AssumeDivisorZero",
+				prover.addProofLine(context.loc.getMenuDefault("AssumeDivisorZero",
 						"Let us assume that this divisor is 0 and restart the elimination."));
 			}
 			// Insert the divisor in the first program and check what happens:
@@ -601,7 +601,7 @@ public class ProverCNIMethod {
 			String elimIdeal2 = executeGiac(program);
 
 			if(prover.getShowproof() && prover.getShowEliminate()) {
-				prover.addProofLine(loc.getMenuDefault("CNIEliminateCommandInfoDivisor",
+				prover.addProofLine(context.loc.getMenuDefault("CNIEliminateCommandInfoDivisor",
 						"The next command repeats the elimination with the extra assumption divisor = 0. It checks whether this case is possible:"));
 
 				String ggbEliminateCommand = buildGeoGebraEliminateCommand(
@@ -621,14 +621,14 @@ public class ProverCNIMethod {
 				// The case divisor == 0 is contradictory. This means that division by zero
 				// is not a relevant issue, so we can be sure that the statement is true.
 				if (prover.getShowproof()) {
-					prover.addProofLine(loc.getMenuDefault("DivisorCannotBeZero",
+					prover.addProofLine(context.loc.getMenuDefault("DivisorCannotBeZero",
 							"The elimination verifies that this divisor cannot be zero."));
 				}
 				Log.debug("Division by zero is irrelevant.");
 				if (rMustBeZero) {
 					if (prover.getShowproof()) {
 						prover.addProofLine(CmdShowProof.PROBLEM,
-								loc.getMenuDefault("ThesisShouldBeZero",
+								context.loc.getMenuDefault("ThesisShouldBeZero",
 										"Since the thesis is not zero, the statement cannot be proven."));
 					}
 					Log.debug("r_ should be zero.");
@@ -636,7 +636,7 @@ public class ProverCNIMethod {
 				}
 				if (prover.getShowproof()) {
 					prover.addProofLine(CmdShowProof.CONCLUSION,
-							loc.getMenuDefault("HypothesesRealThesisReal",
+							context.loc.getMenuDefault("HypothesesRealThesisReal",
 									"Since all hypotheses are real expressions, the thesis must also be real."));
 				}
 				return ProofResult.TRUE;
@@ -661,7 +661,7 @@ public class ProverCNIMethod {
 				// r cannot be expressed, the statement is probably false...
 				if (prover.getShowproof()) {
 					prover.addProofLine(CmdShowProof.PROBLEM,
-							loc.getMenuDefault("AssumingZeroThesisCannotBeExpressed",
+							context.loc.getMenuDefault("AssumingZeroThesisCannotBeExpressed",
 									"Assuming that this is zero, the thesis cannot be expressed with the hypotheses."));
 				}
 				Log.debug("The second elimination ideal does not contain r_.");
@@ -671,7 +671,7 @@ public class ProverCNIMethod {
 			if (minDegree2I == 1) {
 				// The secondly computed ideal is linear.
 				if (prover.getShowproof()) {
-					prover.addProofLine(loc.getPlainDefault("ThesisACanBeExpressedNowAsRationalBecauseALinear",
+					prover.addProofLine(context.loc.getPlainDefault("ThesisACanBeExpressedNowAsRationalBecauseALinear",
 							"The thesis (%0) can now be expressed as a rational expression of the hypotheses, because %0 is"
 									+ " linear in the following polynomial equation:", VARIABLE_R_STRING));
 					prover.addProofLine(minDegree2A[1] + "=0");
@@ -689,7 +689,7 @@ public class ProverCNIMethod {
 						simplifiedThesis2 = executeGiac("simplify(" + thesisDefinitionPrimed + ")");
 					}
 
-					prover.addProofLine(loc.getMenuDefault("CNISimplifyBoth",
+					prover.addProofLine(context.loc.getMenuDefault("CNISimplifyBoth",
 							"We now simplify both expressions. This makes them easier to compare:"));
 
 					prover.addProofLine(CmdShowProof.EQUATION, VARIABLE_R_STRING + Constants.PRIME + Constants.PRIME + ":=" + rExpr2Primed);
@@ -701,14 +701,14 @@ public class ProverCNIMethod {
 
 					if (isNumericConstant(simplifiedRExpr2)) {
 						if (simplifiedThesis2 != null && simplifiedRExpr2.equals(simplifiedThesis2)) {
-							prover.addProofLine(loc.getMenuDefault("CNISimplifiedSameNumber",
+							prover.addProofLine(context.loc.getMenuDefault("CNISimplifiedSameNumber",
 									"Both simplified expressions are the same number. So the result matches the thesis."));
 						} else {
-							prover.addProofLine(loc.getMenuDefault("CNISimplifiedToNumber",
+							prover.addProofLine(context.loc.getMenuDefault("CNISimplifiedToNumber",
 									"The expression simplifies to a fixed number. This means the hypotheses already determine its value."));
 						}
 					} else if (thesisDefinitionPrimed != null) {
-						prover.addProofLine(loc.getMenuDefault("CNISimplifiedEqualThesis",
+						prover.addProofLine(context.loc.getMenuDefault("CNISimplifiedEqualThesis",
 								"If the simplified expressions are the same, then the result matches the thesis."));
 					}
 
@@ -723,7 +723,7 @@ public class ProverCNIMethod {
 						if (minDegree2A[1].equals(VARIABLE_R_STRING) || minDegree2A[1].equals("-" + VARIABLE_R_STRING)) {
 							if (prover.getShowproof()) {
 								prover.addProofLine(CmdShowProof.CONCLUSION,
-										loc.getMenuDefault("ThesisZeroStatementTrue",
+										context.loc.getMenuDefault("ThesisZeroStatementTrue",
 												"Since the thesis is zero, the statement is true."));
 							}
 							Log.debug("r_ is zero.");
@@ -731,17 +731,17 @@ public class ProverCNIMethod {
 						}
 						if (prover.getShowproof()) {
 							prover.addProofLine(CmdShowProof.PROBLEM,
-									loc.getMenuDefault("ThesisShouldBeZeroNow",
+									context.loc.getMenuDefault("ThesisShouldBeZeroNow",
 											"Since the thesis is not zero now, the statement cannot be proven."));
 						}
 						Log.debug("r_ should be zero.");
 						return ProofResult.UNKNOWN; // maybe here we can result FALSE?
 						}
 					if (prover.getShowproof()) {
-						prover.addProofLine(loc.getMenuDefault("NowThesisCanBeExpressedPolynomial",
+						prover.addProofLine(context.loc.getMenuDefault("NowThesisCanBeExpressedPolynomial",
 								"Now the thesis can be expressed as a polynomial expression of the hypotheses."));
 						prover.addProofLine(CmdShowProof.CONCLUSION,
-								loc.getMenuDefault("HypothesesRealThesisReal",
+								context.loc.getMenuDefault("HypothesesRealThesisReal",
 										"Since all hypotheses are real expressions, the thesis must also be real."));
 					}
 					return ProofResult.TRUE;
@@ -749,7 +749,7 @@ public class ProverCNIMethod {
 				// Cannot decide, maybe we need another round? TODO
 				if (prover.getShowproof()) {
 					prover.addProofLine(CmdShowProof.PROBLEM,
-							loc.getMenuDefault("ThesisStillContainsDivision",
+							context.loc.getMenuDefault("ThesisStillContainsDivision",
 									"The thesis still contains a division, no conclusion can be found."));
 				}
 				Log.debug("Another division occurred, a third elimination is needed.");
@@ -758,7 +758,7 @@ public class ProverCNIMethod {
 			// The division does not result in an unambiguous case.
 			if (prover.getShowproof()) {
 				prover.addProofLine(CmdShowProof.PROBLEM,
-						loc.getMenuDefault("ThesisCannotBeExpressedDivision",
+						context.loc.getMenuDefault("ThesisCannotBeExpressedDivision",
 								"The thesis cannot be expressed as a division.")); // +now?
 			}
 			Log.debug("The division does not result in an unambiguous case.");
@@ -767,7 +767,7 @@ public class ProverCNIMethod {
 		// The case is not linear.
 		if (prover.getShowproof()) {
 			prover.addProofLine(CmdShowProof.PROBLEM,
-					loc.getMenuDefault("ThesisCannotBeExpressedDivision",
+					context.loc.getMenuDefault("ThesisCannotBeExpressedDivision",
 							"The thesis cannot be expressed as a division."));
 		}
 		Log.debug("r_ is not linear, further check is needed.");
@@ -942,7 +942,7 @@ public class ProverCNIMethod {
 				}
 				// Compute the gcd of the angle and 360 degrees. For 90 degrees, this is 90,
 				// for 120, this is 120, for 135, this is 45, for example.
-				long gcd = kernel.gcd(angleValDeg, 360);
+				long gcd = context.kernel.gcd(angleValDeg, 360);
 				// Which primitive root of unit will be used to describe the rotation?
 				long prim = Math.abs(360 / gcd); // This is 4 for 90 degrees, 3 for 120 degrees,
 				// 8 for 135 (~45) degrees.
@@ -1161,7 +1161,7 @@ public class ProverCNIMethod {
 					int angleValDeg = (int) angleDoubleVal;
 					// Compute the gcd of the angle and 180 degrees. For 90 degrees, this is 90,
 					// for 120, this is 60, for 135, this is 45, for example.
-					long gcd = kernel.gcd(angleValDeg, 180);
+					long gcd = context.kernel.gcd(angleValDeg, 180);
 					// Which power is required to get a real number?
 					long rot = Math.abs(180 / gcd); // This is 2 for 90 degrees, 3 for 120 degrees,
 					// 4 for 135 (~45) degrees.
@@ -1225,7 +1225,7 @@ public class ProverCNIMethod {
 	}
 
 	private static String executeGiac(String command) {
-		GeoGebraCAS cas = (GeoGebraCAS) kernel.getGeoGebraCAS();
+		GeoGebraCAS cas = (GeoGebraCAS) context.kernel.getGeoGebraCAS();
 		String APOSTROPHE = "AP__";
 		command = command.replace("'", APOSTROPHE);
 		try {
