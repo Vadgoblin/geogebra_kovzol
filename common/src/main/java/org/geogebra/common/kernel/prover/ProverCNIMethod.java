@@ -3,7 +3,7 @@ package org.geogebra.common.kernel.prover;
 import static org.geogebra.common.cas.giac.CASgiac.ggbGiac;
 
 import java.util.ArrayList;
-import java.util.TreeSet;
+import java.util.List;import java.util.TreeSet;
 
 import org.geogebra.common.cas.GeoGebraCAS;
 import org.geogebra.common.kernel.Construction;
@@ -63,7 +63,7 @@ public class ProverCNIMethod implements ProverMethod {
 	}
 	
 	private final ProverContext context;
-	String declarations = "";
+	List<String> declarations = new ArrayList<String>();
 	String realRelations = "";
 	int realRelationsNo = 0;
 	boolean declarative = true;
@@ -127,7 +127,7 @@ public class ProverCNIMethod implements ProverMethod {
 				}
 
 				if (def.declaration != null) {
-					declarations += def.declaration + "\n";
+					declarations .add(def.declaration);
 
 					if (context.prover.getShowproof()) {
 						context.prover.addProofLine(CmdShowProof.TEXT_EQUATION, def.declaration);
@@ -209,7 +209,7 @@ public class ProverCNIMethod implements ProverMethod {
 			context.prover.addProofLine(context.statement.getParentAlgorithm().getDefinition(StringTemplate.defaultTemplate));
 		}
 		if (def.declaration != null) {
-			declarations += def.declaration;
+			declarations.add(def.declaration);
 			if (context.prover.getShowproof()) {
 				context.prover.addProofLine(CmdShowProof.TEXT_EQUATION, def.declaration);
 				context.prover.addProofLine(CmdShowProof.EQUATION, addPrimesToLabels(def.declaration, context.primeLabels));
@@ -310,7 +310,7 @@ public class ProverCNIMethod implements ProverMethod {
 		// Put the first two points into 0 and 1:
 		int i = 0;
 		TreeSet<GeoElement> specialized = new TreeSet<>();
-		String specCode = "";
+		List<String> specCode = new ArrayList<>();
 		ArrayList<String> specEqList = new ArrayList<>();
 		for (GeoElement ge : freePoints) {
 			if (i == 0 && maxSpecRestriction < 2) {
@@ -318,7 +318,7 @@ public class ProverCNIMethod implements ProverMethod {
 				if (context.prover.getShowproof() && context.prover.getShowEliminate()) {
 					specEqList.add(getUniqueLabel(ge) + PRIME + "=0");
 				}
-				specCode += spec1 + "\n";
+				specCode.add(spec1);
 				if (context.prover.getShowproof()) {
 					context.prover.addProofLine(CmdShowProof.TEXT_EQUATION, spec1);
 				}
@@ -329,7 +329,7 @@ public class ProverCNIMethod implements ProverMethod {
 				if (context.prover.getShowproof() && context.prover.getShowEliminate()) {
 					specEqList.add(getUniqueLabel(ge) + PRIME + "=1");
 				}
-				specCode += spec2 + "\n";
+				specCode.add(spec2);
 				if (context.prover.getShowproof()) {
 					context.prover.addProofLine(CmdShowProof.TEXT_EQUATION, spec2);
 				}
@@ -337,7 +337,7 @@ public class ProverCNIMethod implements ProverMethod {
 			}
 			i++;
 		}
-		declarations = specCode + declarations; // Prepend specializations before declarations.
+		declarations.addAll(0, specCode) ;// Prepend specializations before declarations.
 		freePoints.removeAll(specialized);
 		// These will be no longer free points.
 
@@ -345,8 +345,7 @@ public class ProverCNIMethod implements ProverMethod {
 		String program = "";
 		program = "[";
 		program += context.predefs;
-		String[] declarationsA = declarations.split("\n");
-		for (String declaration : declarationsA) {
+		for (String declaration : declarations) {
 			program += "[" + declaration + "],";
 		}
 		program += "[" + VARIABLE_I_STRING + ":=eliminate([" + realRelations;
@@ -383,7 +382,7 @@ public class ProverCNIMethod implements ProverMethod {
 		rest += remVars;
 
 		rest += ")]";
-		int codeLengthLines = context.predefinitions.length + declarationsA.length + 1;
+		int codeLengthLines = context.predefinitions.length + declarations.size() + 1;
 		rest += "][" + (codeLengthLines - 1) + "]";
 		program += rest;
 		String elimIdeal = executeGiac(program);
