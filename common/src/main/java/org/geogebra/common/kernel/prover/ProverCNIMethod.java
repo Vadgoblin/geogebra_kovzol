@@ -63,9 +63,10 @@ public class ProverCNIMethod implements ProverMethod {
 	}
 	
 	private final ProverContext context;
-	List<String> declarations = new ArrayList<String>();
-	String realRelations = "";
+	List<String> declarations = new ArrayList<>();
+	List<String> realRelations = new ArrayList<>();
 	int realRelationsNo = 0;
+
 	boolean declarative = true;
 	boolean rMustBeZero = false;
 	int maxSpecRestriction = 0;
@@ -138,7 +139,7 @@ public class ProverCNIMethod implements ProverMethod {
 					}
 				}
 				if (def.zeroRelation != null) {
-					realRelations += def.zeroRelation + ",";
+					realRelations.add(def.zeroRelation);
 
 					if (context.prover.getShowproof()) {
 						context.prover.addProofLine(CmdShowProof.TEXT_EQUATION, def.zeroRelation + "=0");
@@ -152,7 +153,7 @@ public class ProverCNIMethod implements ProverMethod {
 					for (String CASrealRelation : CASrealRelations) {
 						realRelationsNo++;
 						String expression = CASrealRelation + "=" + VARIABLE_R_STRING + realRelationsNo;
-						realRelations += expression + ",";
+						realRelations.add(expression);
 						if (context.prover.getShowproof()) {
 							String rewriteProgram = "[" + context.predefs + expression + "][" + context.predefinitions.length + "]";
 							String expression2 = executeGiac(rewriteProgram);
@@ -232,7 +233,7 @@ public class ProverCNIMethod implements ProverMethod {
 				String CASrealRelation = CASrealRelations[i];
 				realRelationsNo++;
 				String expression = CASrealRelation + "=" + VARIABLE_R_STRING + realRelationsNo;
-				realRelations += expression + ",";
+				realRelations.add(expression);
 				if (context.prover.getShowproof()) {
 					String rewriteProgram = "[" + context.predefs + expression + "][" + context.predefinitions.length + "]";
 					String expression2 = executeGiac(rewriteProgram);
@@ -253,7 +254,7 @@ public class ProverCNIMethod implements ProverMethod {
 				}
 			}
 			String thesis = CASrealRelations[nrRels - 1] + "=" + VARIABLE_R_STRING;
-			realRelations += thesis;
+			realRelations.add(thesis);
 			if (context.prover.getShowproof()) {
 				String rewriteProgram = "[" + context.predefs + thesis + "][" + context.predefinitions.length + "]";
 				String thesis2 = executeGiac(rewriteProgram);
@@ -348,7 +349,7 @@ public class ProverCNIMethod implements ProverMethod {
 		for (String declaration : declarations) {
 			program += "[" + declaration + "],";
 		}
-		program += "[" + VARIABLE_I_STRING + ":=eliminate([" + realRelations;
+		program += "[" + VARIABLE_I_STRING + ":=eliminate([" + String.join(",", realRelations);
 		String program1 = program; // first program stored, later it may be required with an edit
 		String rest = "";
 		rest += "],";
