@@ -60,7 +60,7 @@ public class ProverCNIMethodAsd {
 		int specRestriction = 0; // number of disallowed fixed points
 	}
 
-	private static final String PRIME = "\u0027";
+	public static final String PRIME = "\u0027"; // TODO: fix public access
 	private static final int WARNING_PERPENDICULAR_OR_PARALLEL = 1;
 	private static final int WARNING_EQUALITY_OR_COLLINEAR = 2;
 	private static final int WARNING_ANGLE = 3;
@@ -83,32 +83,12 @@ public class ProverCNIMethodAsd {
 	public ProofResult prove(ProverContext context){
 		this.context=context;
 
-		// All predecessors:
-		TreeSet<GeoElement> allPredecessors = context.statement.getAllPredecessors();
-		// prime labels
-		TreeSet<String> primeLabels = new TreeSet<>();
 		// collect r_k definitions to print them in CAS later
 		ArrayList<String> toEliminateLhsPrimed = null;
 		ArrayList<String> toEliminateRhsVars = null;
 		if (context.prover.getShowproof() && context.prover.getShowEliminate()) {
 			toEliminateLhsPrimed = new ArrayList<>();  // e.g., ((A'-C')/(A'-O'))/...
 			toEliminateRhsVars = new ArrayList<>();  // e.g., r__1, r__2, r__
-		}
-
-		// Keep only points:
-		TreeSet<GeoPoint> allPredecessorPoints = new TreeSet<>();
-		for (GeoElement p : allPredecessors) {
-			if (p instanceof GeoPoint) {
-				allPredecessorPoints.add((GeoPoint) p);
-				primeLabels.add(getUniqueLabel(p));
-			}
-		}
-
-		// inform user that variables sucha as A' will cause issues when the proof is displayed
-		if (context.prover.getShowproof() && containsPrimedPointLabel(primeLabels)) {
-			context.prover.addProofLine(CmdShowProof.PROBLEM,
-					context.loc.getMenuDefault("CNIPrimedLabelsWarning",
-							"Warning: Labels that already contain a prime symbol can cause display problems in later proof steps."));
 		}
 
 		// Free points. We need them to eliminate the variables according to them.
@@ -123,7 +103,7 @@ public class ProverCNIMethodAsd {
 		if (context.prover.getShowproof()) {
 			context.prover.addProofLine(context.loc.getMenuDefault("TheHypotheses", "The hypotheses:"));
 		}
-		for (GeoPoint ge : allPredecessorPoints) {
+		for (GeoPoint ge : context.allPredecessorPoints) {
 			if (ge.getParentAlgorithm() == null) {
 				freePoints.add(ge);
 			} else {
@@ -162,7 +142,7 @@ public class ProverCNIMethodAsd {
 							primedNotationExplained = true;
 						}
 
-						context.prover.addProofLine(CmdShowProof.EQUATION, addPrimesToLabels(def.declaration, primeLabels));
+						context.prover.addProofLine(CmdShowProof.EQUATION, addPrimesToLabels(def.declaration, context.primeLabels));
 					}
 				}
 				if (def.zeroRelation != null) {
@@ -197,7 +177,7 @@ public class ProverCNIMethodAsd {
 
 							String rk = VARIABLE_R_STRING + realRelationsNo; // e.g., r__1
 							String lhsProgram = executeGiac("lhs(" + expression2 + ")");
-							String lhs2 = addPrimesToLabels(lhsProgram, primeLabels);
+							String lhs2 = addPrimesToLabels(lhsProgram, context.primeLabels);
 
 							if (toEliminateLhsPrimed != null) {
 								toEliminateLhsPrimed.add(lhs2);
@@ -246,7 +226,7 @@ public class ProverCNIMethodAsd {
 			declarations += def.declaration;
 			if (context.prover.getShowproof()) {
 				context.prover.addProofLine(CmdShowProof.TEXT_EQUATION, def.declaration);
-				context.prover.addProofLine(CmdShowProof.EQUATION, addPrimesToLabels(def.declaration, primeLabels));
+				context.prover.addProofLine(CmdShowProof.EQUATION, addPrimesToLabels(def.declaration, context.primeLabels));
 			}
 		}
 
@@ -276,7 +256,7 @@ public class ProverCNIMethodAsd {
 
 					String rk = VARIABLE_R_STRING + realRelationsNo; // e.g., r__1
 					String lhsProgram = executeGiac("lhs(" + expression2 + ")");
-					String lhs2 = addPrimesToLabels(lhsProgram, primeLabels);
+					String lhs2 = addPrimesToLabels(lhsProgram, context.primeLabels);
 
 					if (toEliminateLhsPrimed != null) {
 						toEliminateLhsPrimed.add(lhs2);
@@ -294,7 +274,7 @@ public class ProverCNIMethodAsd {
 				context.prover.addProofLine(CmdShowProof.TEXT_EQUATION, lhs(thesis) + "=" + thesis2);
 
 				String lhsProgram = executeGiac("lhs(" + thesis2 + ")");
-				String lhs2 = addPrimesToLabels(lhsProgram, primeLabels);
+				String lhs2 = addPrimesToLabels(lhsProgram, context.primeLabels);
 
 				if (toEliminateLhsPrimed != null) {
 					toEliminateLhsPrimed.add(lhs2);
@@ -436,7 +416,7 @@ public class ProverCNIMethodAsd {
 				String ggbEliminateCommand = buildGeoGebraEliminateCommand(
 						toEliminateLhsPrimed,
 						toEliminateRhsVars,
-						primeLabels,
+						context.primeLabels,
 						extraVariables,
 						null,
 						specEqList
@@ -594,7 +574,7 @@ public class ProverCNIMethodAsd {
 				String ggbEliminateCommand = buildGeoGebraEliminateCommand(
 						toEliminateLhsPrimed,
 						toEliminateRhsVars,
-						primeLabels,
+						context.primeLabels,
 						extraVariables,
 						divisor,
 						specEqList
@@ -1703,12 +1683,5 @@ public class ProverCNIMethodAsd {
 		return true;
 	}
 
-	private static boolean containsPrimedPointLabel(TreeSet<String> labels) {
-		for (String lab : labels) {
-			if (lab != null && lab.contains(PRIME)) {
-				return true;
-			}
-		}
-		return false;
-	}
+
 }

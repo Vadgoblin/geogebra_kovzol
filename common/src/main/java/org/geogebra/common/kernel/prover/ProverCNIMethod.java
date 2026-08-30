@@ -48,7 +48,7 @@ import org.geogebra.common.util.Prover.ProofResult;
 import org.geogebra.common.util.debug.Log;
 import org.geogebra.common.kernel.prover.ProverCNIMethodAsd;
 
-import static org.geogebra.common.cas.giac.CASgiac.ggbGiac;
+import static org.geogebra.common.cas.giac.CASgiac.ggbGiac;import static org.geogebra.common.kernel.prover.ProverCNIMethodAsd.PRIME;
 
 import com.himamis.retex.editor.share.util.Unicode;
 
@@ -84,9 +84,53 @@ public class ProverCNIMethod {
 		context.predefinitions  = predefinitions;
 		context.predefs = predefs;
 
+
+		// All predecessors:
+		TreeSet<GeoElement> allPredecessors = context.statement.getAllPredecessors();
+		// prime labels
+		TreeSet<String> primeLabels = new TreeSet<>();
+
+
+		// Keep only points:
+		TreeSet<GeoPoint> allPredecessorPoints = new TreeSet<>();
+		for (GeoElement p : allPredecessors) {
+			if (p instanceof GeoPoint) {
+				allPredecessorPoints.add((GeoPoint) p);
+				primeLabels.add(getUniqueLabel(p));
+			}
+		}
+
+		context.allPredecessorPoints = allPredecessorPoints;
+		context.primeLabels = primeLabels;
+
+		// inform user that variables sucha as A' will cause issues when the proof is displayed
+		if (context.prover.getShowproof() && containsPrimedPointLabel(primeLabels)) {
+			context.prover.addProofLine(CmdShowProof.PROBLEM,
+					context.loc.getMenuDefault("CNIPrimedLabelsWarning",
+							"Warning: Labels that already contain a prime symbol can cause display problems in later proof steps."));
+		}
+
+
+
 		return new ProverCNIMethodAsd().prove(context);
 	}
 
+	/**
+	 * Return a label that is unique and can be inserted in a Giac code.
+	 * @param ge the input GeoElement
+	 * @return the label as String
+	 */
+	static String getUniqueLabel(GeoElement ge) {
+		return ge.getLabelSimple().replace("_{","").replace("}", "");
+	}
 
+	private static boolean containsPrimedPointLabel(TreeSet<String> labels) {
+		for (String lab : labels) {
+			if (lab != null && lab.contains(PRIME)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 }
