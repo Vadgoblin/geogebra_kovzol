@@ -9,14 +9,14 @@ import org.geogebra.common.main.Localization;
 import org.geogebra.common.util.Prover;
 
 public class ProverContext {
-	Prover prover;
-	TreeSet<GeoPoint> allPredecessorPoints;
-	GeoElement statement;
-	Kernel kernel;
-	Localization loc;
+	public Prover prover;
+	public TreeSet<GeoPoint> allPredecessorPoints;
+	public GeoElement statement;
+	public Kernel kernel;
+	public Localization loc;
 
-	String[] predefinitions;
-	String predefs = "";
+	public String[] predefinitions;
+	public String predefs = "";
 
-	TreeSet<String> primeLabels;
+	public TreeSet<String> primeLabels;
 }

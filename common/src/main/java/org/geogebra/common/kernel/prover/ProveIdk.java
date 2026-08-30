@@ -7,7 +7,7 @@ import org.geogebra.common.kernel.geos.GeoPoint;
 import org.geogebra.common.kernel.scripting.CmdShowProof;
 import org.geogebra.common.util.Prover;import org.geogebra.common.util.Prover.ProofResult;
 
-import static org.geogebra.common.kernel.prover.ProverCNIMethod.PRIME;
+import static org.geogebra.common.kernel.prover.CNIMethod.ProverCNIMethod.PRIME;
 
 
 public class ProveIdk {

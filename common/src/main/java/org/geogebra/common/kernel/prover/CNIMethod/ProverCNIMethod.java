@@ -1,9 +1,10 @@
-package org.geogebra.common.kernel.prover;
+package org.geogebra.common.kernel.prover.CNIMethod;
 
 import static org.geogebra.common.cas.giac.CASgiac.ggbGiac;
 
 import java.util.ArrayList;
-import java.util.List;import java.util.TreeSet;
+import java.util.List;
+import java.util.TreeSet;
 
 import org.geogebra.common.cas.GeoGebraCAS;
 import org.geogebra.common.kernel.Construction;
@@ -40,14 +41,21 @@ import org.geogebra.common.kernel.geos.GeoNumeric;
 import org.geogebra.common.kernel.geos.GeoPoint;
 import org.geogebra.common.kernel.geos.GeoSegment;
 import org.geogebra.common.kernel.geos.GeoVector;
+import org.geogebra.common.kernel.prover.AlgoAreCollinear;
+import org.geogebra.common.kernel.prover.AlgoAreConcurrent;
+import org.geogebra.common.kernel.prover.AlgoAreConcyclic;
+import org.geogebra.common.kernel.prover.AlgoAreCongruent;
+import org.geogebra.common.kernel.prover.AlgoAreEqual;
+import org.geogebra.common.kernel.prover.AlgoAreParallel;
+import org.geogebra.common.kernel.prover.AlgoArePerpendicular;
+import org.geogebra.common.kernel.prover.ProverContext;
+import org.geogebra.common.kernel.prover.ProverMethod;
 import org.geogebra.common.kernel.scripting.CmdShowProof;
 import org.geogebra.common.plugin.Operation;
 import org.geogebra.common.util.DoubleUtil;
 import org.geogebra.common.util.Prover;
 import org.geogebra.common.util.debug.Log;
 import org.geogebra.common.util.Prover.ProofResult;
-
-import edu.umd.cs.findbugs.annotations.Nullable;
 
 
 public class ProverCNIMethod implements ProverMethod {

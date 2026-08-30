@@ -26,7 +26,7 @@ import org.geogebra.common.kernel.geos.GeoPoint;
 import org.geogebra.common.kernel.geos.GeoSegment;
 import org.geogebra.common.kernel.prover.AbstractProverReciosMethod;
 import org.geogebra.common.kernel.prover.ProveIdk;import org.geogebra.common.kernel.prover.ProverBotanasMethod;
-import org.geogebra.common.kernel.prover.ProverCNIMethod;import org.geogebra.common.kernel.prover.ProverPureSymbolicMethod;
+import org.geogebra.common.kernel.prover.CNIMethod.ProverCNIMethod;import org.geogebra.common.kernel.prover.ProverPureSymbolicMethod;
 import org.geogebra.common.kernel.prover.polynomial.PPolynomial;
 import org.geogebra.common.kernel.scripting.CmdShowProof;
 import org.geogebra.common.main.Localization;
