@@ -61,17 +61,7 @@ public class ProverCNIMethod {
 	public static int WARNING_EQUALITY_OR_COLLINEAR = 2;
 	public static int WARNING_ANGLE = 3;
 	public static String VARIABLE_CYCLOTOMIC = "CT__";
-
-	public static class CNIDefinition {
-		// TODO: Consider adding more refinements here, add extra infos related to the Strings.
-		String declaration; // declaration in Giac format
-		String realRelation; // \n-separated Strings of lhs of real relations in Giac format
-		String zeroRelation; // lhs of zero relation in Giac format
-		String extraVariable; // an extra variable that is used in the zero relation (and the declaration)
-		boolean rMustBe0 = false; // if r is required to be 0
-		int warning = 0; // different interpretation than usual?
-		int specRestriction = 0; // number of disallowed fixed points
-	}
+	
 
 	public static ProofResult prove(Prover prover) {
 
@@ -156,7 +146,7 @@ public class ProverCNIMethod {
 				freePoints.add(ge);
 			} else {
 				// We also collect declarative and real-relational definitions.
-				CNIDefinition def = null;
+				ProverCNIMethodAsd.CNIDefinition def = null;
 				try {
 					def = getCNIHypothesisDefinition(ge);
 				} catch (Exception ex) {
@@ -255,7 +245,7 @@ public class ProverCNIMethod {
 		}
 
 		// Adding the thesis. This is very similar to the code above:
-		CNIDefinition def = null;
+		ProverCNIMethodAsd.CNIDefinition def = null;
 		try {
 			def = getCNIThesisDefinition(statement);
 		} catch (Exception e) {
@@ -813,8 +803,8 @@ public class ProverCNIMethod {
 	 * @param ge the input GeoElement
 	 * @return all required information for the CNI definition for the input
 	 */
-	static CNIDefinition getCNIHypothesisDefinition(GeoElement ge) {
-		CNIDefinition c = new CNIDefinition();
+	static ProverCNIMethodAsd.CNIDefinition getCNIHypothesisDefinition(GeoElement ge) {
+		ProverCNIMethodAsd.CNIDefinition c = new ProverCNIMethodAsd.CNIDefinition();
 		AlgoElement ae = ge.getParentAlgorithm();
 		String gel = getUniqueLabel(ge);
 		// Declarations:
@@ -1034,8 +1024,8 @@ public class ProverCNIMethod {
 	 * @param ge the input GeoElement
 	 * @return all required information for the CNI definition for the input
 	 */
-	static CNIDefinition getCNIThesisDefinition(GeoElement ge) {
-		CNIDefinition c = new CNIDefinition();
+	static ProverCNIMethodAsd.CNIDefinition getCNIThesisDefinition(GeoElement ge) {
+		ProverCNIMethodAsd.CNIDefinition c = new ProverCNIMethodAsd.CNIDefinition();
 		AlgoElement ae = ge.getParentAlgorithm();
 		if (ae instanceof AlgoAreCollinear) {
 			AlgoAreCollinear aac = (AlgoAreCollinear) ae;
@@ -1507,8 +1497,8 @@ public class ProverCNIMethod {
 		return null; // Unimplemented.
 	}
 
-	static CNIDefinition equal(GeoElement ge1, GeoElement ge2) {
-		CNIDefinition c = new CNIDefinition();;
+	static ProverCNIMethodAsd.CNIDefinition equal(GeoElement ge1, GeoElement ge2) {
+		ProverCNIMethodAsd.CNIDefinition c = new ProverCNIMethodAsd.CNIDefinition();;
 		if (ge1 instanceof GeoPoint && ge2 instanceof GeoPoint) {
 			GeoPoint P = (GeoPoint) ge1;
 			GeoPoint Q = (GeoPoint) ge2;
