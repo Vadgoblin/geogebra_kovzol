@@ -59,14 +59,6 @@ public class ProverCNIMethod implements ProverMethod {
 		int warning = 0; // different interpretation than usual?
 		int specRestriction = 0; // number of disallowed fixed points
 	}
-
-	public static final String PRIME = "\u0027"; // TODO: fix public access
-	private static final int WARNING_PERPENDICULAR_OR_PARALLEL = 1;
-	private static final int WARNING_EQUALITY_OR_COLLINEAR = 2;
-	private static final int WARNING_ANGLE = 3;
-	private static final String VARIABLE_CYCLOTOMIC = "CT__";
-	private static final String VARIABLE_R_STRING = "r__"; // This must be a kind of unique string.
-	private static final String VARIABLE_I_STRING = "I_"; // This must be a kind of unique string.
 	
 	private final ProverContext context;
 	String declarations = "";
