@@ -1,46 +1,25 @@
 package org.geogebra.common.kernel.prover.CNIMethod;
 
+
 import static org.geogebra.common.cas.giac.CASgiac.ggbGiac;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
-import org.geogebra.common.cas.GeoGebraCAS;
 import org.geogebra.common.kernel.Construction;
 import org.geogebra.common.kernel.StringTemplate;
 import org.geogebra.common.kernel.algos.AlgoAnglePoints;
-import org.geogebra.common.kernel.algos.AlgoAngularBisectorPoints;
-import org.geogebra.common.kernel.algos.AlgoCircleThreePoints;
-import org.geogebra.common.kernel.algos.AlgoCircleTwoPoints;
 import org.geogebra.common.kernel.algos.AlgoDependentBoolean;
-import org.geogebra.common.kernel.algos.AlgoDependentPoint;
 import org.geogebra.common.kernel.algos.AlgoElement;
-import org.geogebra.common.kernel.algos.AlgoIntersectConics;
-import org.geogebra.common.kernel.algos.AlgoIntersectLineConic;
 import org.geogebra.common.kernel.algos.AlgoIntersectLines;
-import org.geogebra.common.kernel.algos.AlgoIntersectSingle;
-import org.geogebra.common.kernel.algos.AlgoLineBisector;
-import org.geogebra.common.kernel.algos.AlgoLineBisectorSegment;
-import org.geogebra.common.kernel.algos.AlgoLinePointLine;
-import org.geogebra.common.kernel.algos.AlgoMidpoint;
-import org.geogebra.common.kernel.algos.AlgoMidpointSegment;
-import org.geogebra.common.kernel.algos.AlgoMirror;
-import org.geogebra.common.kernel.algos.AlgoOrthoLinePointLine;
-import org.geogebra.common.kernel.algos.AlgoPointOnPath;
-import org.geogebra.common.kernel.algos.AlgoPolygonRegular;
-import org.geogebra.common.kernel.algos.AlgoRotatePoint;
-import org.geogebra.common.kernel.algos.AlgoTranslate;
 import org.geogebra.common.kernel.arithmetic.ExpressionNode;
 import org.geogebra.common.kernel.arithmetic.MySpecialDouble;
 import org.geogebra.common.kernel.geos.GeoAngle;
 import org.geogebra.common.kernel.geos.GeoConic;
 import org.geogebra.common.kernel.geos.GeoElement;
 import org.geogebra.common.kernel.geos.GeoLine;
-import org.geogebra.common.kernel.geos.GeoNumeric;
 import org.geogebra.common.kernel.geos.GeoPoint;
-import org.geogebra.common.kernel.geos.GeoSegment;
-import org.geogebra.common.kernel.geos.GeoVector;
 import org.geogebra.common.kernel.prover.AlgoAreCollinear;
 import org.geogebra.common.kernel.prover.AlgoAreConcurrent;
 import org.geogebra.common.kernel.prover.AlgoAreConcyclic;
@@ -58,8 +37,13 @@ import org.geogebra.common.util.debug.Log;
 import org.geogebra.common.util.Prover.ProofResult;
 
 
+
 public class ProverCNIMethod implements ProverMethod {
 	private final ProverContext context;
+	private final Giac giac;
+	private final GiacCommandFactory idk;
+	
+	
 	List<String> declarations = new ArrayList<>();
 	List<String> realRelations = new ArrayList<>();
 
@@ -73,6 +57,8 @@ public class ProverCNIMethod implements ProverMethod {
 
 	public ProverCNIMethod(ProverContext context){
 		this.context=context;
+		this.giac = new Giac(context.kernel);
+		this.idk = new GiacCommandFactory(giac);
 	}
 
 	@Override
@@ -104,7 +90,7 @@ public class ProverCNIMethod implements ProverMethod {
 				// We also collect declarative and real-relational definitions.
 				CNIDefinition def = null;
 				try {
-					def = getCNIHypothesisDefinition(ge);
+					def = new CNIHypothesisDefinition(idk).create(ge);
 				} catch (Exception ex) {
 					Log.debug("The CNI method does not yet fully implement " + ge.getParentAlgorithm().toString()
 							+ " which is required for " + ge.getLabelSimple());
@@ -151,14 +137,14 @@ public class ProverCNIMethod implements ProverMethod {
 						realRelations.add(expression);
 						if (context.prover.getShowproof()) {
 							String rewriteProgram = "[" + context.predefs + expression + "][" + context.predefinitions.length + "]";
-							String expression2 = executeGiac(rewriteProgram);
+							String expression2 = giac.execute(rewriteProgram);
 							context.prover.addProofLine(CmdShowProof.TEXT_EQUATION, lhs(expression) + "=" + expression2
 									+ com.himamis.retex.editor.share.util.Unicode.IS_ELEMENT_OF + "\u211D");
 
 							explainAlgebricNotation();
 
 							String rk = VARIABLE_R_STRING + realRelations.size(); // e.g., r__1
-							String lhsProgram = executeGiac("lhs(" + expression2 + ")");
+							String lhsProgram = giac.execute("lhs(" + expression2 + ")");
 							String lhs2 = addPrimesToLabels(lhsProgram, context.primeLabels);
 
 							if (toEliminateLhsPrimed != null) {
@@ -230,13 +216,13 @@ public class ProverCNIMethod implements ProverMethod {
 				realRelations.add(expression);
 				if (context.prover.getShowproof()) {
 					String rewriteProgram = "[" + context.predefs + expression + "][" + context.predefinitions.length + "]";
-					String expression2 = executeGiac(rewriteProgram);
+					String expression2 = giac.execute(rewriteProgram);
 
 					context.prover.addProofLine(CmdShowProof.TEXT_EQUATION, lhs(expression) + "=" + expression2
 							+ com.himamis.retex.editor.share.util.Unicode.IS_ELEMENT_OF + "\u211D");
 
 					String rk = VARIABLE_R_STRING + realRelations.size(); // e.g., r__1
-					String lhsProgram = executeGiac("lhs(" + expression2 + ")");
+					String lhsProgram = giac.execute("lhs(" + expression2 + ")");
 					String lhs2 = addPrimesToLabels(lhsProgram, context.primeLabels);
 
 					if (toEliminateLhsPrimed != null) {
@@ -251,10 +237,10 @@ public class ProverCNIMethod implements ProverMethod {
 			realRelations.add(thesis);
 			if (context.prover.getShowproof()) {
 				String rewriteProgram = "[" + context.predefs + thesis + "][" + context.predefinitions.length + "]";
-				String thesis2 = executeGiac(rewriteProgram);
+				String thesis2 = giac.execute(rewriteProgram);
 				context.prover.addProofLine(CmdShowProof.TEXT_EQUATION, lhs(thesis) + "=" + thesis2);
 
-				String lhsProgram = executeGiac("lhs(" + thesis2 + ")");
+				String lhsProgram = giac.execute("lhs(" + thesis2 + ")");
 				String lhs2 = addPrimesToLabels(lhsProgram, context.primeLabels);
 
 				if (toEliminateLhsPrimed != null) {
@@ -380,7 +366,7 @@ public class ProverCNIMethod implements ProverMethod {
 		int codeLengthLines = context.predefinitions.length + declarations.size() + 1;
 		rest += "][" + (codeLengthLines - 1) + "]";
 		program += rest;
-		String elimIdeal = executeGiac(program);
+		String elimIdeal = giac.execute(program);
 		// This is in form {{4*r_1*r_2*r_-4*r_1*r_2-4*r_1*r_-4*r_2*r_+3*r_1+3*r_2+3*r_}}
 		// or there may be multiple polynomials in the form {{...,...,...}}
 
@@ -430,7 +416,7 @@ public class ProverCNIMethod implements ProverMethod {
 				+ "if (d>0 && d<deg) { deg:=d; degi:=k; } }],"
 				+ "[deg," + VARIABLE_I_STRING + "[degi]]][4]";
 		program = ggbGiac(program);
-		String minDegree = executeGiac(program);
+		String minDegree = giac.execute(program);
 		// The result is in form: {1,4*r_1*r_2*r_-4*r_1*r_2-4*r_1*r_-4*r_2*r_+3*r_1+3*r_2+3*r_}
 
 		String minDegreeC = removeHeadTail(minDegree,1); // remove { and }
@@ -458,17 +444,17 @@ public class ProverCNIMethod implements ProverMethod {
 				// rExpr = -b/a, with coeff(poly,r)[0] = a und coeff(poly,r)[1] = b
 				String poly = minDegreeA[1];
 
-				String rExpr = executeGiac(
+				String rExpr = giac.execute(
 						"-(coeff(" + poly + "," + VARIABLE_R_STRING + ")[1])"
 								+ "/(coeff(" + poly + "," + VARIABLE_R_STRING + ")[0])");
 
 				// prime the r expression
 				String rExprPrimed = addPrimesToRVariables(rExpr, VARIABLE_R_STRING);
 
-				String simplifiedRExpr = executeGiac("simplify(" + rExprPrimed + ")");
+				String simplifiedRExpr = giac.execute("simplify(" + rExprPrimed + ")");
 				String simplifiedThesis = null;
 				if (thesisDefinitionPrimed != null) {
-					simplifiedThesis = executeGiac("simplify(" + thesisDefinitionPrimed + ")");
+					simplifiedThesis = giac.execute("simplify(" + thesisDefinitionPrimed + ")");
 				}
 
 				context.prover.addProofLine(context.loc.getMenuDefault("CNISimplifyBoth",
@@ -502,7 +488,7 @@ public class ProverCNIMethod implements ProverMethod {
 			// Check if r can be expressed without a division:
 			// lvar(coeff(2*r_+1,r_)[0])
 			program = "lvar(coeff(" + minDegreeA[1] + "," + VARIABLE_R_STRING + ")[0])";
-			String divVars = executeGiac(program);
+			String divVars = giac.execute(program);
 			if (divVars.equals("{}")) {
 				if (rMustBeZero) {
 					if (minDegreeA[1].equals(VARIABLE_R_STRING) ||
@@ -534,7 +520,7 @@ public class ProverCNIMethod implements ProverMethod {
 			}
 			// Read off the divisor when expressing r:
 			program = "coeff(" + minDegreeA[1] + "," + VARIABLE_R_STRING + ")[0])";
-			String divisor = executeGiac(program);
+			String divisor = giac.execute(program);
 			if (context.prover.getShowproof()) {
 				context.prover.addProofLine(
 						context.loc.getPlainDefault("SolvingForARequiresDivByB",
@@ -545,7 +531,7 @@ public class ProverCNIMethod implements ProverMethod {
 			}
 			// Insert the divisor in the first program and check what happens:
 			program = program1 + "," + divisor + rest;
-			String elimIdeal2 = executeGiac(program);
+			String elimIdeal2 = giac.execute(program);
 
 			if(context.prover.getShowproof() && context.prover.getShowEliminate()) {
 				context.prover.addProofLine(context.loc.getMenuDefault("CNIEliminateCommandInfoDivisor",
@@ -599,7 +585,7 @@ public class ProverCNIMethod implements ProverMethod {
 					+ "if (d>0 && d<deg) { deg:=d; degi:=k; } }],"
 					+ "[deg," + VARIABLE_I_STRING + "[degi]]][4]";
 			program = ggbGiac(program);
-			String minDegree2 = executeGiac(program);
+			String minDegree2 = giac.execute(program);
 			// The result is in form: {1,4*r_1*r_2*r_-4*r_1*r_2-4*r_1*r_-4*r_2*r_+3*r_1+3*r_2+3*r_}
 
 			String minDegree2C = removeHeadTail(minDegree2,1); // remove { and }
@@ -624,16 +610,16 @@ public class ProverCNIMethod implements ProverMethod {
 					context.prover.addProofLine(minDegree2A[1] + "=0");
 
 					String poly2 = minDegree2A[1];
-					String rExpr2 = executeGiac(
+					String rExpr2 = giac.execute(
 							"-(coeff(" + poly2 + "," + VARIABLE_R_STRING + ")[1])"
 									+ "/(coeff(" + poly2 + "," + VARIABLE_R_STRING + ")[0])");
 
 					String rExpr2Primed = addPrimesToRVariables(rExpr2, VARIABLE_R_STRING);
 
-					String simplifiedRExpr2 = executeGiac("simplify(" + rExpr2Primed + ")");
+					String simplifiedRExpr2 = giac.execute("simplify(" + rExpr2Primed + ")");
 					String simplifiedThesis2 = null;
 					if (thesisDefinitionPrimed != null) {
-						simplifiedThesis2 = executeGiac("simplify(" + thesisDefinitionPrimed + ")");
+						simplifiedThesis2 = giac.execute("simplify(" + thesisDefinitionPrimed + ")");
 					}
 
 					context.prover.addProofLine(context.loc.getMenuDefault("CNISimplifyBoth",
@@ -664,7 +650,7 @@ public class ProverCNIMethod implements ProverMethod {
 				// Check if r can be expressed without a division:
 				// lvar(coeff(2*r_+1,r_)[0])
 				program = "lvar(coeff(" + minDegree2A[1] + ","+ VARIABLE_R_STRING + ")[0])";
-				String divVars2 = executeGiac(program);
+				String divVars2 = giac.execute(program);
 				if (divVars2.equals("{}")) {
 					if (rMustBeZero) {
 						if (minDegree2A[1].equals(VARIABLE_R_STRING) || minDegree2A[1].equals("-" + VARIABLE_R_STRING)) {
@@ -723,7 +709,7 @@ public class ProverCNIMethod implements ProverMethod {
 		if (minDegreeI == 2) {
 			Log.debug("r_ is quadratic.");
 			program = "[[D:=discriminant(" + minDegreeA[1] + "," + VARIABLE_R_STRING + ")],[total_degree(D,lvar(D))]][1]";
-			String discDegreeL = executeGiac(program);
+			String discDegreeL = giac.execute(program);
 			String discDegreeS = removeHeadTail(discDegreeL, 1);
 			int discDegree = Integer.parseInt(discDegreeS);
 			Log.debug("The degree of the discriminant is " + discDegree);
@@ -757,285 +743,8 @@ public class ProverCNIMethod implements ProverMethod {
 		}
 	}
 
-	/** Create the CNI definition for a GeoElement (for a hypothesis).
-	 * Compute the full declaration String, but only the lhs of the real relation String,
-	 * and return them to the caller. This method should cover all algos sooner or later.
-	 * Now it is just a prototype that implements the CNI method for some frequently used algos.
-	 *
-	 * @param ge the input GeoElement
-	 * @return all required information for the CNI definition for the input
-	 */
-	CNIDefinition getCNIHypothesisDefinition(GeoElement ge) {
-		AlgoElement ae = ge.getParentAlgorithm();
-		String gel = getUniqueLabel(ge);
 
-		// Declarations:
-		if (ae instanceof AlgoDependentPoint) {
-			return getCNIHypothesisDefinitionForAlgoDependentPoint(ge, gel);
-		}
-		if (ae instanceof AlgoMidpoint) {
-			return getCNIHypothesisDefinitionForAlgoMidpoint((AlgoMidpoint) ae, gel);
-		}
-		if (ae instanceof AlgoMidpointSegment) {
-			return getCNIHypothesisDefinitionForAlgoMidpointSegment((AlgoMidpointSegment)ae, gel);
-		}
 
-		// Real relations:
-		if (ae instanceof AlgoIntersectSingle) {
-			ae = ((AlgoIntersectSingle) ae).getAlgo();
-		}
-
-		if (ae instanceof AlgoIntersectLines) {
-			return getCNIHypothesisDefinitionForAlgoIntersectLines((AlgoIntersectLines)ae, ge);
-		}
-		if (ae instanceof AlgoIntersectLineConic) {
-			return getCNIHypothesisDefinitionForAlgoIntersectLineConic((AlgoIntersectLineConic)ae, ge);
-		}
-		if (ae instanceof AlgoIntersectConics) {
-			return getCNIHypothesisDefinitionForAlgoIntersectConics((AlgoIntersectConics)ae, ge);
-		}
-		if (ae instanceof AlgoPointOnPath) {
-			return getCNIHypothesisDefinitionForAlgoPointOnPath((AlgoPointOnPath)ae, ge);
-		}
-		if (ae instanceof AlgoTranslate) {
-			return getCNIHypothesisDefinitionForAlgoTranslate((AlgoTranslate) ae, gel);
-		}
-		if (ae instanceof AlgoRotatePoint) {
-			return getCNIHypothesisDefinitionForAlgoRotatePoint((AlgoRotatePoint)ae, gel);
-		}
-		if (ae instanceof AlgoMirror) {
-			return  getCNIHypothesisDefinitionForAlgoMirror((AlgoMirror)ae, gel);
-		}
-		if (ae instanceof AlgoPolygonRegular) {
-			return getCNIHypothesisDefinitionForAlgoPolygonRegular(ge, (AlgoPolygonRegular) ae, gel);
-		}
-
-		// Unimplemented, but it should be handled...
-		return null;
-	}
-
-	private CNIDefinition getCNIHypothesisDefinitionForAlgoDependentPoint(GeoElement ge, String gel){
-		CNIDefinition c = new CNIDefinition();
-		String def = ge.getDefinition(StringTemplate.defaultTemplate);
-		// TODO: Check if this is polynomial. Now we are optimistic.
-		// TODO: The whole expression should be rewritten via getUniqueLabel.
-		c.declaration = gel + ":=" + def;
-		return c;
-	}
-
-	private CNIDefinition getCNIHypothesisDefinitionForAlgoMidpoint(AlgoMidpoint am , String gel){
-		CNIDefinition c = new CNIDefinition();
-
-		GeoElement P = am.getP();
-		GeoElement Q = am.getQ();
-		String Pl = getUniqueLabel(P);
-		String Ql = getUniqueLabel(Q);
-		c.declaration = gel + ":=(" + Pl + "+" + Ql + ")/2";
-		return c;
-	}
-
-	private CNIDefinition getCNIHypothesisDefinitionForAlgoMidpointSegment(AlgoMidpointSegment ams , String gel){
-		CNIDefinition c = new CNIDefinition();
-
-		GeoElement P = ams.getP();
-		GeoElement Q = ams.getQ();
-		String Pl = getUniqueLabel(P);
-		String Ql = getUniqueLabel(Q);
-		c.declaration = gel + ":=(" + Pl + "+" + Ql + ")/2";
-		return c;
-	}
-
-	private CNIDefinition getCNIHypothesisDefinitionForAlgoIntersectLines(AlgoIntersectLines ail, GeoElement ge){
-		CNIDefinition c = new CNIDefinition();
-
-		GeoLine g = ail.getg();
-		GeoLine h = ail.geth();
-		String rel1 = "", rel2 = "";
-		rel1 = online((GeoPoint) ge, g);
-		rel2 = online((GeoPoint) ge, h);
-		if (rel1 == null || rel2 == null) {
-			return null; // Not implemented.
-		}
-		if (rel1.startsWith("perppar") || rel2.startsWith("perppar")) {
-			c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
-		}
-		if (rel1.startsWith("isosc") || rel2.startsWith("isosc")) {
-			c.warning = WARNING_EQUALITY_OR_COLLINEAR;
-		}
-		c.realRelation = rel1 + "\n" + rel2;
-		return c;
-	}
-
-	private CNIDefinition getCNIHypothesisDefinitionForAlgoIntersectLineConic(AlgoIntersectLineConic ailc, GeoElement ge){
-		CNIDefinition c = new CNIDefinition();
-
-		GeoLine l = ailc.getLine();
-		GeoConic co = ailc.getConic();
-		String rel1 = "", rel2 = "";
-		rel1 = online((GeoPoint) ge, l);
-		rel2 = oncircle((GeoPoint) ge, co);
-		if (rel1 == null || rel2 == null) {
-			return null; // Not implemented.
-		}
-		if (rel1.startsWith("perppar")) {
-			c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
-		}
-		if (rel1.startsWith("isosc")) {
-			c.warning = WARNING_EQUALITY_OR_COLLINEAR;
-		}
-		c.realRelation = rel1 + "\n" + rel2;
-		return c;
-	}
-
-	private CNIDefinition getCNIHypothesisDefinitionForAlgoIntersectConics(AlgoIntersectConics aic, GeoElement ge){
-		CNIDefinition c = new CNIDefinition();
-
-		GeoConic co1 = aic.getA();
-		GeoConic co2 = aic.getB();
-		String rel1 = "", rel2 = "";
-		rel1 = oncircle((GeoPoint) ge, co1);
-		rel2 = oncircle((GeoPoint) ge, co2);
-		if (rel1 == null || rel2 == null) {
-			return null; // Not implemented.
-		}
-		c.realRelation = rel1 + "\n" + rel2;
-		return c;
-	}
-
-	private CNIDefinition getCNIHypothesisDefinitionForAlgoPointOnPath(AlgoPointOnPath apop, GeoElement ge){
-		CNIDefinition c = new CNIDefinition();
-
-		GeoElement[] input = apop.getInput();
-		GeoElement p = input[0];
-		if (p instanceof GeoLine) {
-			GeoPoint gS = ((GeoLine) p).getStartPoint();
-			GeoPoint gE = ((GeoLine) p).getEndPoint();
-			c.realRelation = online((GeoPoint) ge, (GeoLine) p);
-			if (c.realRelation.startsWith("perppar")) {
-				c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
-			}
-			if (c.realRelation.startsWith("isosc")) {
-				c.warning = WARNING_EQUALITY_OR_COLLINEAR;
-			}
-			return c;
-		}
-		if (p instanceof GeoConic) {
-			AlgoElement pAe = p.getParentAlgorithm();
-			if (((GeoConic) p).isCircle()) {
-				c.realRelation = oncircle((GeoPoint) ge, (GeoConic) p);
-				return c;
-			}
-			return null; // Not implemented.
-		}
-		return null; // Not implemented.
-	}
-
-	private CNIDefinition getCNIHypothesisDefinitionForAlgoTranslate(AlgoTranslate at, String gel){
-		CNIDefinition c = new CNIDefinition();
-
-		GeoElement P = (GeoElement) at.getInput(0);
-		GeoElement v = (GeoElement) at.getInput(1);
-		if (P instanceof GeoPoint && v instanceof GeoVector) {
-			GeoVector gv = (GeoVector) v;
-			AlgoElement gvAe = gv.getParentAlgorithm();
-			GeoElement A = (GeoElement) gvAe.getInput(0);
-			GeoElement B = (GeoElement) gvAe.getInput(1);
-			String Pl = getUniqueLabel(P);
-			String Al = getUniqueLabel(A);
-			String Bl = getUniqueLabel(B);
-			c.declaration = gel + ":=" + Pl + "+" + Bl + "-" + Al;
-			return c;
-		}
-		return null; // Not implemented.
-	}
-
-	private CNIDefinition getCNIHypothesisDefinitionForAlgoRotatePoint(AlgoRotatePoint arp, String gel){
-		CNIDefinition c = new CNIDefinition();
-
-		GeoElement P = (GeoElement) arp.getInput(0); // rotated
-		GeoElement a = (GeoElement) arp.getInput(1); // angle
-		GeoElement C = (GeoElement) arp.getInput(2); // center
-		if (P instanceof GeoPoint && a instanceof GeoAngle && C instanceof GeoPoint) {
-			// This is taken from AlgoRotatePoint (Botana's method)
-			double angleDoubleVal = ((GeoAngle) a).getDouble();
-			double angleDoubleValDeg = angleDoubleVal / Math.PI * 180;
-			int angleValDeg = (int) angleDoubleValDeg;
-			if (!DoubleUtil.isInteger(angleDoubleValDeg)) {
-				// unhandled angle, not an integer degree
-				return null; // Unimplemented.
-			}
-			// Compute the gcd of the angle and 360 degrees. For 90 degrees, this is 90,
-			// for 120, this is 120, for 135, this is 45, for example.
-			long gcd = context.kernel.gcd(angleValDeg, 360);
-			// Which primitive root of unit will be used to describe the rotation?
-			long prim = Math.abs(360 / gcd); // This is 4 for 90 degrees, 3 for 120 degrees,
-			// 8 for 135 (~45) degrees.
-			// Create the minimal polynomial. E.g.: "expand(r2e(cyclotomic(8)))", for 135 degrees.
-			String minpoly = cyclotomicPolynomial((int) prim);
-			// Now we create the declaration:
-			String Pl = getUniqueLabel(P);
-			String Cl = getUniqueLabel(C);
-			String ctVar = VARIABLE_CYCLOTOMIC + prim;
-			c.declaration = gel + ":=" + Cl + "+(" + Pl + "-" + Cl + ")*" + ctVar; // complex rotation
-			c.zeroRelation = minpoly; // set the minimal polynomial as an extra relation
-			c.extraVariable = ctVar; // set the extra variable
-			return c;
-		}
-
-		return null;
-	}
-
-	private CNIDefinition getCNIHypothesisDefinitionForAlgoMirror(AlgoMirror am, String gel){
-		CNIDefinition c = new CNIDefinition();
-		GeoElement P = (GeoElement) am.getInput(0);
-		GeoElement M = (GeoElement) am.getInput(1);
-		if (P instanceof GeoPoint && M instanceof  GeoPoint) {
-			String Pl = getUniqueLabel(P);
-			String Ml = getUniqueLabel(M);
-			c.declaration = gel + ":=" + Ml + "-(" + Pl + "-" + Ml + ")";
-			return c;
-		}
-		return null; // Not implemented.
-	}
-
-	private CNIDefinition getCNIHypothesisDefinitionForAlgoPolygonRegular(GeoElement ge, AlgoPolygonRegular ap, String gel) {
-		CNIDefinition c = new CNIDefinition();
-
-		GeoPoint A = (GeoPoint) ap.getInput(0);
-		GeoPoint B = (GeoPoint) ap.getInput(1);
-		String Al = getUniqueLabel(A);
-		String Bl = getUniqueLabel(B);
-		int num = (int) ((GeoNumeric) ap.getInput(2)).getValue(); // number of sides
-		// The sum of external angles in a regular polygon is 360 degrees.
-		// When computing C from A and B, C=B+(B-A)*CT_num,
-		// D=C+(C-B)*CT_num
-		// where CT_num is a numth primitive root of the unit.
-		// That is, D=B+(B-A)*CT_num+(B+(B-A)*CT_num-B)*CT_num=B+(B-A)*CT_num+((B-A)*CT_num)*CT_num,
-		// in general, for the ith vertex (numbered from 0), P_i=B+(B-A)*(CT_num+CT_num^2+CT_num^3+...+CT_num^(i-1))
-		// where P_i is the ith vertex.
-		GeoElement[] outputObjects = ap.getOutput();
-		// The 0th object is the polygon, the 1st, 2nd, ..., nth are the segments of the sides,
-		// the (n+1)th object is the 2nd point, the (n+2)th object is the 3rd point, and so on.
-		for (int i = num + 1; i < outputObjects.length; i++) {
-			if (ge.equals(outputObjects[i])) {
-				int whichPoint = i - num + 1;
-				String ctVar = VARIABLE_CYCLOTOMIC + num;
-				c.declaration = gel + ":=" + Bl + "+(" + Bl + "-" + Al + ")*(";
-				for (int j = 1; j < whichPoint; j++) {
-					if (j>1) {
-						c.declaration += "+";
-					}
-					c.declaration += ctVar + "^" + j;
-				}
-				c.declaration += ")";
-				c.zeroRelation = cyclotomicPolynomial(num);
-				c.extraVariable = ctVar;
-				return c;
-			}
-		}
-		// Unimplemented, but it should be handled...
-		return null;
-	}
 
 	/** Create the CNI definition for a GeoElement (for a thesis).
 	 * Compute the rhs of the declaration String, the lhs of the real relation String,
@@ -1054,7 +763,7 @@ public class ProverCNIMethod implements ProverMethod {
 			GeoElement A = input[0];
 			GeoElement B = input[1];
 			GeoElement C = input[2];
-			c.realRelation = collinear(A, B, C);
+			c.realRelation = idk.collinear(A, B, C);
 			return c;
 		}
 		if (ae instanceof AlgoAreConcyclic) {
@@ -1064,7 +773,7 @@ public class ProverCNIMethod implements ProverMethod {
 			GeoElement B = input[1];
 			GeoElement C = input[2];
 			GeoElement D = input[3];
-			c.realRelation = concyclic(A, B, C, D);
+			c.realRelation = idk.concyclic(A, B, C, D);
 			return c;
 		}
 		if (ae instanceof AlgoAreParallel) {
@@ -1072,7 +781,7 @@ public class ProverCNIMethod implements ProverMethod {
 			GeoElement[] input = aap.getInput();
 			GeoLine g = (GeoLine) input[0];
 			GeoLine h = (GeoLine) input[1];
-			c.realRelation = parallel(g, h);
+			c.realRelation = idk.parallel(g, h);
 			return c;
 		}
 		if (ae instanceof AlgoArePerpendicular) { // in fact, perpendicular or parallel
@@ -1081,19 +790,19 @@ public class ProverCNIMethod implements ProverMethod {
 			GeoElement[] input = aap.getInput();
 			GeoLine g = (GeoLine) input[0];
 			GeoLine h = (GeoLine) input[1];
-			c.realRelation = perppar(g, h);
+			c.realRelation = idk.perppar(g, h);
 			c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
 			return c;
 		}
 		if (ae instanceof AlgoAreEqual) {
 			AlgoAreEqual aae = (AlgoAreEqual) ae;
 			GeoElement[] input = aae.getInput();
-			return equal(input[0], input[1]);
+			return idk.equal(input[0], input[1]);
 		}
 		if (ae instanceof AlgoAreCongruent) {
 			AlgoAreCongruent aac = (AlgoAreCongruent) ae;
 			GeoElement[] input = aac.getInput();
-			return equal(input[0], input[1]);
+			return idk.equal(input[0], input[1]);
 		}
 		if (ae instanceof AlgoAreConcurrent) {
 			AlgoAreConcurrent aac = (AlgoAreConcurrent) ae;
@@ -1130,9 +839,9 @@ public class ProverCNIMethod implements ProverMethod {
 				X.setLabel("X");
 			}
 
-			String h1 = online(X, l1);
-			String h2 = online(X, l2);
-			String t = online(X, l3);
+			String h1 = idk.online(X, l1);
+			String h2 = idk.online(X, l2);
+			String t = idk.online(X, l3);
 			c.realRelation = h1 + "\n" + h2 + "\n" + t;
 			c.extraVariable = getUniqueLabel(X);
 			return c;
@@ -1165,7 +874,7 @@ public class ProverCNIMethod implements ProverMethod {
 						GeoPoint D = (GeoPoint) ((AlgoAnglePoints) ae2).getA();
 						GeoPoint E = (GeoPoint) ((AlgoAnglePoints) ae2).getB();
 						GeoPoint F = (GeoPoint) ((AlgoAnglePoints) ae2).getC();
-						c.realRelation = eqanglemul(D,E,F,A,B,C,ni);
+						c.realRelation = idk.eqanglemul(D,E,F,A,B,C,ni);
 						return c;
 					}
 					return null; // Not implemented.
@@ -1197,7 +906,7 @@ public class ProverCNIMethod implements ProverMethod {
 						GeoPoint A = (GeoPoint) ((AlgoAnglePoints) gae).getA();
 						GeoPoint B = (GeoPoint) ((AlgoAnglePoints) gae).getB();
 						GeoPoint C = (GeoPoint) ((AlgoAnglePoints) gae).getC();
-						c.realRelation = anglex(A, B, B, C, rot);
+						c.realRelation = idk.anglex(A, B, B, C, rot);
 						c.warning = WARNING_ANGLE;
 						return c;
 					}
@@ -1209,25 +918,25 @@ public class ProverCNIMethod implements ProverMethod {
 			GeoElement ge2 = en.getRightTree().getSingleGeoElement();
 			Operation o = en.getOperation();
 			if (o == Operation.PARALLEL) {
-				c.realRelation = parallel((GeoLine) ge1, (GeoLine) ge2);
+				c.realRelation = idk.parallel((GeoLine) ge1, (GeoLine) ge2);
 				return c;
 			} else if (o == Operation.PERPENDICULAR) {
 				Log.debug("Warning: Testing perpendicularity AND parallelism simultaneously");
-				c.realRelation = perppar((GeoLine) ge1, (GeoLine) ge2);
+				c.realRelation = idk.perppar((GeoLine) ge1, (GeoLine) ge2);
 				c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
 				return c;
 			} else if (o == Operation.IS_ELEMENT_OF) {
 				if (ge1 instanceof GeoPoint && ge2 instanceof GeoLine) {
-					c.realRelation = online((GeoPoint) ge1, (GeoLine) ge2);
+					c.realRelation = idk.online((GeoPoint) ge1, (GeoLine) ge2);
 					return c;
 				}
 				if (ge1 instanceof GeoPoint && ge2 instanceof GeoConic && ((GeoConic) ge2).isCircle()) {
-					c.realRelation = oncircle((GeoPoint) ge1, (GeoConic) ge2);
+					c.realRelation = idk.oncircle((GeoPoint) ge1, (GeoConic) ge2);
 					return c;
 				}
 				return null; // unimplemented
 			} else if (o == Operation.EQUAL_BOOLEAN) {
-				return equal(ge1, ge2);
+				return idk.equal(ge1, ge2);
 			}
 		}
 		// Unimplemented, but it should be handled...
@@ -1239,29 +948,15 @@ public class ProverCNIMethod implements ProverMethod {
 	 * @param ge the input GeoElement
 	 * @return the label as String
 	 */
-	private static String getUniqueLabel(GeoElement ge) {
+	static String getUniqueLabel(GeoElement ge) { // FIXME: move to an appropriate location
 		return ge.getLabelSimple().replace("_{","").replace("}", "");
 	}
 
-	private static String removeTail(String input, int length) {
+	static String removeTail(String input, int length) {
 		if (input.length() >= length) {
 			return input.substring(0, input.length() - length);
 		}
 		return input;
-	}
-
-	private String executeGiac(String command) {
-		GeoGebraCAS cas = (GeoGebraCAS) context.kernel.getGeoGebraCAS();
-		String APOSTROPHE = "AP__";
-		command = command.replace("'", APOSTROPHE);
-		try {
-			String ret = cas.evaluateRaw(command);
-			ret = ret.replace(APOSTROPHE, "'");
-			return ret;
-		} catch (Throwable e) {
-			Log.error("Error in ProverCNIMethod/executeGiac: input=" + command);
-			return "ERROR";
-		}
 	}
 
 	// This is already present in the class Compute. TODO: Unify the code.
@@ -1272,321 +967,6 @@ public class ProverCNIMethod implements ProverMethod {
 		return input;
 	}
 
-	private static String collinear(GeoElement ge1, GeoElement ge2, GeoElement ge3) {
-		TreeSet<GeoElement> collPoints = new TreeSet<>();
-		collPoints.add(ge1);
-		collPoints.add(ge2);
-		collPoints.add(ge3);
-		String ret = "coll(";
-		for (GeoElement cp : collPoints) {
-			ret += getUniqueLabel(cp) + ",";
-		}
-		ret = removeTail(ret, 1);
-		ret += ")";
-		return ret;
-	}
-
-	private static String concyclic(GeoElement ge1, GeoElement ge2, GeoElement ge3, GeoElement ge4) {
-		TreeSet<GeoElement> concPoints = new TreeSet<>();
-		concPoints.add(ge1);
-		concPoints.add(ge2);
-		concPoints.add(ge3);
-		concPoints.add(ge4);
-		String ret = "conc(";
-		for (GeoElement cp : concPoints) {
-			ret += getUniqueLabel(cp) + ",";
-		}
-		ret = removeTail(ret, 1);
-		ret += ")";
-		return ret;
-	}
-
-	private static String parallel(GeoPoint ge1, GeoPoint ge2, GeoPoint ge3, GeoPoint ge4) {
-		String ge1l = getUniqueLabel(ge1);
-		String ge2l = getUniqueLabel(ge2);
-		String ge3l = getUniqueLabel(ge3);
-		String ge4l = getUniqueLabel(ge4);
-
-		int i1 = ge1.getConstructionIndex();
-		int i2 = ge2.getConstructionIndex();
-		int i3 = ge3.getConstructionIndex();
-		int i4 = ge4.getConstructionIndex();
-
-		// In a natural order we return the same ordered quadruple:
-		if (i1 < i2 && i2 < i3 && i3 < i4)
-			return "par(" + ge1l + "," + ge2l + "," + ge3l + "," + ge4l + ")";
-
-		// In some reversed orders we return the same ordered quadruple:
-		if ((i1 > i3 && i2 > i4) || (i1 > i4 && i2 > i3))
-			return "par(" + ge3l + "," + ge4l + "," + ge1l + "," + ge2l + ")";
-
-		// Otherwise we return the default order:
-		return "par(" + ge1l + "," + ge2l + "," + ge3l + "," + ge4l + ")";
-	}
-
-	private static String parallel(GeoLine g, GeoLine h) {
-		/* In general, here we need a much more sophisticated way.
-		 * It is possible that g or h is defined with a point and an algo (maybe parallelism or perpendicularity),
-		 * but the definition can go arbitrary deeply, so here some recursive way would be more general.
-		 */
-		GeoPoint gS = g.getStartPoint();
-		GeoPoint gE = g.getEndPoint();
-		GeoPoint hS = h.getStartPoint();
-		GeoPoint hE = h.getEndPoint();
-		if (gE != null && hE != null) {
-			return parallel(gS, gE, hS, hE);
-		}
-		if (gE == null && hE != null) {
-			AlgoElement gAe = g.getParentAlgorithm();
-			if (gAe instanceof AlgoOrthoLinePointLine) {
-				AlgoOrthoLinePointLine aolpl = (AlgoOrthoLinePointLine) gAe;
-				GeoElement[] input = aolpl.getInput();
-				GeoLine l = (GeoLine) input[1];
-				gS = l.getStartPoint();
-				gE = l.getEndPoint();
-				if (gE != null) {
-					return perppar(gS, gE, hS, hE);
-				}
-				// Maybe this is a parallelism (by using double perpendicularity):
-				AlgoElement lAe = l.getParentAlgorithm();
-				if (lAe instanceof AlgoOrthoLinePointLine) {
-					aolpl = (AlgoOrthoLinePointLine) lAe;
-					input = aolpl.getInput();
-					l = (GeoLine) input[1];
-					gS = l.getStartPoint();
-					gE = l.getEndPoint();
-					if (gE != null) {
-						return parallel(gS, gE, hS, hE);
-					}
-				}
-			}
-		}
-		return null; // Not yet implemented.
-	}
-
-	private static String perppar(GeoPoint ge1, GeoPoint ge2, GeoPoint ge3, GeoPoint ge4) {
-		String ge1l = getUniqueLabel(ge1);
-		String ge2l = getUniqueLabel(ge2);
-		String ge3l = getUniqueLabel(ge3);
-		String ge4l = getUniqueLabel(ge4);
-
-		int i1 = ge1.getConstructionIndex();
-		int i2 = ge2.getConstructionIndex();
-		int i3 = ge3.getConstructionIndex();
-		int i4 = ge4.getConstructionIndex();
-
-		// In a natural order we return the same ordered quadruple:
-		if (i1 < i2 && i2 < i3 && i3 < i4)
-			return "perppar(" + ge1l + "," + ge2l + "," + ge3l + "," + ge4l + ")";
-
-		// In some reversed orders we return the same ordered quadruple:
-		if ((i1 > i3 && i2 > i4) || (i1 > i4 && i2 > i3))
-			return "perppar(" + ge3l + "," + ge4l + "," + ge1l + "," + ge2l + ")";
-
-		// Otherwise we return the default order:
-		return "perppar(" + ge1l + "," + ge2l + "," + ge3l + "," + ge4l + ")";
-	}
-
-	private static String perppar(GeoLine g, GeoLine h) {
-		GeoPoint gS = g.getStartPoint();
-		GeoPoint gE = g.getEndPoint();
-		GeoPoint hS = h.getStartPoint();
-		GeoPoint hE = h.getEndPoint();
-		return perppar(gS, gE, hS, hE);
-	}
-
-	private static String isosc(GeoPoint ge1, GeoPoint ge2, GeoPoint ge3) {
-		String ge1l = getUniqueLabel(ge1);
-		String ge2l = getUniqueLabel(ge2);
-		String ge3l = getUniqueLabel(ge3);
-		return "isosc(" + ge1l + "," + ge2l + "," + ge3l + ")";
-	}
-
-	// |AB|=|CD|
-	private static String equal(GeoPoint A, GeoPoint B, GeoPoint C, GeoPoint D) {
-		String Al = getUniqueLabel(A);
-		String Bl = getUniqueLabel(B);
-		String Cl = getUniqueLabel(C);
-		String Dl = getUniqueLabel(D);
-		return "isosc(" + Dl + "," + Bl + "+" + Dl + "-" + Al + "," + Cl + ")";
-	}
-
-	private static String eqangle(GeoElement ge1, GeoElement ge2, GeoElement ge3, GeoElement ge4,
-			GeoElement ge5, GeoElement ge6) {
-		String ge1l = getUniqueLabel(ge1);
-		String ge2l = getUniqueLabel(ge2);
-		String ge3l = getUniqueLabel(ge3);
-		String ge4l = getUniqueLabel(ge4);
-		String ge5l = getUniqueLabel(ge5);
-		String ge6l = getUniqueLabel(ge6);
-		return "eqangle(" + ge1l + "," + ge2l + "," + ge3l + "," + ge4l + "," + ge5l + "," + ge6l + ")";
-	}
-
-	private static String eqanglemul(GeoElement ge1, GeoElement ge2, GeoElement ge3, GeoElement ge4,
-			GeoElement ge5, GeoElement ge6, int n) {
-		String ge1l = getUniqueLabel(ge1);
-		String ge2l = getUniqueLabel(ge2);
-		String ge3l = getUniqueLabel(ge3);
-		String ge4l = getUniqueLabel(ge4);
-		String ge5l = getUniqueLabel(ge5);
-		String ge6l = getUniqueLabel(ge6);
-		return "eqanglemul(" + ge1l + "," + ge2l + "," + ge3l + "," + ge4l + "," + ge5l + "," + ge6l + "," + n + ")";
-	}
-
-	private static String anglex(GeoElement ge1, GeoElement ge2, GeoElement ge3, GeoElement ge4,
-			long n) {
-		String ge1l = getUniqueLabel(ge1);
-		String ge2l = getUniqueLabel(ge2);
-		String ge3l = getUniqueLabel(ge3);
-		String ge4l = getUniqueLabel(ge4);
-		return "anglex(" + ge1l + "," + ge2l + "," + ge3l + "," + ge4l + "," + n + ")";
-	}
-
-	private static String online(GeoPoint ge, GeoLine g) {
-		GeoPoint gS = g.getStartPoint();
-		GeoPoint gE = g.getEndPoint();
-		if (gS != null && gE != null) {
-			return collinear(gS, gE, ge);
-		} else {
-			if (gS != null) {
-				AlgoElement gAe = g.getParentAlgorithm();
-				if (gAe instanceof AlgoAngularBisectorPoints) {
-					GeoPoint A = ((AlgoAngularBisectorPoints) gAe).getA();
-					GeoPoint B = ((AlgoAngularBisectorPoints) gAe).getB();
-					GeoPoint C = ((AlgoAngularBisectorPoints) gAe).getC();
-					return eqangle(A, B, ge, ge, B, C);
-				} else if (gAe instanceof AlgoLineBisector) {
-					GeoPoint A = ((AlgoLineBisector) gAe).getA();
-					GeoPoint B = ((AlgoLineBisector) gAe).getB();
-					return isosc(ge, A, B);
-				} else if (gAe instanceof AlgoLineBisectorSegment) {
-					GeoSegment f = ((AlgoLineBisectorSegment) gAe).getSegment();
-					GeoPoint A = f.getStartPoint();
-					GeoPoint B = f.getEndPoint();
-					return isosc(ge, A, B);
-				} else if (gAe instanceof AlgoLinePointLine) {
-					AlgoLinePointLine alpl = (AlgoLinePointLine) gAe;
-					GeoElement[] input = alpl.getInput();
-					GeoPoint P = (GeoPoint) input[0];
-					GeoLine h = (GeoLine) input[1];
-					GeoPoint hS = h.getStartPoint();
-					GeoPoint hE = h.getEndPoint();
-					return parallel(P, (GeoPoint) ge, hS, hE);
-				} else if (gAe instanceof AlgoOrthoLinePointLine) {
-					AlgoOrthoLinePointLine aolpl = (AlgoOrthoLinePointLine) gAe;
-					GeoElement[] input = aolpl.getInput();
-					GeoPoint P = (GeoPoint) input[0];
-					GeoLine h = (GeoLine) input[1];
-					GeoPoint hS = h.getStartPoint();
-					GeoPoint hE = h.getEndPoint();
-					if (hE != null) {
-						return perppar(P, (GeoPoint) ge, hS, hE);
-					}
-					AlgoElement hAe = h.getParentAlgorithm();
-					if (hAe instanceof AlgoOrthoLinePointLine) {
-						AlgoOrthoLinePointLine aolplH = (AlgoOrthoLinePointLine) hAe;
-						GeoElement[] inputH = aolplH.getInput();
-						GeoLine hEl = (GeoLine) inputH[1];
-						hS = (GeoPoint) hEl.getStartPoint();
-						hE = (GeoPoint) hEl.getEndPoint();
-						return parallel(P, (GeoPoint) ge, hS, hE); // check if not null, TODO
-					}
-				} else {
-					// Not yet implemented.
-					return null;
-				}
-			}
-		}
-		return null; // Unimplemented.
-	}
-
-	private static String oncircle(GeoPoint ge, GeoConic co) {
-		AlgoElement coAe = co.getParentAlgorithm();
-		if (coAe instanceof AlgoCircleTwoPoints) {
-			AlgoCircleTwoPoints actp = (AlgoCircleTwoPoints) coAe;
-			GeoPoint ce = (GeoPoint) actp.getInput(0);
-			GeoPoint p = (GeoPoint) actp.getInput(1);
-			return isosc(ce, p, ge);
-		}
-		if (coAe instanceof AlgoCircleThreePoints) {
-			AlgoCircleThreePoints actp = (AlgoCircleThreePoints) coAe;
-			GeoPoint A = (GeoPoint) actp.getA();
-			GeoPoint B = (GeoPoint) actp.getB();
-			GeoPoint C = (GeoPoint) actp.getC();
-			return concyclic(A, B, C, ge);
-		}
-		return null; // Unimplemented.
-	}
-
-	private static CNIDefinition equal(GeoElement ge1, GeoElement ge2) {
-		CNIDefinition c = new CNIDefinition();;
-		if (ge1 instanceof GeoPoint && ge2 instanceof GeoPoint) {
-			GeoPoint P = (GeoPoint) ge1;
-			GeoPoint Q = (GeoPoint) ge2;
-			String Pl = getUniqueLabel(P);
-			String Ql = getUniqueLabel(Q);
-			c.realRelation = Pl + "-" + Ql;
-			c.rMustBe0 = true;
-			c.specRestriction = 1; // the second free point cannot be fixed
-			return c;
-		}
-		if (ge1 instanceof GeoSegment && ge2 instanceof GeoSegment) {
-			GeoSegment s1 = (GeoSegment) ge1;
-			GeoSegment s2 = (GeoSegment) ge2;
-			GeoPoint A = (GeoPoint) s1.getStartPoint();
-			GeoPoint B = (GeoPoint) s1.getEndPoint();
-			GeoPoint C = (GeoPoint) s2.getStartPoint();
-			GeoPoint D = (GeoPoint) s2.getEndPoint();
-			if (A.equals(C)) {
-				c.realRelation = isosc(A,B,D);
-				c.warning = WARNING_EQUALITY_OR_COLLINEAR;
-				return c;
-			}
-			if (A.equals(D)) {
-				c.realRelation = isosc(A,B,C);
-				c.warning = WARNING_EQUALITY_OR_COLLINEAR;
-				return c;
-			}
-			if (B.equals(C)) {
-				c.realRelation = isosc(B,A,D);
-				c.warning = WARNING_EQUALITY_OR_COLLINEAR;
-				return c;
-			}
-			if (B.equals(D)) {
-				c.realRelation = isosc(B,A,C);
-				c.warning = WARNING_EQUALITY_OR_COLLINEAR;
-				return c;
-			}
-			// General method (but we do not use it in general, to keep readability):
-			c.realRelation = equal(A,B,C,D);
-			c.warning = WARNING_EQUALITY_OR_COLLINEAR;
-			return c;
-		}
-		if (ge1 instanceof GeoAngle && ge2 instanceof GeoAngle) {
-			GeoAngle a1 = (GeoAngle) ge1;
-			GeoAngle a2 = (GeoAngle) ge2;
-			AlgoElement ae1 = a1.getParentAlgorithm();
-			AlgoElement ae2 = a2.getParentAlgorithm();
-			if (ae1 instanceof AlgoAnglePoints && ae2 instanceof AlgoAnglePoints) {
-				GeoPoint A = (GeoPoint) ((AlgoAnglePoints) ae1).getA();
-				GeoPoint B = (GeoPoint) ((AlgoAnglePoints) ae1).getB();
-				GeoPoint C = (GeoPoint) ((AlgoAnglePoints) ae1).getC();
-				GeoPoint D = (GeoPoint) ((AlgoAnglePoints) ae2).getA();
-				GeoPoint E = (GeoPoint) ((AlgoAnglePoints) ae2).getB();
-				GeoPoint F = (GeoPoint) ((AlgoAnglePoints) ae2).getC();
-				c.realRelation = eqangle(A,B,C,D,E,F);
-				return c;
-			}
-			return null; // Not yet implemented;
-		}
-		return null; // Missing implementation for equality of other objects.
-	}
-
-	private String cyclotomicPolynomial(int n) {
-		String ctVar = VARIABLE_CYCLOTOMIC + n;
-		String minpolyP = "subst(expand(r2e(cyclotomic(" + n + "))),x=" + ctVar + ")";
-		return executeGiac(minpolyP);
-	}
 
 	private static String lhs(String eq) {
 		int eqIndex = eq.indexOf("=");
