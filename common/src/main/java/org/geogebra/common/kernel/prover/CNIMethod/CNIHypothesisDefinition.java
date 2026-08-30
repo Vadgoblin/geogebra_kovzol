@@ -32,32 +32,32 @@ import org.geogebra.common.util.DoubleUtil;
 public class CNIHypothesisDefinition {
 	private final GiacCommandFactory idk;
 
-	public CNIHypothesisDefinition(GiacCommandFactory idk){
+	public CNIHypothesisDefinition(GiacCommandFactory idk) {
 		this.idk = idk;
 	}
 
 
-	/** Create the CNI definition for a GeoElement (for a hypothesis).
+	/**
+	 * Create the CNI definition for a GeoElement (for a hypothesis).
 	 * Compute the full declaration String, but only the lhs of the real relation String,
 	 * and return them to the caller. This method should cover all algos sooner or later.
 	 * Now it is just a prototype that implements the CNI method for some frequently used algos.
-	 *
 	 * @param ge the input GeoElement
 	 * @return all required information for the CNI definition for the input
 	 */
-	public CNIDefinition create(GeoElement ge){
+	public CNIDefinition create(GeoElement ge) {
 		AlgoElement ae = ge.getParentAlgorithm();
 		String gel = getUniqueLabel(ge);
 
 		// Declarations:
 		if (ae instanceof AlgoDependentPoint) {
-			return getCNIHypothesisDefinitionForAlgoDependentPoint(ge, gel);
+			return handleDependentPoint(ge, gel);
 		}
 		if (ae instanceof AlgoMidpoint) {
-			return getCNIHypothesisDefinitionForAlgoMidpoint((AlgoMidpoint) ae, gel);
+			return handleAlgoMidpoint((AlgoMidpoint) ae, gel);
 		}
 		if (ae instanceof AlgoMidpointSegment) {
-			return getCNIHypothesisDefinitionForAlgoMidpointSegment((AlgoMidpointSegment)ae, gel);
+			return handleAlgoMidpointSegment((AlgoMidpointSegment) ae, gel);
 		}
 
 		// Real relations:
@@ -66,35 +66,35 @@ public class CNIHypothesisDefinition {
 		}
 
 		if (ae instanceof AlgoIntersectLines) {
-			return getCNIHypothesisDefinitionForAlgoIntersectLines((AlgoIntersectLines)ae, ge);
+			return handleAlgoIntersectLines((AlgoIntersectLines) ae, ge);
 		}
 		if (ae instanceof AlgoIntersectLineConic) {
-			return getCNIHypothesisDefinitionForAlgoIntersectLineConic((AlgoIntersectLineConic)ae, ge);
+			return handleAlgoIntersectLineConic((AlgoIntersectLineConic) ae, ge);
 		}
 		if (ae instanceof AlgoIntersectConics) {
-			return getCNIHypothesisDefinitionForAlgoIntersectConics((AlgoIntersectConics)ae, ge);
+			return hadnleAlgoIntersectConics((AlgoIntersectConics) ae, ge);
 		}
 		if (ae instanceof AlgoPointOnPath) {
-			return getCNIHypothesisDefinitionForAlgoPointOnPath((AlgoPointOnPath)ae, ge);
+			return handleAlgoPointOnPath((AlgoPointOnPath) ae, ge);
 		}
 		if (ae instanceof AlgoTranslate) {
-			return getCNIHypothesisDefinitionForAlgoTranslate((AlgoTranslate) ae, gel);
+			return hadnleAlgoTranslate((AlgoTranslate) ae, gel);
 		}
 		if (ae instanceof AlgoRotatePoint) {
-			return getCNIHypothesisDefinitionForAlgoRotatePoint((AlgoRotatePoint)ae, gel);
+			return handleAlgoRotatePoint((AlgoRotatePoint) ae, gel);
 		}
 		if (ae instanceof AlgoMirror) {
-			return  getCNIHypothesisDefinitionForAlgoMirror((AlgoMirror)ae, gel);
+			return handleAlgoMirror((AlgoMirror) ae, gel);
 		}
 		if (ae instanceof AlgoPolygonRegular) {
-			return getCNIHypothesisDefinitionForAlgoPolygonRegular(ge, (AlgoPolygonRegular) ae, gel);
+			return handleAlgoPolygonRegular(ge, (AlgoPolygonRegular) ae, gel);
 		}
 
 		// Unimplemented, but it should be handled...
 		return null;
 	}
 
-	private CNIDefinition getCNIHypothesisDefinitionForAlgoDependentPoint(GeoElement ge, String gel){
+	private CNIDefinition handleDependentPoint(GeoElement ge, String gel) {
 		CNIDefinition c = new CNIDefinition();
 		String def = ge.getDefinition(StringTemplate.defaultTemplate);
 		// TODO: Check if this is polynomial. Now we are optimistic.
@@ -103,7 +103,7 @@ public class CNIHypothesisDefinition {
 		return c;
 	}
 
-	private CNIDefinition getCNIHypothesisDefinitionForAlgoMidpoint(AlgoMidpoint am , String gel){
+	private CNIDefinition handleAlgoMidpoint(AlgoMidpoint am, String gel) {
 		CNIDefinition c = new CNIDefinition();
 
 		GeoElement P = am.getP();
@@ -114,7 +114,7 @@ public class CNIHypothesisDefinition {
 		return c;
 	}
 
-	private CNIDefinition getCNIHypothesisDefinitionForAlgoMidpointSegment(AlgoMidpointSegment ams , String gel){
+	private CNIDefinition handleAlgoMidpointSegment(AlgoMidpointSegment ams, String gel) {
 		CNIDefinition c = new CNIDefinition();
 
 		GeoElement P = ams.getP();
@@ -125,7 +125,7 @@ public class CNIHypothesisDefinition {
 		return c;
 	}
 
-	private CNIDefinition getCNIHypothesisDefinitionForAlgoIntersectLines(AlgoIntersectLines ail, GeoElement ge){
+	private CNIDefinition handleAlgoIntersectLines(AlgoIntersectLines ail, GeoElement ge) {
 		CNIDefinition c = new CNIDefinition();
 
 		GeoLine g = ail.getg();
@@ -146,7 +146,7 @@ public class CNIHypothesisDefinition {
 		return c;
 	}
 
-	private CNIDefinition getCNIHypothesisDefinitionForAlgoIntersectLineConic(AlgoIntersectLineConic ailc, GeoElement ge){
+	private CNIDefinition handleAlgoIntersectLineConic(AlgoIntersectLineConic ailc, GeoElement ge) {
 		CNIDefinition c = new CNIDefinition();
 
 		GeoLine l = ailc.getLine();
@@ -167,7 +167,7 @@ public class CNIHypothesisDefinition {
 		return c;
 	}
 
-	private CNIDefinition getCNIHypothesisDefinitionForAlgoIntersectConics(AlgoIntersectConics aic, GeoElement ge){
+	private CNIDefinition hadnleAlgoIntersectConics(AlgoIntersectConics aic, GeoElement ge) {
 		CNIDefinition c = new CNIDefinition();
 
 		GeoConic co1 = aic.getA();
@@ -182,7 +182,7 @@ public class CNIHypothesisDefinition {
 		return c;
 	}
 
-	private CNIDefinition getCNIHypothesisDefinitionForAlgoPointOnPath(AlgoPointOnPath apop, GeoElement ge){
+	private CNIDefinition handleAlgoPointOnPath(AlgoPointOnPath apop, GeoElement ge) {
 		CNIDefinition c = new CNIDefinition();
 
 		GeoElement[] input = apop.getInput();
@@ -210,7 +210,7 @@ public class CNIHypothesisDefinition {
 		return null; // Not implemented.
 	}
 
-	private CNIDefinition getCNIHypothesisDefinitionForAlgoTranslate(AlgoTranslate at, String gel){
+	private CNIDefinition hadnleAlgoTranslate(AlgoTranslate at, String gel) {
 		CNIDefinition c = new CNIDefinition();
 
 		GeoElement P = (GeoElement) at.getInput(0);
@@ -229,7 +229,7 @@ public class CNIHypothesisDefinition {
 		return null; // Not implemented.
 	}
 
-	private CNIDefinition getCNIHypothesisDefinitionForAlgoRotatePoint(AlgoRotatePoint arp, String gel){
+	private CNIDefinition handleAlgoRotatePoint(AlgoRotatePoint arp, String gel) {
 		CNIDefinition c = new CNIDefinition();
 
 		GeoElement P = (GeoElement) arp.getInput(0); // rotated
@@ -256,7 +256,8 @@ public class CNIHypothesisDefinition {
 			String Pl = getUniqueLabel(P);
 			String Cl = getUniqueLabel(C);
 			String ctVar = VARIABLE_CYCLOTOMIC + prim;
-			c.declaration = gel + ":=" + Cl + "+(" + Pl + "-" + Cl + ")*" + ctVar; // complex rotation
+			c.declaration =
+					gel + ":=" + Cl + "+(" + Pl + "-" + Cl + ")*" + ctVar; // complex rotation
 			c.zeroRelation = minpoly; // set the minimal polynomial as an extra relation
 			c.extraVariable = ctVar; // set the extra variable
 			return c;
@@ -265,11 +266,11 @@ public class CNIHypothesisDefinition {
 		return null;
 	}
 
-	private CNIDefinition getCNIHypothesisDefinitionForAlgoMirror(AlgoMirror am, String gel){
+	private CNIDefinition handleAlgoMirror(AlgoMirror am, String gel) {
 		CNIDefinition c = new CNIDefinition();
 		GeoElement P = (GeoElement) am.getInput(0);
 		GeoElement M = (GeoElement) am.getInput(1);
-		if (P instanceof GeoPoint && M instanceof  GeoPoint) {
+		if (P instanceof GeoPoint && M instanceof GeoPoint) {
 			String Pl = getUniqueLabel(P);
 			String Ml = getUniqueLabel(M);
 			c.declaration = gel + ":=" + Ml + "-(" + Pl + "-" + Ml + ")";
@@ -278,7 +279,8 @@ public class CNIHypothesisDefinition {
 		return null; // Not implemented.
 	}
 
-	private CNIDefinition getCNIHypothesisDefinitionForAlgoPolygonRegular(GeoElement ge, AlgoPolygonRegular ap, String gel) {
+	private CNIDefinition handleAlgoPolygonRegular(GeoElement ge, AlgoPolygonRegular ap,
+			String gel) {
 		CNIDefinition c = new CNIDefinition();
 
 		GeoPoint A = (GeoPoint) ap.getInput(0);
@@ -302,7 +304,7 @@ public class CNIHypothesisDefinition {
 				String ctVar = VARIABLE_CYCLOTOMIC + num;
 				c.declaration = gel + ":=" + Bl + "+(" + Bl + "-" + Al + ")*(";
 				for (int j = 1; j < whichPoint; j++) {
-					if (j>1) {
+					if (j > 1) {
 						c.declaration += "+";
 					}
 					c.declaration += ctVar + "^" + j;
