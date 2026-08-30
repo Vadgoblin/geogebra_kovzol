@@ -103,7 +103,7 @@ public class ProverCNIMethod implements ProverMethod {
 				freePoints.add(ge);
 			} else {
 				// We also collect declarative and real-relational definitions.
-				ProverCNIMethod.CNIDefinition def = null;
+				CNIDefinition def = null;
 				try {
 					def = getCNIHypothesisDefinition(ge);
 				} catch (Exception ex) {
@@ -202,7 +202,7 @@ public class ProverCNIMethod implements ProverMethod {
 		}
 
 		// Adding the thesis. This is very similar to the code above:
-		ProverCNIMethod.CNIDefinition def = null;
+		CNIDefinition def = null;
 		try {
 			def = getCNIThesisDefinition(context.statement);
 		} catch (Exception e) {
@@ -760,8 +760,8 @@ public class ProverCNIMethod implements ProverMethod {
 	 * @param ge the input GeoElement
 	 * @return all required information for the CNI definition for the input
 	 */
-	ProverCNIMethod.CNIDefinition getCNIHypothesisDefinition(GeoElement ge) {
-		ProverCNIMethod.CNIDefinition c = new ProverCNIMethod.CNIDefinition();
+	CNIDefinition getCNIHypothesisDefinition(GeoElement ge) {
+		CNIDefinition c = new CNIDefinition();
 		AlgoElement ae = ge.getParentAlgorithm();
 		String gel = getUniqueLabel(ge);
 		// Declarations:
@@ -981,8 +981,8 @@ public class ProverCNIMethod implements ProverMethod {
 	 * @param ge the input GeoElement
 	 * @return all required information for the CNI definition for the input
 	 */
-	ProverCNIMethod.CNIDefinition getCNIThesisDefinition(GeoElement ge) {
-		ProverCNIMethod.CNIDefinition c = new ProverCNIMethod.CNIDefinition();
+	CNIDefinition getCNIThesisDefinition(GeoElement ge) {
+		CNIDefinition c = new CNIDefinition();
 		AlgoElement ae = ge.getParentAlgorithm();
 		if (ae instanceof AlgoAreCollinear) {
 			AlgoAreCollinear aac = (AlgoAreCollinear) ae;
@@ -1454,8 +1454,8 @@ public class ProverCNIMethod implements ProverMethod {
 		return null; // Unimplemented.
 	}
 
-	private static ProverCNIMethod.CNIDefinition equal(GeoElement ge1, GeoElement ge2) {
-		ProverCNIMethod.CNIDefinition c = new ProverCNIMethod.CNIDefinition();;
+	private static CNIDefinition equal(GeoElement ge1, GeoElement ge2) {
+		CNIDefinition c = new CNIDefinition();;
 		if (ge1 instanceof GeoPoint && ge2 instanceof GeoPoint) {
 			GeoPoint P = (GeoPoint) ge1;
 			GeoPoint Q = (GeoPoint) ge2;
