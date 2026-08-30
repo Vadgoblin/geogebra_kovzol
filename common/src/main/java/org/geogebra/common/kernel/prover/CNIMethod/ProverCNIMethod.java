@@ -7,31 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
-import org.geogebra.common.kernel.Construction;
 import org.geogebra.common.kernel.StringTemplate;
-import org.geogebra.common.kernel.algos.AlgoAnglePoints;
-import org.geogebra.common.kernel.algos.AlgoDependentBoolean;
-import org.geogebra.common.kernel.algos.AlgoElement;
-import org.geogebra.common.kernel.algos.AlgoIntersectLines;
-import org.geogebra.common.kernel.arithmetic.ExpressionNode;
-import org.geogebra.common.kernel.arithmetic.MySpecialDouble;
-import org.geogebra.common.kernel.geos.GeoAngle;
-import org.geogebra.common.kernel.geos.GeoConic;
 import org.geogebra.common.kernel.geos.GeoElement;
-import org.geogebra.common.kernel.geos.GeoLine;
 import org.geogebra.common.kernel.geos.GeoPoint;
-import org.geogebra.common.kernel.prover.AlgoAreCollinear;
-import org.geogebra.common.kernel.prover.AlgoAreConcurrent;
-import org.geogebra.common.kernel.prover.AlgoAreConcyclic;
-import org.geogebra.common.kernel.prover.AlgoAreCongruent;
-import org.geogebra.common.kernel.prover.AlgoAreEqual;
-import org.geogebra.common.kernel.prover.AlgoAreParallel;
-import org.geogebra.common.kernel.prover.AlgoArePerpendicular;
 import org.geogebra.common.kernel.prover.ProverContext;
 import org.geogebra.common.kernel.prover.ProverMethod;
 import org.geogebra.common.kernel.scripting.CmdShowProof;
-import org.geogebra.common.plugin.Operation;
-import org.geogebra.common.util.DoubleUtil;
 import org.geogebra.common.util.Prover;
 import org.geogebra.common.util.debug.Log;
 import org.geogebra.common.util.Prover.ProofResult;
@@ -141,7 +122,7 @@ public class ProverCNIMethod implements ProverMethod {
 							context.prover.addProofLine(CmdShowProof.TEXT_EQUATION, lhs(expression) + "=" + expression2
 									+ com.himamis.retex.editor.share.util.Unicode.IS_ELEMENT_OF + "\u211D");
 
-							explainAlgebricNotation();
+							explainAlgebraicNotation();
 
 							String rk = VARIABLE_R_STRING + realRelations.size(); // e.g., r__1
 							String lhsProgram = giac.execute("lhs(" + expression2 + ")");
@@ -733,7 +714,7 @@ public class ProverCNIMethod implements ProverMethod {
 		}
 	}
 
-	private void explainAlgebricNotation(){
+	private void explainAlgebraicNotation(){
 		if (!algebraicRelationExplained) {
 			context.prover.addProofLine(context.loc.getPlainDefault("CNIAlgebraicRelations",
 					"We now turn geometric relations into algebraic expressions. The symbols %0, %1, ... stand for these expressions:",
