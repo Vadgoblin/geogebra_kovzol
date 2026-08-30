@@ -128,16 +128,11 @@ public class ProverCNIMethod implements ProverMethod {
 
 				if (def.declaration != null) {
 					declarations += def.declaration + "\n";
+
 					if (context.prover.getShowproof()) {
 						context.prover.addProofLine(CmdShowProof.TEXT_EQUATION, def.declaration);
 
-						if (!primedNotationExplained) {
-							String exampleLabel = getUniqueLabel(ge);
-							context.prover.addProofLine(context.loc.getPlainDefault("CNIPrimedSymbols",
-									"Denote point %0 by %1 in a symbolic manner.",
-									exampleLabel, exampleLabel + PRIME));
-							primedNotationExplained = true;
-						}
+						explainPrimedNotation(ge);
 
 						context.prover.addProofLine(CmdShowProof.EQUATION, addPrimesToLabels(def.declaration, context.primeLabels));
 					}
@@ -164,13 +159,7 @@ public class ProverCNIMethod implements ProverMethod {
 							context.prover.addProofLine(CmdShowProof.TEXT_EQUATION, lhs(expression) + "=" + expression2
 									+ com.himamis.retex.editor.share.util.Unicode.IS_ELEMENT_OF + "\u211D");
 
-							if (!algebraicRelationExplained) {
-								context.prover.addProofLine(context.loc.getPlainDefault("CNIAlgebraicRelations",
-										"We now turn geometric relations into algebraic expressions. The symbols %0, %1, ... stand for these expressions:",
-										VARIABLE_R_STRING + "1'",
-										VARIABLE_R_STRING + "2'"));
-								algebraicRelationExplained = true;
-							}
+							explainAlgebricNotation();
 
 							String rk = VARIABLE_R_STRING + realRelationsNo; // e.g., r__1
 							String lhsProgram = executeGiac("lhs(" + expression2 + ")");
@@ -752,6 +741,26 @@ public class ProverCNIMethod implements ProverMethod {
 		}
 
 		return Prover.ProofResult.UNKNOWN;
+	}
+
+	private void explainPrimedNotation(GeoPoint ge){
+		if (!primedNotationExplained) {
+			String exampleLabel = getUniqueLabel(ge);
+			context.prover.addProofLine(context.loc.getPlainDefault("CNIPrimedSymbols",
+					"Denote point %0 by %1 in a symbolic manner.",
+					exampleLabel, exampleLabel + PRIME));
+			primedNotationExplained = true;
+		}
+	}
+
+	private void explainAlgebricNotation(){
+		if (!algebraicRelationExplained) {
+			context.prover.addProofLine(context.loc.getPlainDefault("CNIAlgebraicRelations",
+					"We now turn geometric relations into algebraic expressions. The symbols %0, %1, ... stand for these expressions:",
+					VARIABLE_R_STRING + "1'",
+					VARIABLE_R_STRING + "2'"));
+			algebraicRelationExplained = true;
+		}
 	}
 
 	/** Create the CNI definition for a GeoElement (for a hypothesis).
@@ -1656,6 +1665,7 @@ public class ProverCNIMethod implements ProverMethod {
 		return "Eliminate({" + String.join(",", eqs) + "},{" + vars + "})";
 	}
 
+	// simple helpers
 	private static boolean isNumericConstant(String expr) {
 		if (expr == null) return false;
 		String s = expr.trim();
