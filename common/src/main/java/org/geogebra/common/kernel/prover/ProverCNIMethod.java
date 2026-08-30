@@ -769,76 +769,30 @@ public class ProverCNIMethod implements ProverMethod {
 	 * @return all required information for the CNI definition for the input
 	 */
 	CNIDefinition getCNIHypothesisDefinition(GeoElement ge) {
-		CNIDefinition c = new CNIDefinition();
 		AlgoElement ae = ge.getParentAlgorithm();
 		String gel = getUniqueLabel(ge);
+
 		// Declarations:
 		if (ae instanceof AlgoDependentPoint) {
-			String def = ge.getDefinition(StringTemplate.defaultTemplate);
-			// TODO: Check if this is polynomial. Now we are optimistic.
-			// TODO: The whole expression should be rewritten via getUniqueLabel.
-			c.declaration = gel + ":=" + def;
-			return c;
+			return getCNIHypothesisDefinitionForAlgoDependentPoint(ge, gel);
 		}
 		if (ae instanceof AlgoMidpoint) {
-			AlgoMidpoint am = (AlgoMidpoint) ae;
-			GeoElement P = am.getP();
-			GeoElement Q = am.getQ();
-			String Pl = getUniqueLabel(P);
-			String Ql = getUniqueLabel(Q);
-			c.declaration = gel + ":=(" + Pl + "+" + Ql + ")/2";
-			return c;
+			return getCNIHypothesisDefinitionForAlgoMidpoint((AlgoMidpoint) ae, gel);
 		}
 		if (ae instanceof AlgoMidpointSegment) {
-			AlgoMidpointSegment ams = (AlgoMidpointSegment) ae;
-			GeoElement P = ams.getP();
-			GeoElement Q = ams.getQ();
-			String Pl = getUniqueLabel(P);
-			String Ql = getUniqueLabel(Q);
-			c.declaration = gel + ":=(" + Pl + "+" + Ql + ")/2";
-			return c;
+			return getCNIHypothesisDefinitionForAlgoMidpointSegment((AlgoMidpointSegment)ae, gel);
 		}
+
 		// Real relations:
 		if (ae instanceof AlgoIntersectSingle) {
 			ae = ((AlgoIntersectSingle) ae).getAlgo();
 		}
+
 		if (ae instanceof AlgoIntersectLines) {
-			AlgoIntersectLines ail = (AlgoIntersectLines) ae;
-			GeoLine g = ail.getg();
-			GeoLine h = ail.geth();
-			String rel1 = "", rel2 = "";
-			rel1 = online((GeoPoint) ge, g);
-			rel2 = online((GeoPoint) ge, h);
-			if (rel1 == null || rel2 == null) {
-				return null; // Not implemented.
-			}
-			if (rel1.startsWith("perppar") || rel2.startsWith("perppar")) {
-				c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
-			}
-			if (rel1.startsWith("isosc") || rel2.startsWith("isosc")) {
-				c.warning = WARNING_EQUALITY_OR_COLLINEAR;
-			}
-			c.realRelation = rel1 + "\n" + rel2;
-			return c;
+			return getCNIHypothesisDefinitionForAlgoIntersectLines((AlgoIntersectLines)ae, ge);
 		}
 		if (ae instanceof AlgoIntersectLineConic) {
-			AlgoIntersectLineConic ailc = (AlgoIntersectLineConic) ae;
-			GeoLine l = ailc.getLine();
-			GeoConic co = ailc.getConic();
-			String rel1 = "", rel2 = "";
-			rel1 = online((GeoPoint) ge, l);
-			rel2 = oncircle((GeoPoint) ge, co);
-			if (rel1 == null || rel2 == null) {
-				return null; // Not implemented.
-			}
-			if (rel1.startsWith("perppar")) {
-				c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
-			}
-			if (rel1.startsWith("isosc")) {
-				c.warning = WARNING_EQUALITY_OR_COLLINEAR;
-			}
-			c.realRelation = rel1 + "\n" + rel2;
-			return c;
+			return getCNIHypothesisDefinitionForAlgoIntersectLineConic((AlgoIntersectLineConic)ae, ge);
 		}
 		if (ae instanceof AlgoIntersectConics) {
 			return getCNIHypothesisDefinitionForAlgoIntersectConics((AlgoIntersectConics)ae, ge);
@@ -861,6 +815,79 @@ public class ProverCNIMethod implements ProverMethod {
 
 		// Unimplemented, but it should be handled...
 		return null;
+	}
+
+	private CNIDefinition getCNIHypothesisDefinitionForAlgoDependentPoint(GeoElement ge, String gel){
+		CNIDefinition c = new CNIDefinition();
+		String def = ge.getDefinition(StringTemplate.defaultTemplate);
+		// TODO: Check if this is polynomial. Now we are optimistic.
+		// TODO: The whole expression should be rewritten via getUniqueLabel.
+		c.declaration = gel + ":=" + def;
+		return c;
+	}
+
+	private CNIDefinition getCNIHypothesisDefinitionForAlgoMidpoint(AlgoMidpoint am , String gel){
+		CNIDefinition c = new CNIDefinition();
+
+		GeoElement P = am.getP();
+		GeoElement Q = am.getQ();
+		String Pl = getUniqueLabel(P);
+		String Ql = getUniqueLabel(Q);
+		c.declaration = gel + ":=(" + Pl + "+" + Ql + ")/2";
+		return c;
+	}
+
+	private CNIDefinition getCNIHypothesisDefinitionForAlgoMidpointSegment(AlgoMidpointSegment ams , String gel){
+		CNIDefinition c = new CNIDefinition();
+
+		GeoElement P = ams.getP();
+		GeoElement Q = ams.getQ();
+		String Pl = getUniqueLabel(P);
+		String Ql = getUniqueLabel(Q);
+		c.declaration = gel + ":=(" + Pl + "+" + Ql + ")/2";
+		return c;
+	}
+
+	private CNIDefinition getCNIHypothesisDefinitionForAlgoIntersectLines(AlgoIntersectLines ail, GeoElement ge){
+		CNIDefinition c = new CNIDefinition();
+
+		GeoLine g = ail.getg();
+		GeoLine h = ail.geth();
+		String rel1 = "", rel2 = "";
+		rel1 = online((GeoPoint) ge, g);
+		rel2 = online((GeoPoint) ge, h);
+		if (rel1 == null || rel2 == null) {
+			return null; // Not implemented.
+		}
+		if (rel1.startsWith("perppar") || rel2.startsWith("perppar")) {
+			c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
+		}
+		if (rel1.startsWith("isosc") || rel2.startsWith("isosc")) {
+			c.warning = WARNING_EQUALITY_OR_COLLINEAR;
+		}
+		c.realRelation = rel1 + "\n" + rel2;
+		return c;
+	}
+
+	private CNIDefinition getCNIHypothesisDefinitionForAlgoIntersectLineConic(AlgoIntersectLineConic ailc, GeoElement ge){
+		CNIDefinition c = new CNIDefinition();
+
+		GeoLine l = ailc.getLine();
+		GeoConic co = ailc.getConic();
+		String rel1 = "", rel2 = "";
+		rel1 = online((GeoPoint) ge, l);
+		rel2 = oncircle((GeoPoint) ge, co);
+		if (rel1 == null || rel2 == null) {
+			return null; // Not implemented.
+		}
+		if (rel1.startsWith("perppar")) {
+			c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
+		}
+		if (rel1.startsWith("isosc")) {
+			c.warning = WARNING_EQUALITY_OR_COLLINEAR;
+		}
+		c.realRelation = rel1 + "\n" + rel2;
+		return c;
 	}
 
 	private CNIDefinition getCNIHypothesisDefinitionForAlgoIntersectConics(AlgoIntersectConics aic, GeoElement ge){
