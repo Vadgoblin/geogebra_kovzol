@@ -48,7 +48,7 @@ import org.geogebra.common.util.debug.Log;
 import org.geogebra.common.util.Prover.ProofResult;
 
 
-public class ProverCNIMethod {
+public class ProverCNIMethod implements ProverMethod {
 	public static class CNIDefinition {
 		// TODO: Consider adding more refinements here, add extra infos related to the Strings.
 		String declaration; // declaration in Giac format
@@ -68,7 +68,7 @@ public class ProverCNIMethod {
 	private static final String VARIABLE_R_STRING = "r__"; // This must be a kind of unique string.
 	private static final String VARIABLE_I_STRING = "I_"; // This must be a kind of unique string.
 	
-	private ProverContext context;
+	private final ProverContext context;
 	String declarations = "";
 	String realRelations = "";
 	int realRelationsNo = 0;
@@ -79,10 +79,13 @@ public class ProverCNIMethod {
 	// to avoid that explanations are displayed multiple times
 	boolean primedNotationExplained = false;
 	boolean algebraicRelationExplained = false;
-	
-	public ProofResult prove(ProverContext context){
-		this.context=context;
 
+	public ProverCNIMethod(ProverContext context){
+		this.context=context;
+	}
+
+	@Override
+	public ProofResult execute(){
 		// collect r_k definitions to print them in CAS later
 		ArrayList<String> toEliminateLhsPrimed = null;
 		ArrayList<String> toEliminateRhsVars = null;

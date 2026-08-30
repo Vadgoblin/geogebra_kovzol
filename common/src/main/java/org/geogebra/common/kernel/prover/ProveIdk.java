@@ -1,6 +1,6 @@
 package org.geogebra.common.kernel.prover;
 
-import java.util.TreeSet;
+import java.util.TreeSet;import java.util.function.Function;
 
 import org.geogebra.common.kernel.geos.GeoElement;
 import org.geogebra.common.kernel.geos.GeoPoint;
@@ -13,7 +13,7 @@ import static org.geogebra.common.kernel.prover.ProverCNIMethod.PRIME;
 public class ProveIdk {
 
 
-	public static ProofResult prove(Prover prover) {
+	public static <T extends ProverMethod> ProofResult prove(Prover prover, Function<ProverContext, T> methodFactory) {
 		ProverContext context = new ProverContext();
 
 		context.prover = prover;
@@ -68,7 +68,8 @@ public class ProveIdk {
 							"Warning: Labels that already contain a prime symbol can cause display problems in later proof steps."));
 		}
 
-		return new ProverCNIMethod().prove(context);
+		ProverMethod method = methodFactory.apply(context);
+		return method.execute();
 	}
 
 	/**
