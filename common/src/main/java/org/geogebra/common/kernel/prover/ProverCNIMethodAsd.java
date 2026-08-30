@@ -79,24 +79,6 @@ public class ProverCNIMethodAsd {
 		String VARIABLE_R_STRING = "r__"; // This must be a kind of unique string.
 		String VARIABLE_I_STRING = "I_"; // This must be a kind of unique string.
 
-		// We try to avoid divisions by X-Y if X or Y are generated points,
-		// to not introduce extra degeneracy than required. That is,
-		// all formulas assume that arguments are ordered where the free points appear first.
-		String[] predefinitions = {"coll(A_,B_,C_):=(A_-C_)/(A_-B_)",
-				"par(A_,B_,C_,D_):=(C_-D_)/(A_-B_)",
-				"perppar(A_,B_,C_,D_):=((C_-D_)/(A_-B_))^2",
-				"conc(A_,B_,C_,D_):=((C_-D_)/(C_-A_))/((B_-D_)/(B_-A_))",
-				// They are not considered yet:
-				"eqangle(A_,B_,C_,D_,E_,F_):=((B_-A_)/(B_-C_))/((E_-D_)/(E_-F_))",
-				"eqanglemul(A_,B_,C_,D_,E_,F_,n_):=((B_-A_)/(B_-C_))/((E_-D_)/(E_-F_))^n_",
-				"anglex(A_,B_,C_,D_,n_):=((C_-D_)/(A_-B_))^n_",
-				"isosc(A_,B_,C_):=eqangle(C_,B_,A_,A_,C_,B_)" // |AB|=|AC|
-		};
-		String predefs = "";
-		for (String predefinition : predefinitions) {
-			predefs += "[" + predefinition + "],";
-		}
-
 		// All predecessors:
 		TreeSet<GeoElement> allPredecessors = context.statement.getAllPredecessors();
 		// prime labels
@@ -196,7 +178,7 @@ public class ProverCNIMethodAsd {
 						String expression = CASrealRelation + "=" + VARIABLE_R_STRING + realRelationsNo;
 						realRelations += expression + ",";
 						if (context.prover.getShowproof()) {
-							String rewriteProgram = "[" + predefs + expression + "][" + predefinitions.length + "]";
+							String rewriteProgram = "[" + context.predefs + expression + "][" + context.predefinitions.length + "]";
 							String expression2 = executeGiac(rewriteProgram);
 							context.prover.addProofLine(CmdShowProof.TEXT_EQUATION, lhs(expression) + "=" + expression2
 									+ com.himamis.retex.editor.share.util.Unicode.IS_ELEMENT_OF + "\u211D");
@@ -282,7 +264,7 @@ public class ProverCNIMethodAsd {
 				String expression = CASrealRelation + "=" + VARIABLE_R_STRING + realRelationsNo;
 				realRelations += expression + ",";
 				if (context.prover.getShowproof()) {
-					String rewriteProgram = "[" + predefs + expression + "][" + predefinitions.length + "]";
+					String rewriteProgram = "[" + context.predefs + expression + "][" + context.predefinitions.length + "]";
 					String expression2 = executeGiac(rewriteProgram);
 
 					context.prover.addProofLine(CmdShowProof.TEXT_EQUATION, lhs(expression) + "=" + expression2
@@ -303,7 +285,7 @@ public class ProverCNIMethodAsd {
 			String thesis = CASrealRelations[nrRels - 1] + "=" + VARIABLE_R_STRING;
 			realRelations += thesis;
 			if (context.prover.getShowproof()) {
-				String rewriteProgram = "[" + predefs + thesis + "][" + predefinitions.length + "]";
+				String rewriteProgram = "[" + context.predefs + thesis + "][" + context.predefinitions.length + "]";
 				String thesis2 = executeGiac(rewriteProgram);
 				context.prover.addProofLine(CmdShowProof.TEXT_EQUATION, lhs(thesis) + "=" + thesis2);
 
@@ -392,7 +374,7 @@ public class ProverCNIMethodAsd {
 		// Putting the code together...
 		String program = "";
 		program = "[";
-		program += predefs;
+		program += context.predefs;
 		String[] declarationsA = declarations.split("\n");
 		for (String declaration : declarationsA) {
 			program += "[" + declaration + "],";
@@ -431,7 +413,7 @@ public class ProverCNIMethodAsd {
 		rest += remVars;
 
 		rest += ")]";
-		int codeLengthLines = predefinitions.length + declarationsA.length + 1;
+		int codeLengthLines = context.predefinitions.length + declarationsA.length + 1;
 		rest += "][" + (codeLengthLines - 1) + "]";
 		program += rest;
 		String elimIdeal = executeGiac(program);

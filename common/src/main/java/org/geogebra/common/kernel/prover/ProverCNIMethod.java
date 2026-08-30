@@ -63,6 +63,27 @@ public class ProverCNIMethod {
 		context.kernel = context.statement.getKernel();
 		context.loc = context.kernel.getLocalization();
 
+		// We try to avoid divisions by X-Y if X or Y are generated points,
+		// to not introduce extra degeneracy than required. That is,
+		// all formulas assume that arguments are ordered where the free points appear first.
+		String[] predefinitions = {"coll(A_,B_,C_):=(A_-C_)/(A_-B_)",
+				"par(A_,B_,C_,D_):=(C_-D_)/(A_-B_)",
+				"perppar(A_,B_,C_,D_):=((C_-D_)/(A_-B_))^2",
+				"conc(A_,B_,C_,D_):=((C_-D_)/(C_-A_))/((B_-D_)/(B_-A_))",
+				// They are not considered yet:
+				"eqangle(A_,B_,C_,D_,E_,F_):=((B_-A_)/(B_-C_))/((E_-D_)/(E_-F_))",
+				"eqanglemul(A_,B_,C_,D_,E_,F_,n_):=((B_-A_)/(B_-C_))/((E_-D_)/(E_-F_))^n_",
+				"anglex(A_,B_,C_,D_,n_):=((C_-D_)/(A_-B_))^n_",
+				"isosc(A_,B_,C_):=eqangle(C_,B_,A_,A_,C_,B_)" // |AB|=|AC|
+		};
+		String predefs = "";
+		for (String predefinition : predefinitions) {
+			predefs += "[" + predefinition + "],";
+		}
+
+		context.predefinitions  = predefinitions;
+		context.predefs = predefs;
+
 		return new ProverCNIMethodAsd().prove(context);
 	}
 
