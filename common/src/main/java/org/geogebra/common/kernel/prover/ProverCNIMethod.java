@@ -841,60 +841,13 @@ public class ProverCNIMethod implements ProverMethod {
 			return c;
 		}
 		if (ae instanceof AlgoIntersectConics) {
-			AlgoIntersectConics aic = (AlgoIntersectConics) ae;
-			GeoConic co1 = aic.getA();
-			GeoConic co2 = aic.getB();
-			String rel1 = "", rel2 = "";
-			rel1 = oncircle((GeoPoint) ge, co1);
-			rel2 = oncircle((GeoPoint) ge, co2);
-			if (rel1 == null || rel2 == null) {
-				return null; // Not implemented.
-			}
-			c.realRelation = rel1 + "\n" + rel2;
-			return c;
+			return getCNIHypothesisDefinitionForAlgoIntersectConics((AlgoIntersectConics)ae, ge);
 		}
 		if (ae instanceof AlgoPointOnPath) {
-			AlgoPointOnPath apop = (AlgoPointOnPath) ae;
-			GeoElement[] input = apop.getInput();
-			GeoElement p = input[0];
-			if (p instanceof GeoLine) {
-				GeoPoint gS = ((GeoLine) p).getStartPoint();
-				GeoPoint gE = ((GeoLine) p).getEndPoint();
-				c.realRelation = online((GeoPoint) ge, (GeoLine) p);
-				if (c.realRelation.startsWith("perppar")) {
-					c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
-				}
-				if (c.realRelation.startsWith("isosc")) {
-					c.warning = WARNING_EQUALITY_OR_COLLINEAR;
-				}
-				return c;
-			}
-			if (p instanceof GeoConic) {
-				AlgoElement pAe = p.getParentAlgorithm();
-				if (((GeoConic) p).isCircle()) {
-					c.realRelation = oncircle((GeoPoint) ge, (GeoConic) p);
-					return c;
-				}
-				return null; // Not implemented.
-			}
-			return null; // Not implemented.
+			return getCNIHypothesisDefinitionForAlgoPointOnPath((AlgoPointOnPath)ae, ge);
 		}
 		if (ae instanceof AlgoTranslate) {
-			AlgoTranslate at = (AlgoTranslate) ae;
-			GeoElement P = (GeoElement) at.getInput(0);
-			GeoElement v = (GeoElement) at.getInput(1);
-			if (P instanceof GeoPoint && v instanceof GeoVector) {
-				GeoVector gv = (GeoVector) v;
-				AlgoElement gvAe = gv.getParentAlgorithm();
-				GeoElement A = (GeoElement) gvAe.getInput(0);
-				GeoElement B = (GeoElement) gvAe.getInput(1);
-				String Pl = getUniqueLabel(P);
-				String Al = getUniqueLabel(A);
-				String Bl = getUniqueLabel(B);
-				c.declaration = gel + ":=" + Pl + "+" + Bl + "-" + Al;
-				return c;
-			}
-			return null; // Not implemented.
+			return getCNIHypothesisDefinitionForAlgoTranslate((AlgoTranslate) ae, gel);
 		}
 		if (ae instanceof AlgoRotatePoint) {
 			return getCNIHypothesisDefinitionForAlgoRotatePoint((AlgoRotatePoint)ae, gel);
@@ -908,6 +861,68 @@ public class ProverCNIMethod implements ProverMethod {
 
 		// Unimplemented, but it should be handled...
 		return null;
+	}
+
+	private CNIDefinition getCNIHypothesisDefinitionForAlgoIntersectConics(AlgoIntersectConics aic, GeoElement ge){
+		CNIDefinition c = new CNIDefinition();
+
+		GeoConic co1 = aic.getA();
+		GeoConic co2 = aic.getB();
+		String rel1 = "", rel2 = "";
+		rel1 = oncircle((GeoPoint) ge, co1);
+		rel2 = oncircle((GeoPoint) ge, co2);
+		if (rel1 == null || rel2 == null) {
+			return null; // Not implemented.
+		}
+		c.realRelation = rel1 + "\n" + rel2;
+		return c;
+	}
+
+	private CNIDefinition getCNIHypothesisDefinitionForAlgoPointOnPath(AlgoPointOnPath apop, GeoElement ge){
+		CNIDefinition c = new CNIDefinition();
+
+		GeoElement[] input = apop.getInput();
+		GeoElement p = input[0];
+		if (p instanceof GeoLine) {
+			GeoPoint gS = ((GeoLine) p).getStartPoint();
+			GeoPoint gE = ((GeoLine) p).getEndPoint();
+			c.realRelation = online((GeoPoint) ge, (GeoLine) p);
+			if (c.realRelation.startsWith("perppar")) {
+				c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
+			}
+			if (c.realRelation.startsWith("isosc")) {
+				c.warning = WARNING_EQUALITY_OR_COLLINEAR;
+			}
+			return c;
+		}
+		if (p instanceof GeoConic) {
+			AlgoElement pAe = p.getParentAlgorithm();
+			if (((GeoConic) p).isCircle()) {
+				c.realRelation = oncircle((GeoPoint) ge, (GeoConic) p);
+				return c;
+			}
+			return null; // Not implemented.
+		}
+		return null; // Not implemented.
+	}
+
+	private CNIDefinition getCNIHypothesisDefinitionForAlgoTranslate(AlgoTranslate at, String gel){
+		CNIDefinition c = new CNIDefinition();
+
+		GeoElement P = (GeoElement) at.getInput(0);
+		GeoElement v = (GeoElement) at.getInput(1);
+		if (P instanceof GeoPoint && v instanceof GeoVector) {
+			GeoVector gv = (GeoVector) v;
+			AlgoElement gvAe = gv.getParentAlgorithm();
+			GeoElement A = (GeoElement) gvAe.getInput(0);
+			GeoElement B = (GeoElement) gvAe.getInput(1);
+			String Pl = getUniqueLabel(P);
+			String Al = getUniqueLabel(A);
+			String Bl = getUniqueLabel(B);
+			c.declaration = gel + ":=" + Pl + "+" + Bl + "-" + Al;
+			return c;
+		}
+		return null; // Not implemented.
 	}
 
 	private CNIDefinition getCNIHypothesisDefinitionForAlgoRotatePoint(AlgoRotatePoint arp, String gel){
