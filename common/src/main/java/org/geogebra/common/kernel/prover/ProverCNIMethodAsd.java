@@ -69,20 +69,19 @@ public class ProverCNIMethodAsd {
 	private static final String VARIABLE_I_STRING = "I_"; // This must be a kind of unique string.
 	
 	private ProverContext context;
+	String declarations = "";
+	String realRelations = "";
+	int realRelationsNo = 0;
+	boolean declarative = true;
+	boolean rMustBeZero = false;
+	int maxSpecRestriction = 0;
+
+	// to avoid that explanations are displayed multiple times
+	boolean primedNotationExplained = false;
+	boolean algebraicRelationExplained = false;
 	
 	public ProofResult prove(ProverContext context){
 		this.context=context;
-		
-		String declarations = "";
-		String realRelations = "";
-		int realRelationsNo = 0;
-		boolean declarative = true;
-		boolean rMustBeZero = false;
-		int maxSpecRestriction = 0;
-
-		// to avoid that explanations are displayed multiple times
-		boolean primedNotationExplained = false;
-		boolean algebraicRelationExplained = false;
 
 		// All predecessors:
 		TreeSet<GeoElement> allPredecessors = context.statement.getAllPredecessors();
