@@ -1,9 +1,8 @@
 package org.geogebra.common.kernel.prover.CNIMethod;
 
 import static org.geogebra.common.kernel.prover.CNIMethod.ProverCNIMethod.getUniqueLabel;
-import static org.geogebra.common.kernel.prover.CNIMethod.ProverCNIMethod.removeTail;
 
-import java.util.TreeSet;
+import java.util.ArrayList;import java.util.List;import java.util.TreeSet;
 
 import org.geogebra.common.kernel.algos.AlgoAnglePoints;
 import org.geogebra.common.kernel.algos.AlgoAngularBisectorPoints;
@@ -36,13 +35,13 @@ public class GiacCommandFactory {
 		collPoints.add(ge1);
 		collPoints.add(ge2);
 		collPoints.add(ge3);
-		String ret = "coll(";
+
+		List<String> labels = new ArrayList<>();
 		for (GeoElement cp : collPoints) {
-			ret += getUniqueLabel(cp) + ",";
+			labels.add(getUniqueLabel(cp));
 		}
-		ret = removeTail(ret, 1); // FIXME
-		ret += ")";
-		return ret;
+
+		return "coll("+String.join(",",labels) + ")";
 	}
 
 	String concyclic(GeoElement ge1, GeoElement ge2, GeoElement ge3, GeoElement ge4) {
@@ -51,13 +50,13 @@ public class GiacCommandFactory {
 		concPoints.add(ge2);
 		concPoints.add(ge3);
 		concPoints.add(ge4);
-		String ret = "conc(";
+
+		List<String> labels = new ArrayList<>();
 		for (GeoElement cp : concPoints) {
-			ret += getUniqueLabel(cp) + ",";
+			labels.add(getUniqueLabel(cp));
 		}
-		ret = removeTail(ret, 1);
-		ret += ")";
-		return ret;
+
+		return "conc(" + String.join(",", labels) + ")";
 	}
 
 	String cyclotomicPolynomial(int n) {

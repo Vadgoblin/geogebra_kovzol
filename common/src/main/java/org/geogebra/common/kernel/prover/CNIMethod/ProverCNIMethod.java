@@ -734,13 +734,6 @@ public class ProverCNIMethod implements ProverMethod {
 		return ge.getLabelSimple().replace("_{","").replace("}", "");
 	}
 
-	static String removeTail(String input, int length) {
-		if (input.length() >= length) {
-			return input.substring(0, input.length() - length);
-		}
-		return input;
-	}
-
 	// This is already present in the class Compute. TODO: Unify the code.
 	private static String removeHeadTail(String input, int length) {
 		if (input.length() >= 2 * length) {
