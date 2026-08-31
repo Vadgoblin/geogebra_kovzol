@@ -832,6 +832,7 @@ public class ProverCNIMethod implements ProverMethod {
 	) {
 
 		ArrayList<String> eqs = new ArrayList<>();
+		List<String> vars = new ArrayList<>();
 
 		//build polynomial in format: ((A'-C')/(A'-O'))/... - r__k
 		for (int i = 0; i < lhsList.size(); i++) {
@@ -841,12 +842,8 @@ public class ProverCNIMethod implements ProverMethod {
 		}
 
 		// prime all variables to avoid issues in CAS with defined points
-		StringBuilder vars = new StringBuilder(); // TODO: Repalce with list?
 		for (String lab : pointLabels) {
-			if (vars.length() > 0) {
-				vars.append(",");
-			}
-			vars.append(lab).append(PRIME);   // A',B',C',O',...
+			vars.add(lab+PRIME); // A',B',C',O',...
 		}
 
 		// handle divisor (divisor = 0)
@@ -863,10 +860,10 @@ public class ProverCNIMethod implements ProverMethod {
 
 		// handle extraVariables
 		if (extraVariables != null && !extraVariables.isEmpty()) {
-			vars.append(",").append(String.join(",",extraVariables));
+			vars.addAll(extraVariables);
 		}
 
-		return "Eliminate({" + String.join(",", eqs) + "},{" + vars + "})";
+		return "Eliminate({" + String.join(",", eqs) + "},{" + String.join(",", vars) + "})";
 	}
 
 	// simple helpers
