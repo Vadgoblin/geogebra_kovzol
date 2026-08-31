@@ -317,15 +317,16 @@ public class ProverCNIMethod implements ProverMethod {
 		String program1 = program; // first program stored, later it may be required with an edit
 		String rest = "";
 		rest += "],";
-		String toEliminate = "";
+
+		List<String> toEliminate = new ArrayList<>();
 		for (GeoElement ge : freePoints) {
-			toEliminate += Label.makeUnique(ge) + ",";
+			toEliminate.add(Label.makeUnique(ge));
 		}
 		for (GeoElement ge : realRelationalPoints) {
-			toEliminate += Label.makeUnique(ge) + ",";
+			toEliminate.add(Label.makeUnique(ge));
 		}
-		toEliminate += String.join(",",extraVariables);
-		rest += "[" + toEliminate + "]";
+		toEliminate.addAll(extraVariables);
+		rest += "[" + String.join(",", toEliminate) + "]";
 
 		// Add third parameter for the eliminate command.
 		// It specifies the variable ordering for the remaining variables (that are not eliminated).
