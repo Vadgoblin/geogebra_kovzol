@@ -135,99 +135,106 @@ public class CNIThesisDefinition {
 			return c;
 		}
 		if (ae instanceof AlgoDependentBoolean) {
-			ExpressionNode en = ((AlgoDependentBoolean) ae).getExpression();
-			if (!en.getLeft().isGeoElement() || !en.getRight().isGeoElement()) {
-				// Handle some special cases.
-				// 2 alpha == beta
-				if (en.getOperation() == Operation.EQUAL_BOOLEAN &&
-						en.getLeft() instanceof ExpressionNode &&
-						((ExpressionNode) en.getLeft()).getOperation() == Operation.MULTIPLY &&
-						((ExpressionNode) en.getLeft()).getLeft() instanceof MySpecialDouble &&
-						((ExpressionNode) en.getLeft()).getRight() instanceof GeoAngle &&
-						en.getRight().isGeoElement() && en.getRight() instanceof GeoAngle) {
-					GeoAngle a1 = (GeoAngle) ((ExpressionNode) en.getLeft()).getRightTree().getSingleGeoElement();
-					GeoAngle a2 = (GeoAngle) ((ExpressionNode) en.getRightTree()).getSingleGeoElement();
-					AlgoElement ae1 = a1.getParentAlgorithm();
-					AlgoElement ae2 = a2.getParentAlgorithm();
-					double n = ((ExpressionNode) en.getLeft()).getLeft().evaluateDouble();
-					int ni = (int) n; // FIXME. If ni is not an integer, this should be an error.
-					double EPSILON = 0.00001;
-					if (Math.abs(n-ni) > EPSILON) {
-						return null; // Not implemented.
-					}
-					if (ae1 instanceof AlgoAnglePoints && ae2 instanceof AlgoAnglePoints) {
-						GeoPoint A = (GeoPoint) ((AlgoAnglePoints) ae1).getA();
-						GeoPoint B = (GeoPoint) ((AlgoAnglePoints) ae1).getB();
-						GeoPoint C = (GeoPoint) ((AlgoAnglePoints) ae1).getC();
-						GeoPoint D = (GeoPoint) ((AlgoAnglePoints) ae2).getA();
-						GeoPoint E = (GeoPoint) ((AlgoAnglePoints) ae2).getB();
-						GeoPoint F = (GeoPoint) ((AlgoAnglePoints) ae2).getC();
-						c.realRelation = commandFactory.eqanglemul(D,E,F,A,B,C,ni);
-						return c;
-					}
-					return null; // Not implemented.
-				}
-				// alpha == 30 degrees
-				if (en.getOperation() == Operation.EQUAL_BOOLEAN &&
-						en.getLeft() instanceof GeoAngle &&
-						en.getRight() instanceof ExpressionNode &&
-						((ExpressionNode) en.getRight()).getOperation() == Operation.MULTIPLY &&
-						((ExpressionNode) en.getRight()).getLeft() instanceof MySpecialDouble &&
-						((ExpressionNode) en.getRight()).getRight().toString(StringTemplate.giacTemplate).equals("pi/180")) {
-
-					// This is taken from AlgoRotatePoint (Botana's method)
-					double angleDoubleVal = ((MySpecialDouble) (((ExpressionNode) en.getRight()).getLeft())).getDouble();
-					if (!DoubleUtil.isInteger(angleDoubleVal)) {
-						// unhandled angle, not an integer degree
-						return null; // Unimplemented.
-					}
-					int angleValDeg = (int) angleDoubleVal;
-					// Compute the gcd of the angle and 180 degrees. For 90 degrees, this is 90,
-					// for 120, this is 60, for 135, this is 45, for example.
-					long gcd = Kernel.gcd(angleValDeg, 180);
-					// Which power is required to get a real number?
-					long rot = Math.abs(180 / gcd); // This is 2 for 90 degrees, 3 for 120 degrees,
-					// 4 for 135 (~45) degrees.
-					GeoAngle a = (GeoAngle) en.getLeft();
-					AlgoElement gae = a.getParentAlgorithm();
-					if (gae instanceof AlgoAnglePoints) {
-						GeoPoint A = (GeoPoint) ((AlgoAnglePoints) gae).getA();
-						GeoPoint B = (GeoPoint) ((AlgoAnglePoints) gae).getB();
-						GeoPoint C = (GeoPoint) ((AlgoAnglePoints) gae).getC();
-						c.realRelation = commandFactory.anglex(A, B, B, C, rot);
-						c.warning = WARNING_ANGLE;
-						return c;
-					}
-					return null; // Unimplemented.
-				}
-				return null; // Unimplemented (maybe a sum).
-			}
-			GeoElement ge1 = en.getLeftTree().getSingleGeoElement();
-			GeoElement ge2 = en.getRightTree().getSingleGeoElement();
-			Operation o = en.getOperation();
-			if (o == Operation.PARALLEL) {
-				c.realRelation = commandFactory.parallel((GeoLine) ge1, (GeoLine) ge2);
-				return c;
-			} else if (o == Operation.PERPENDICULAR) {
-				Log.debug("Warning: Testing perpendicularity AND parallelism simultaneously");
-				c.realRelation = commandFactory.perppar((GeoLine) ge1, (GeoLine) ge2);
-				c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
-				return c;
-			} else if (o == Operation.IS_ELEMENT_OF) {
-				if (ge1 instanceof GeoPoint && ge2 instanceof GeoLine) {
-					c.realRelation = commandFactory.online((GeoPoint) ge1, (GeoLine) ge2);
-					return c;
-				}
-				if (ge1 instanceof GeoPoint && ge2 instanceof GeoConic && ((GeoConic) ge2).isCircle()) {
-					c.realRelation = commandFactory.oncircle((GeoPoint) ge1, (GeoConic) ge2);
-					return c;
-				}
-				return null; // unimplemented
-			} else if (o == Operation.EQUAL_BOOLEAN) {
-				return commandFactory.equal(ge1, ge2);
-			}
+			return handleAlgoDependentBoolean((AlgoDependentBoolean)ae);
 		}
 		// Unimplemented, but it should be handled...
+		return null;
+	}
+
+	private CNIDefinition handleAlgoDependentBoolean(AlgoDependentBoolean adb){
+		CNIDefinition c = new CNIDefinition();
+		ExpressionNode en = ((AlgoDependentBoolean) adb).getExpression();
+		if (!en.getLeft().isGeoElement() || !en.getRight().isGeoElement()) {
+			// Handle some special cases.
+			// 2 alpha == beta
+			if (en.getOperation() == Operation.EQUAL_BOOLEAN &&
+					en.getLeft() instanceof ExpressionNode &&
+					((ExpressionNode) en.getLeft()).getOperation() == Operation.MULTIPLY &&
+					((ExpressionNode) en.getLeft()).getLeft() instanceof MySpecialDouble &&
+					((ExpressionNode) en.getLeft()).getRight() instanceof GeoAngle &&
+					en.getRight().isGeoElement() && en.getRight() instanceof GeoAngle) {
+				GeoAngle a1 = (GeoAngle) ((ExpressionNode) en.getLeft()).getRightTree().getSingleGeoElement();
+				GeoAngle a2 = (GeoAngle) ((ExpressionNode) en.getRightTree()).getSingleGeoElement();
+				AlgoElement ae1 = a1.getParentAlgorithm();
+				AlgoElement ae2 = a2.getParentAlgorithm();
+				double n = ((ExpressionNode) en.getLeft()).getLeft().evaluateDouble();
+				int ni = (int) n; // FIXME. If ni is not an integer, this should be an error.
+				double EPSILON = 0.00001;
+				if (Math.abs(n-ni) > EPSILON) {
+					return null; // Not implemented.
+				}
+				if (ae1 instanceof AlgoAnglePoints && ae2 instanceof AlgoAnglePoints) {
+					GeoPoint A = (GeoPoint) ((AlgoAnglePoints) ae1).getA();
+					GeoPoint B = (GeoPoint) ((AlgoAnglePoints) ae1).getB();
+					GeoPoint C = (GeoPoint) ((AlgoAnglePoints) ae1).getC();
+					GeoPoint D = (GeoPoint) ((AlgoAnglePoints) ae2).getA();
+					GeoPoint E = (GeoPoint) ((AlgoAnglePoints) ae2).getB();
+					GeoPoint F = (GeoPoint) ((AlgoAnglePoints) ae2).getC();
+					c.realRelation = commandFactory.eqanglemul(D,E,F,A,B,C,ni);
+					return c;
+				}
+				return null; // Not implemented.
+			}
+			// alpha == 30 degrees
+			if (en.getOperation() == Operation.EQUAL_BOOLEAN &&
+					en.getLeft() instanceof GeoAngle &&
+					en.getRight() instanceof ExpressionNode &&
+					((ExpressionNode) en.getRight()).getOperation() == Operation.MULTIPLY &&
+					((ExpressionNode) en.getRight()).getLeft() instanceof MySpecialDouble &&
+					((ExpressionNode) en.getRight()).getRight().toString(StringTemplate.giacTemplate).equals("pi/180")) {
+
+				// This is taken from AlgoRotatePoint (Botana's method)
+				double angleDoubleVal = ((MySpecialDouble) (((ExpressionNode) en.getRight()).getLeft())).getDouble();
+				if (!DoubleUtil.isInteger(angleDoubleVal)) {
+					// unhandled angle, not an integer degree
+					return null; // Unimplemented.
+				}
+				int angleValDeg = (int) angleDoubleVal;
+				// Compute the gcd of the angle and 180 degrees. For 90 degrees, this is 90,
+				// for 120, this is 60, for 135, this is 45, for example.
+				long gcd = Kernel.gcd(angleValDeg, 180);
+				// Which power is required to get a real number?
+				long rot = Math.abs(180 / gcd); // This is 2 for 90 degrees, 3 for 120 degrees,
+				// 4 for 135 (~45) degrees.
+				GeoAngle a = (GeoAngle) en.getLeft();
+				AlgoElement gae = a.getParentAlgorithm();
+				if (gae instanceof AlgoAnglePoints) {
+					GeoPoint A = (GeoPoint) ((AlgoAnglePoints) gae).getA();
+					GeoPoint B = (GeoPoint) ((AlgoAnglePoints) gae).getB();
+					GeoPoint C = (GeoPoint) ((AlgoAnglePoints) gae).getC();
+					c.realRelation = commandFactory.anglex(A, B, B, C, rot);
+					c.warning = WARNING_ANGLE;
+					return c;
+				}
+				return null; // Unimplemented.
+			}
+			return null; // Unimplemented (maybe a sum).
+		}
+		GeoElement ge1 = en.getLeftTree().getSingleGeoElement();
+		GeoElement ge2 = en.getRightTree().getSingleGeoElement();
+		Operation o = en.getOperation();
+		if (o == Operation.PARALLEL) {
+			c.realRelation = commandFactory.parallel((GeoLine) ge1, (GeoLine) ge2);
+			return c;
+		} else if (o == Operation.PERPENDICULAR) {
+			Log.debug("Warning: Testing perpendicularity AND parallelism simultaneously");
+			c.realRelation = commandFactory.perppar((GeoLine) ge1, (GeoLine) ge2);
+			c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
+			return c;
+		} else if (o == Operation.IS_ELEMENT_OF) {
+			if (ge1 instanceof GeoPoint && ge2 instanceof GeoLine) {
+				c.realRelation = commandFactory.online((GeoPoint) ge1, (GeoLine) ge2);
+				return c;
+			}
+			if (ge1 instanceof GeoPoint && ge2 instanceof GeoConic && ((GeoConic) ge2).isCircle()) {
+				c.realRelation = commandFactory.oncircle((GeoPoint) ge1, (GeoConic) ge2);
+				return c;
+			}
+			return null; // unimplemented
+		} else if (o == Operation.EQUAL_BOOLEAN) {
+			return commandFactory.equal(ge1, ge2);
+		}
+
 		return null;
 	}
 }
