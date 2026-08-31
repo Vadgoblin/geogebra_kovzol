@@ -114,7 +114,7 @@ public class ProverCNIMethod implements ProverMethod {
 				if (def.realRelation != null) {
 					String[] CASrealRelations = def.realRelation.split("\n");
 					for (String CASrealRelation : CASrealRelations) {
-						String expression = CASrealRelation + "=" + VARIABLE_R_STRING + realRelations.size();
+						String expression = CASrealRelation + "=" + VARIABLE_R_STRING + (realRelations.size()+1);
 						realRelations.add(expression);
 						if (context.prover.getShowproof()) {
 							String rewriteProgram = "[" + context.predefs + expression + "][" + context.predefinitions.length + "]";
@@ -193,7 +193,7 @@ public class ProverCNIMethod implements ProverMethod {
 			// A typical application is AreConcurrent.
 			for (int i = 0; i < nrRels - 1; i++) {
 				String CASrealRelation = CASrealRelations[i];
-				String expression = CASrealRelation + "=" + VARIABLE_R_STRING + realRelations.size();
+				String expression = CASrealRelation + "=" + VARIABLE_R_STRING + (realRelations.size()+1);
 				realRelations.add(expression);
 				if (context.prover.getShowproof()) {
 					String rewriteProgram = "[" + context.predefs + expression + "][" + context.predefinitions.length + "]";
