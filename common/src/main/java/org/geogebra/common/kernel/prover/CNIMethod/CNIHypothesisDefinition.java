@@ -30,10 +30,10 @@ import org.geogebra.common.kernel.geos.GeoVector;
 import org.geogebra.common.util.DoubleUtil;
 
 public class CNIHypothesisDefinition {
-	private final GiacCommandFactory idk;
+	private final GiacCommandFactory commandFactory;
 
-	public CNIHypothesisDefinition(GiacCommandFactory idk) {
-		this.idk = idk;
+	public CNIHypothesisDefinition(GiacCommandFactory commandFactory) {
+		this.commandFactory = commandFactory;
 	}
 
 
@@ -131,8 +131,8 @@ public class CNIHypothesisDefinition {
 		GeoLine g = ail.getg();
 		GeoLine h = ail.geth();
 		String rel1 = "", rel2 = "";
-		rel1 = idk.online((GeoPoint) ge, g);
-		rel2 = idk.online((GeoPoint) ge, h);
+		rel1 = commandFactory.online((GeoPoint) ge, g);
+		rel2 = commandFactory.online((GeoPoint) ge, h);
 		if (rel1 == null || rel2 == null) {
 			return null; // Not implemented.
 		}
@@ -152,8 +152,8 @@ public class CNIHypothesisDefinition {
 		GeoLine l = ailc.getLine();
 		GeoConic co = ailc.getConic();
 		String rel1 = "", rel2 = "";
-		rel1 = idk.online((GeoPoint) ge, l);
-		rel2 = idk.oncircle((GeoPoint) ge, co);
+		rel1 = commandFactory.online((GeoPoint) ge, l);
+		rel2 = commandFactory.oncircle((GeoPoint) ge, co);
 		if (rel1 == null || rel2 == null) {
 			return null; // Not implemented.
 		}
@@ -173,8 +173,8 @@ public class CNIHypothesisDefinition {
 		GeoConic co1 = aic.getA();
 		GeoConic co2 = aic.getB();
 		String rel1 = "", rel2 = "";
-		rel1 = idk.oncircle((GeoPoint) ge, co1);
-		rel2 = idk.oncircle((GeoPoint) ge, co2);
+		rel1 = commandFactory.oncircle((GeoPoint) ge, co1);
+		rel2 = commandFactory.oncircle((GeoPoint) ge, co2);
 		if (rel1 == null || rel2 == null) {
 			return null; // Not implemented.
 		}
@@ -190,7 +190,7 @@ public class CNIHypothesisDefinition {
 		if (p instanceof GeoLine) {
 			GeoPoint gS = ((GeoLine) p).getStartPoint();
 			GeoPoint gE = ((GeoLine) p).getEndPoint();
-			c.realRelation = idk.online((GeoPoint) ge, (GeoLine) p);
+			c.realRelation = commandFactory.online((GeoPoint) ge, (GeoLine) p);
 			if (c.realRelation.startsWith("perppar")) {
 				c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
 			}
@@ -202,7 +202,7 @@ public class CNIHypothesisDefinition {
 		if (p instanceof GeoConic) {
 			AlgoElement pAe = p.getParentAlgorithm();
 			if (((GeoConic) p).isCircle()) {
-				c.realRelation = idk.oncircle((GeoPoint) ge, (GeoConic) p);
+				c.realRelation = commandFactory.oncircle((GeoPoint) ge, (GeoConic) p);
 				return c;
 			}
 			return null; // Not implemented.
@@ -251,7 +251,7 @@ public class CNIHypothesisDefinition {
 			long prim = Math.abs(360 / gcd); // This is 4 for 90 degrees, 3 for 120 degrees,
 			// 8 for 135 (~45) degrees.
 			// Create the minimal polynomial. E.g.: "expand(r2e(cyclotomic(8)))", for 135 degrees.
-			String minpoly = idk.cyclotomicPolynomial((int) prim);
+			String minpoly = commandFactory.cyclotomicPolynomial((int) prim);
 			// Now we create the declaration:
 			String Pl = getUniqueLabel(P);
 			String Cl = getUniqueLabel(C);
@@ -310,7 +310,7 @@ public class CNIHypothesisDefinition {
 					c.declaration += ctVar + "^" + j;
 				}
 				c.declaration += ")";
-				c.zeroRelation = idk.cyclotomicPolynomial(num);
+				c.zeroRelation = commandFactory.cyclotomicPolynomial(num);
 				c.extraVariable = ctVar;
 				return c;
 			}
