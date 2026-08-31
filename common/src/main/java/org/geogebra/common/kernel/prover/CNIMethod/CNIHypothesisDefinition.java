@@ -72,13 +72,13 @@ public class CNIHypothesisDefinition {
 			return handleAlgoIntersectLineConic((AlgoIntersectLineConic) ae, ge);
 		}
 		if (ae instanceof AlgoIntersectConics) {
-			return hadnleAlgoIntersectConics((AlgoIntersectConics) ae, ge);
+			return handleAlgoIntersectConics((AlgoIntersectConics) ae, ge);
 		}
 		if (ae instanceof AlgoPointOnPath) {
 			return handleAlgoPointOnPath((AlgoPointOnPath) ae, ge);
 		}
 		if (ae instanceof AlgoTranslate) {
-			return hadnleAlgoTranslate((AlgoTranslate) ae, gel);
+			return handleAlgoTranslate((AlgoTranslate) ae, gel);
 		}
 		if (ae instanceof AlgoRotatePoint) {
 			return handleAlgoRotatePoint((AlgoRotatePoint) ae, gel);
@@ -167,7 +167,7 @@ public class CNIHypothesisDefinition {
 		return c;
 	}
 
-	private CNIDefinition hadnleAlgoIntersectConics(AlgoIntersectConics aic, GeoElement ge) {
+	private CNIDefinition handleAlgoIntersectConics(AlgoIntersectConics aic, GeoElement ge) {
 		CNIDefinition c = new CNIDefinition();
 
 		GeoConic co1 = aic.getA();
@@ -210,7 +210,7 @@ public class CNIHypothesisDefinition {
 		return null; // Not implemented.
 	}
 
-	private CNIDefinition hadnleAlgoTranslate(AlgoTranslate at, String gel) {
+	private CNIDefinition handleAlgoTranslate(AlgoTranslate at, String gel) {
 		CNIDefinition c = new CNIDefinition();
 
 		GeoElement P = (GeoElement) at.getInput(0);
