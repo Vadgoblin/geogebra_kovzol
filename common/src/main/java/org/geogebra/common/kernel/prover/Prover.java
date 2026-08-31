@@ -7,8 +7,6 @@ import org.geogebra.common.kernel.geos.GeoPoint;
 import org.geogebra.common.kernel.scripting.CmdShowProof;
 import org.geogebra.common.util.Prover.ProofResult;
 
-import static org.geogebra.common.kernel.prover.CNIMethod.ProverCNIMethod.PRIME;
-
 
 public class Prover {
 
@@ -42,7 +40,7 @@ public class Prover {
 
 	private static boolean containsPrimedPointLabel(TreeSet<String> labels) {
 		for (String lab : labels) {
-			if (lab != null && lab.contains(PRIME)) {
+			if (lab != null && lab.contains(Constants.PRIME)) {
 				return true;
 			}
 		}

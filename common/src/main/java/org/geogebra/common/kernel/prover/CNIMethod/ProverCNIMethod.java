@@ -10,6 +10,7 @@ import java.util.TreeSet;
 import org.geogebra.common.kernel.StringTemplate;
 import org.geogebra.common.kernel.geos.GeoElement;
 import org.geogebra.common.kernel.geos.GeoPoint;
+import org.geogebra.common.kernel.prover.Constants;
 import org.geogebra.common.kernel.prover.Label;
 import org.geogebra.common.kernel.prover.ProverContext;
 import org.geogebra.common.kernel.prover.ProverMethod;
@@ -116,7 +117,7 @@ public class ProverCNIMethod implements ProverMethod {
 				if (def.realRelation != null) {
 					String[] CASrealRelations = def.realRelation.split("\n");
 					for (String CASrealRelation : CASrealRelations) {
-						String expression = CASrealRelation + "=" + VARIABLE_R_STRING + (realRelations.size()+1);
+						String expression = CASrealRelation + "=" + Constants.VARIABLE_R_STRING + (realRelations.size()+1);
 						realRelations.add(expression);
 						if (context.prover.getShowproof()) {
 							String rewriteProgram = "[" + Predefinitions.get() + expression + "][" + Predefinitions.count() + "]";
@@ -126,7 +127,7 @@ public class ProverCNIMethod implements ProverMethod {
 
 							explainAlgebraicNotation();
 
-							String rk = VARIABLE_R_STRING + realRelations.size(); // e.g., r__1
+							String rk = Constants.VARIABLE_R_STRING + realRelations.size(); // e.g., r__1
 							String lhsProgram = giac.execute("lhs(" + expression2 + ")");
 							String lhs2 = addPrimesToLabels(lhsProgram, context.primeLabels);
 
@@ -135,14 +136,14 @@ public class ProverCNIMethod implements ProverMethod {
 								toEliminateRhsVars.add(rk);
 							}
 
-							context.prover.addProofLine(CmdShowProof.EQUATION, rk + PRIME + ":=" + lhs2);
+							context.prover.addProofLine(CmdShowProof.EQUATION, rk + Constants.PRIME + ":=" + lhs2);
 						}
 					}
-					if (def.warning == WARNING_PERPENDICULAR_OR_PARALLEL) {
+					if (def.warning == Constants.WARNING_PERPENDICULAR_OR_PARALLEL) {
 						context.prover.addProofLine(CmdShowProof.PROBLEM, context.loc.getMenuDefault("PerpendicularityParallelism",
 								"Perpendicularity means perpendicularity or parallelism simultaneously."));
 					}
-					if (def.warning == WARNING_EQUALITY_OR_COLLINEAR) {
+					if (def.warning == Constants.WARNING_EQUALITY_OR_COLLINEAR) {
 						context.prover.addProofLine(CmdShowProof.PROBLEM, context.loc.getMenuDefault("EqualityCollinearity",
 								"Equality of lengths means equality or collinearity simultaneously."));
 					}
@@ -196,7 +197,7 @@ public class ProverCNIMethod implements ProverMethod {
 			// A typical application is AreConcurrent.
 			for (int i = 0; i < nrRels - 1; i++) {
 				String CASrealRelation = CASrealRelations[i];
-				String expression = CASrealRelation + "=" + VARIABLE_R_STRING + (realRelations.size()+1);
+				String expression = CASrealRelation + "=" + Constants.VARIABLE_R_STRING + (realRelations.size()+1);
 				realRelations.add(expression);
 				if (context.prover.getShowproof()) {
 					String rewriteProgram = "[" + Predefinitions.get() + expression + "][" + Predefinitions.count() + "]";
@@ -205,7 +206,7 @@ public class ProverCNIMethod implements ProverMethod {
 					context.prover.addProofLine(CmdShowProof.TEXT_EQUATION, lhs(expression) + "=" + expression2
 							+ com.himamis.retex.editor.share.util.Unicode.IS_ELEMENT_OF + "\u211D");
 
-					String rk = VARIABLE_R_STRING + realRelations.size(); // e.g., r__1
+					String rk = Constants.VARIABLE_R_STRING + realRelations.size(); // e.g., r__1
 					String lhsProgram = giac.execute("lhs(" + expression2 + ")");
 					String lhs2 = addPrimesToLabels(lhsProgram, context.primeLabels);
 
@@ -214,10 +215,10 @@ public class ProverCNIMethod implements ProverMethod {
 						toEliminateRhsVars.add(rk);
 					}
 
-					context.prover.addProofLine(CmdShowProof.EQUATION, rk + PRIME + ":=" + lhs2);
+					context.prover.addProofLine(CmdShowProof.EQUATION, rk + Constants.PRIME + ":=" + lhs2);
 				}
 			}
-			String thesis = CASrealRelations[nrRels - 1] + "=" + VARIABLE_R_STRING;
+			String thesis = CASrealRelations[nrRels - 1] + "=" + Constants.VARIABLE_R_STRING;
 			realRelations.add(thesis);
 			if (context.prover.getShowproof()) {
 				String rewriteProgram = "[" + Predefinitions.get() + thesis + "][" + Predefinitions.count() + "]";
@@ -229,7 +230,7 @@ public class ProverCNIMethod implements ProverMethod {
 
 				if (toEliminateLhsPrimed != null) {
 					toEliminateLhsPrimed.add(lhs2);
-					toEliminateRhsVars.add(VARIABLE_R_STRING);
+					toEliminateRhsVars.add(Constants.VARIABLE_R_STRING);
 				}
 
 				thesisDefinitionPrimed = lhs2;
@@ -237,19 +238,19 @@ public class ProverCNIMethod implements ProverMethod {
 				context.prover.addProofLine(context.loc.getPlainDefault(
 						"CNIThesisAlgebraicForm",
 						"We now turn the thesis into an algebraic expression. The symbol %0 stands for this expression:",
-						VARIABLE_R_STRING + PRIME));
-				context.prover.addProofLine(CmdShowProof.EQUATION, VARIABLE_R_STRING + PRIME + ":=" + lhs2);
+						Constants.VARIABLE_R_STRING + Constants.PRIME));
+				context.prover.addProofLine(CmdShowProof.EQUATION, Constants.VARIABLE_R_STRING + Constants.PRIME + ":=" + lhs2);
 
-				if (def.warning == WARNING_PERPENDICULAR_OR_PARALLEL) {
+				if (def.warning == Constants.WARNING_PERPENDICULAR_OR_PARALLEL) {
 					context.prover.addProofLine(CmdShowProof.PROBLEM, context.loc.getMenuDefault("PerpendicularityParallelism",
 							"Perpendicularity means perpendicularity or parallelism simultaneously"));
 				}
-				if (def.warning == WARNING_EQUALITY_OR_COLLINEAR) {
+				if (def.warning == Constants.WARNING_EQUALITY_OR_COLLINEAR) {
 					context.prover.addProofLine(CmdShowProof.PROBLEM,
 							context.loc.getMenuDefault("EqualityCollinearity",
 									"Equality of lengths means equality or collinearity simultaneously."));
 				}
-				if (def.warning == WARNING_ANGLE) {
+				if (def.warning == Constants.WARNING_ANGLE) {
 					context.prover.addProofLine(CmdShowProof.PROBLEM,
 							context.loc.getMenuDefault("AngleAmbiguity",
 									"Angle equality means equality or equality to another specific angle simultaneously."));
@@ -281,7 +282,7 @@ public class ProverCNIMethod implements ProverMethod {
 			if (i == 0 && maxSpecRestriction < 2) {
 				String spec1 = Label.makeUnique(ge) + ":=0";
 				if (context.prover.getShowproof() && context.prover.getShowEliminate()) {
-					specEqList.add(Label.makeUnique(ge) + PRIME + "=0");
+					specEqList.add(Label.makeUnique(ge) + Constants.PRIME + "=0");
 				}
 				specCode.add(spec1);
 				if (context.prover.getShowproof()) {
@@ -292,7 +293,7 @@ public class ProverCNIMethod implements ProverMethod {
 			if (i == 1 && maxSpecRestriction < 1) {
 				String spec2 = Label.makeUnique(ge) + ":=1";
 				if (context.prover.getShowproof() && context.prover.getShowEliminate()) {
-					specEqList.add(Label.makeUnique(ge) + PRIME + "=1");
+					specEqList.add(Label.makeUnique(ge) + Constants.PRIME + "=1");
 				}
 				specCode.add(spec2);
 				if (context.prover.getShowproof()) {
@@ -313,7 +314,7 @@ public class ProverCNIMethod implements ProverMethod {
 		for (String declaration : declarations) {
 			program += "[" + declaration + "],";
 		}
-		program += "[" + VARIABLE_I_STRING + ":=eliminate([" + String.join(",", realRelations);
+		program += "[" + Constants.VARIABLE_I_STRING + ":=eliminate([" + String.join(",", realRelations);
 		String program1 = program; // first program stored, later it may be required with an edit
 		String rest = "";
 		rest += "],";
@@ -394,11 +395,11 @@ public class ProverCNIMethod implements ProverMethod {
 		String elimIdealL = removeHeadTail(elimIdeal, 1).
 				replace("{", "[").replace("}", "]"); // remove { and }
 		// Now we choose the minimal degree polynomial (in r) of this list.
-		program = "[[" + VARIABLE_I_STRING + ":= " + elimIdealL + "],[deg:=inf],[degi:=0],"
-				+ "[for (k:=0;k<size(" + VARIABLE_I_STRING + ");k++) { d:=degree(" + VARIABLE_I_STRING
-				+ "[k]," + VARIABLE_R_STRING + ");"
+		program = "[[" + Constants.VARIABLE_I_STRING + ":= " + elimIdealL + "],[deg:=inf],[degi:=0],"
+				+ "[for (k:=0;k<size(" + Constants.VARIABLE_I_STRING + ");k++) { d:=degree(" + Constants.VARIABLE_I_STRING
+				+ "[k]," + Constants.VARIABLE_R_STRING + ");"
 				+ "if (d>0 && d<deg) { deg:=d; degi:=k; } }],"
-				+ "[deg," + VARIABLE_I_STRING + "[degi]]][4]";
+				+ "[deg," + Constants.VARIABLE_I_STRING + "[degi]]][4]";
 		program = ggbGiac(program);
 		String minDegree = giac.execute(program);
 		// The result is in form: {1,4*r_1*r_2*r_-4*r_1*r_2-4*r_1*r_-4*r_2*r_+3*r_1+3*r_2+3*r_}
@@ -421,7 +422,7 @@ public class ProverCNIMethod implements ProverMethod {
 			if (context.prover.getShowproof()) {
 				context.prover.addProofLine(context.loc.getPlainDefault("ThesisACanBeExpressedAsRationalBecauseALinear",
 						"The thesis (%0) can be expressed as a rational expression of the hypotheses, because %0 is"
-								+ " linear in the following polynomial equation:", VARIABLE_R_STRING));
+								+ " linear in the following polynomial equation:", Constants.VARIABLE_R_STRING));
 				context.prover.addProofLine(minDegreeA[1] + "=0");
 
 				// r is linear: a * r + b = 0
@@ -429,11 +430,11 @@ public class ProverCNIMethod implements ProverMethod {
 				String poly = minDegreeA[1];
 
 				String rExpr = giac.execute(
-						"-(coeff(" + poly + "," + VARIABLE_R_STRING + ")[1])"
-								+ "/(coeff(" + poly + "," + VARIABLE_R_STRING + ")[0])");
+						"-(coeff(" + poly + "," + Constants.VARIABLE_R_STRING + ")[1])"
+								+ "/(coeff(" + poly + "," + Constants.VARIABLE_R_STRING + ")[0])");
 
 				// prime the r expression
-				String rExprPrimed = addPrimesToRVariables(rExpr, VARIABLE_R_STRING);
+				String rExprPrimed = addPrimesToRVariables(rExpr, Constants.VARIABLE_R_STRING);
 
 				String simplifiedRExpr = giac.execute("simplify(" + rExprPrimed + ")");
 				String simplifiedThesis = null;
@@ -445,7 +446,7 @@ public class ProverCNIMethod implements ProverMethod {
 						"We now simplify both expressions. This makes them easier to compare:"));
 
 				context.prover.addProofLine(CmdShowProof.EQUATION,
-						VARIABLE_R_STRING + PRIME + PRIME + ":=" + rExprPrimed);
+						Constants.VARIABLE_R_STRING + Constants.PRIME + Constants.PRIME + ":=" + rExprPrimed);
 				context.prover.addProofLine(CmdShowProof.EQUATION, "Simplify(" + rExprPrimed + ")");
 
 				if (thesisDefinitionPrimed != null) {
@@ -471,12 +472,12 @@ public class ProverCNIMethod implements ProverMethod {
 			Log.debug("The elimination ideal contains " + minDegreeA[1] + ", it is linear in r_.");
 			// Check if r can be expressed without a division:
 			// lvar(coeff(2*r_+1,r_)[0])
-			program = "lvar(coeff(" + minDegreeA[1] + "," + VARIABLE_R_STRING + ")[0])";
+			program = "lvar(coeff(" + minDegreeA[1] + "," + Constants.VARIABLE_R_STRING + ")[0])";
 			String divVars = giac.execute(program);
 			if (divVars.equals("{}")) {
 				if (rMustBeZero) {
-					if (minDegreeA[1].equals(VARIABLE_R_STRING) ||
-							minDegreeA[1].equals("-" + VARIABLE_R_STRING)) {
+					if (minDegreeA[1].equals(Constants.VARIABLE_R_STRING) ||
+							minDegreeA[1].equals("-" + Constants.VARIABLE_R_STRING)) {
 						if (context.prover.getShowproof()) {
 							context.prover.addProofLine(CmdShowProof.CONCLUSION,
 									context.loc.getMenuDefault("ThesisZeroStatementTrue",
@@ -503,13 +504,13 @@ public class ProverCNIMethod implements ProverMethod {
 				return Prover.ProofResult.TRUE;
 			}
 			// Read off the divisor when expressing r:
-			program = "coeff(" + minDegreeA[1] + "," + VARIABLE_R_STRING + ")[0])";
+			program = "coeff(" + minDegreeA[1] + "," + Constants.VARIABLE_R_STRING + ")[0])";
 			String divisor = giac.execute(program);
 			if (context.prover.getShowproof()) {
 				context.prover.addProofLine(
 						context.loc.getPlainDefault("SolvingForARequiresDivByB",
 								"Solving for %0 requires a division by %1.",
-								new String[]{VARIABLE_R_STRING, divisor}));
+								new String[]{Constants.VARIABLE_R_STRING, divisor}));
 				context.prover.addProofLine(context.loc.getMenuDefault("AssumeDivisorZero",
 						"Let us assume that this divisor is 0 and restart the elimination."));
 			}
@@ -563,11 +564,11 @@ public class ProverCNIMethod implements ProverMethod {
 			String elimIdeal2L = removeHeadTail(elimIdeal2, 1).
 					replace("{", "[").replace("}", "]"); // remove { and }
 			// Now we choose the minimal degree polynomial (in r) of this list.
-			program = "[[" + VARIABLE_I_STRING + ":= " + elimIdeal2L + "],[deg:=inf],[degi:=0],"
-					+ "[for (k:=0;k<size(" + VARIABLE_I_STRING + ");k++) { d:=degree(" + VARIABLE_I_STRING
-					+ "[k]," + VARIABLE_R_STRING + ");"
+			program = "[[" + Constants.VARIABLE_I_STRING + ":= " + elimIdeal2L + "],[deg:=inf],[degi:=0],"
+					+ "[for (k:=0;k<size(" + Constants.VARIABLE_I_STRING + ");k++) { d:=degree(" + Constants.VARIABLE_I_STRING
+					+ "[k]," + Constants.VARIABLE_R_STRING + ");"
 					+ "if (d>0 && d<deg) { deg:=d; degi:=k; } }],"
-					+ "[deg," + VARIABLE_I_STRING + "[degi]]][4]";
+					+ "[deg," + Constants.VARIABLE_I_STRING + "[degi]]][4]";
 			program = ggbGiac(program);
 			String minDegree2 = giac.execute(program);
 			// The result is in form: {1,4*r_1*r_2*r_-4*r_1*r_2-4*r_1*r_-4*r_2*r_+3*r_1+3*r_2+3*r_}
@@ -590,15 +591,15 @@ public class ProverCNIMethod implements ProverMethod {
 				if (context.prover.getShowproof()) {
 					context.prover.addProofLine(context.loc.getPlainDefault("ThesisACanBeExpressedNowAsRationalBecauseALinear",
 							"The thesis (%0) can now be expressed as a rational expression of the hypotheses, because %0 is"
-									+ " linear in the following polynomial equation:", VARIABLE_R_STRING));
+									+ " linear in the following polynomial equation:", Constants.VARIABLE_R_STRING));
 					context.prover.addProofLine(minDegree2A[1] + "=0");
 
 					String poly2 = minDegree2A[1];
 					String rExpr2 = giac.execute(
-							"-(coeff(" + poly2 + "," + VARIABLE_R_STRING + ")[1])"
-									+ "/(coeff(" + poly2 + "," + VARIABLE_R_STRING + ")[0])");
+							"-(coeff(" + poly2 + "," + Constants.VARIABLE_R_STRING + ")[1])"
+									+ "/(coeff(" + poly2 + "," + Constants.VARIABLE_R_STRING + ")[0])");
 
-					String rExpr2Primed = addPrimesToRVariables(rExpr2, VARIABLE_R_STRING);
+					String rExpr2Primed = addPrimesToRVariables(rExpr2, Constants.VARIABLE_R_STRING);
 
 					String simplifiedRExpr2 = giac.execute("simplify(" + rExpr2Primed + ")");
 					String simplifiedThesis2 = null;
@@ -609,7 +610,7 @@ public class ProverCNIMethod implements ProverMethod {
 					context.prover.addProofLine(context.loc.getMenuDefault("CNISimplifyBoth",
 							"We now simplify both expressions. This makes them easier to compare:"));
 
-					context.prover.addProofLine(CmdShowProof.EQUATION, VARIABLE_R_STRING + PRIME + PRIME + ":=" + rExpr2Primed);
+					context.prover.addProofLine(CmdShowProof.EQUATION, Constants.VARIABLE_R_STRING + Constants.PRIME + Constants.PRIME + ":=" + rExpr2Primed);
 					context.prover.addProofLine(CmdShowProof.EQUATION, "Simplify(" + rExpr2Primed + ")");
 
 					if (thesisDefinitionPrimed != null) {
@@ -633,11 +634,11 @@ public class ProverCNIMethod implements ProverMethod {
 				Log.debug("The second elimination ideal contains " + minDegree2A[1] + ", it is linear in r_.");
 				// Check if r can be expressed without a division:
 				// lvar(coeff(2*r_+1,r_)[0])
-				program = "lvar(coeff(" + minDegree2A[1] + ","+ VARIABLE_R_STRING + ")[0])";
+				program = "lvar(coeff(" + minDegree2A[1] + ","+ Constants.VARIABLE_R_STRING + ")[0])";
 				String divVars2 = giac.execute(program);
 				if (divVars2.equals("{}")) {
 					if (rMustBeZero) {
-						if (minDegree2A[1].equals(VARIABLE_R_STRING) || minDegree2A[1].equals("-" + VARIABLE_R_STRING)) {
+						if (minDegree2A[1].equals(Constants.VARIABLE_R_STRING) || minDegree2A[1].equals("-" + Constants.VARIABLE_R_STRING)) {
 							if (context.prover.getShowproof()) {
 								context.prover.addProofLine(CmdShowProof.CONCLUSION,
 										context.loc.getMenuDefault("ThesisZeroStatementTrue",
@@ -692,7 +693,7 @@ public class ProverCNIMethod implements ProverMethod {
 		// Maybe the case is quadratic.
 		if (minDegreeI == 2) {
 			Log.debug("r_ is quadratic.");
-			program = "[[D:=discriminant(" + minDegreeA[1] + "," + VARIABLE_R_STRING + ")],[total_degree(D,lvar(D))]][1]";
+			program = "[[D:=discriminant(" + minDegreeA[1] + "," + Constants.VARIABLE_R_STRING + ")],[total_degree(D,lvar(D))]][1]";
 			String discDegreeL = giac.execute(program);
 			String discDegreeS = removeHeadTail(discDegreeL, 1);
 			int discDegree = Integer.parseInt(discDegreeS);
@@ -712,7 +713,7 @@ public class ProverCNIMethod implements ProverMethod {
 			String exampleLabel = Label.makeUnique(ge);
 			context.prover.addProofLine(context.loc.getPlainDefault("CNIPrimedSymbols",
 					"Denote point %0 by %1 in a symbolic manner.",
-					exampleLabel, exampleLabel + PRIME));
+					exampleLabel, exampleLabel + Constants.PRIME));
 			primedNotationExplained = true;
 		}
 	}
@@ -721,8 +722,8 @@ public class ProverCNIMethod implements ProverMethod {
 		if (!algebraicRelationExplained) {
 			context.prover.addProofLine(context.loc.getPlainDefault("CNIAlgebraicRelations",
 					"We now turn geometric relations into algebraic expressions. The symbols %0, %1, ... stand for these expressions:",
-					VARIABLE_R_STRING + "1'",
-					VARIABLE_R_STRING + "2'"));
+					Constants.VARIABLE_R_STRING + "1'",
+					Constants.VARIABLE_R_STRING + "2'"));
 			algebraicRelationExplained = true;
 		}
 	}
@@ -762,7 +763,7 @@ public class ProverCNIMethod implements ProverMethod {
 						|| !Character.isLetterOrDigit(out.charAt(idx + lab.length()));
 				sb.append(out, i, idx);
 				if (beforeOk && afterOk) {
-					sb.append(lab).append(PRIME);
+					sb.append(lab).append(Constants.PRIME);
 				} else {
 					sb.append(lab);
 				}
@@ -801,7 +802,7 @@ public class ProverCNIMethod implements ProverMethod {
 			sb.append(s, i, idx);
 			sb.append(s, idx, end);
 			if (!alreadyPrimed && afterOk) {
-				sb.append(PRIME);
+				sb.append(Constants.PRIME);
 			}
 			i = end;
 		}
@@ -829,7 +830,7 @@ public class ProverCNIMethod implements ProverMethod {
 
 		// prime all variables to avoid issues in CAS with defined points
 		for (String lab : pointLabels) {
-			vars.add(lab+PRIME); // A',B',C',O',...
+			vars.add(lab+Constants.PRIME); // A',B',C',O',...
 		}
 
 		// handle divisor (divisor = 0)

@@ -1,9 +1,5 @@
 package org.geogebra.common.kernel.prover.CNIMethod;
 
-import static org.geogebra.common.kernel.prover.ProverMethod.VARIABLE_CYCLOTOMIC;
-import static org.geogebra.common.kernel.prover.ProverMethod.WARNING_EQUALITY_OR_COLLINEAR;
-import static org.geogebra.common.kernel.prover.ProverMethod.WARNING_PERPENDICULAR_OR_PARALLEL;
-
 import org.geogebra.common.kernel.Kernel;
 import org.geogebra.common.kernel.StringTemplate;
 import org.geogebra.common.kernel.algos.AlgoDependentPoint;
@@ -26,6 +22,7 @@ import org.geogebra.common.kernel.geos.GeoLine;
 import org.geogebra.common.kernel.geos.GeoNumeric;
 import org.geogebra.common.kernel.geos.GeoPoint;
 import org.geogebra.common.kernel.geos.GeoVector;
+import org.geogebra.common.kernel.prover.Constants;
 import org.geogebra.common.kernel.prover.Label;
 import org.geogebra.common.util.DoubleUtil;
 
@@ -137,10 +134,10 @@ public class CNIHypothesisDefinition {
 			return null; // Not implemented.
 		}
 		if (rel1.startsWith("perppar") || rel2.startsWith("perppar")) {
-			c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
+			c.warning = Constants.WARNING_PERPENDICULAR_OR_PARALLEL;
 		}
 		if (rel1.startsWith("isosc") || rel2.startsWith("isosc")) {
-			c.warning = WARNING_EQUALITY_OR_COLLINEAR;
+			c.warning = Constants.WARNING_EQUALITY_OR_COLLINEAR;
 		}
 		c.realRelation = rel1 + "\n" + rel2;
 		return c;
@@ -158,10 +155,10 @@ public class CNIHypothesisDefinition {
 			return null; // Not implemented.
 		}
 		if (rel1.startsWith("perppar")) {
-			c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
+			c.warning =Constants. WARNING_PERPENDICULAR_OR_PARALLEL;
 		}
 		if (rel1.startsWith("isosc")) {
-			c.warning = WARNING_EQUALITY_OR_COLLINEAR;
+			c.warning = Constants.WARNING_EQUALITY_OR_COLLINEAR;
 		}
 		c.realRelation = rel1 + "\n" + rel2;
 		return c;
@@ -192,10 +189,10 @@ public class CNIHypothesisDefinition {
 			GeoPoint gE = ((GeoLine) p).getEndPoint();
 			c.realRelation = commandFactory.online((GeoPoint) ge, (GeoLine) p);
 			if (c.realRelation.startsWith("perppar")) {
-				c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
+				c.warning = Constants.WARNING_PERPENDICULAR_OR_PARALLEL;
 			}
 			if (c.realRelation.startsWith("isosc")) {
-				c.warning = WARNING_EQUALITY_OR_COLLINEAR;
+				c.warning = Constants.WARNING_EQUALITY_OR_COLLINEAR;
 			}
 			return c;
 		}
@@ -255,7 +252,7 @@ public class CNIHypothesisDefinition {
 			// Now we create the declaration:
 			String Pl = Label.makeUnique(P);
 			String Cl = Label.makeUnique(C);
-			String ctVar = VARIABLE_CYCLOTOMIC + prim;
+			String ctVar = Constants.VARIABLE_CYCLOTOMIC + prim;
 			c.declaration =
 					gel + ":=" + Cl + "+(" + Pl + "-" + Cl + ")*" + ctVar; // complex rotation
 			c.zeroRelation = minpoly; // set the minimal polynomial as an extra relation
@@ -301,7 +298,7 @@ public class CNIHypothesisDefinition {
 		for (int i = num + 1; i < outputObjects.length; i++) {
 			if (ge.equals(outputObjects[i])) {
 				int whichPoint = i - num + 1;
-				String ctVar = VARIABLE_CYCLOTOMIC + num;
+				String ctVar = Constants.VARIABLE_CYCLOTOMIC + num;
 				c.declaration = gel + ":=" + Bl + "+(" + Bl + "-" + Al + ")*(";
 				for (int j = 1; j < whichPoint; j++) {
 					if (j > 1) {

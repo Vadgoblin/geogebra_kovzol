@@ -1,6 +1,7 @@
 package org.geogebra.common.kernel.prover.CNIMethod;
 
-import java.util.ArrayList;import java.util.List;import java.util.TreeSet;
+import java.util.ArrayList;import java.util.List;
+import java.util.TreeSet;
 
 import org.geogebra.common.kernel.algos.AlgoAnglePoints;
 import org.geogebra.common.kernel.algos.AlgoAngularBisectorPoints;
@@ -16,10 +17,10 @@ import org.geogebra.common.kernel.geos.GeoConic;
 import org.geogebra.common.kernel.geos.GeoElement;
 import org.geogebra.common.kernel.geos.GeoLine;
 import org.geogebra.common.kernel.geos.GeoPoint;
-import org.geogebra.common.kernel.geos.GeoSegment;import org.geogebra.common.kernel.prover.Label;
+import org.geogebra.common.kernel.geos.GeoSegment;
+import org.geogebra.common.kernel.prover.Label;
+import org.geogebra.common.kernel.prover.Constants;
 
-import static org.geogebra.common.kernel.prover.ProverMethod.VARIABLE_CYCLOTOMIC;
-import static org.geogebra.common.kernel.prover.ProverMethod.WARNING_EQUALITY_OR_COLLINEAR; // FIXME
 
 public class GiacCommandFactory {
 	private final Giac giac;
@@ -58,7 +59,7 @@ public class GiacCommandFactory {
 	}
 
 	String cyclotomicPolynomial(int n) {
-		String ctVar = VARIABLE_CYCLOTOMIC + n;
+		String ctVar = Constants.VARIABLE_CYCLOTOMIC + n;
 		String minpolyP = "subst(expand(r2e(cyclotomic(" + n + "))),x=" + ctVar + ")";
 		return giac.execute(minpolyP);
 	}
@@ -301,27 +302,27 @@ public class GiacCommandFactory {
 			GeoPoint D = (GeoPoint) s2.getEndPoint();
 			if (A.equals(C)) {
 				c.realRelation = isosc(A,B,D);
-				c.warning = WARNING_EQUALITY_OR_COLLINEAR;
+				c.warning = Constants.WARNING_EQUALITY_OR_COLLINEAR;
 				return c;
 			}
 			if (A.equals(D)) {
 				c.realRelation = isosc(A,B,C);
-				c.warning = WARNING_EQUALITY_OR_COLLINEAR;
+				c.warning = Constants.WARNING_EQUALITY_OR_COLLINEAR;
 				return c;
 			}
 			if (B.equals(C)) {
 				c.realRelation = isosc(B,A,D);
-				c.warning = WARNING_EQUALITY_OR_COLLINEAR;
+				c.warning = Constants.WARNING_EQUALITY_OR_COLLINEAR;
 				return c;
 			}
 			if (B.equals(D)) {
 				c.realRelation = isosc(B,A,C);
-				c.warning = WARNING_EQUALITY_OR_COLLINEAR;
+				c.warning = Constants.WARNING_EQUALITY_OR_COLLINEAR;
 				return c;
 			}
 			// General method (but we do not use it in general, to keep readability):
 			c.realRelation = equal(A,B,C,D);
-			c.warning = WARNING_EQUALITY_OR_COLLINEAR;
+			c.warning = Constants.WARNING_EQUALITY_OR_COLLINEAR;
 			return c;
 		}
 		if (ge1 instanceof GeoAngle && ge2 instanceof GeoAngle) {

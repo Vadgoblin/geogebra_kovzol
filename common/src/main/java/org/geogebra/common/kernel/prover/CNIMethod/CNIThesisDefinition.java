@@ -1,8 +1,5 @@
 package org.geogebra.common.kernel.prover.CNIMethod;
 
-import static org.geogebra.common.kernel.prover.ProverMethod.WARNING_ANGLE;
-import static org.geogebra.common.kernel.prover.ProverMethod.WARNING_PERPENDICULAR_OR_PARALLEL;
-
 import java.util.ArrayList;
 import java.util.TreeSet;
 
@@ -27,6 +24,7 @@ import org.geogebra.common.kernel.prover.AlgoAreCongruent;
 import org.geogebra.common.kernel.prover.AlgoAreEqual;
 import org.geogebra.common.kernel.prover.AlgoAreParallel;
 import org.geogebra.common.kernel.prover.AlgoArePerpendicular;
+import org.geogebra.common.kernel.prover.Constants;
 import org.geogebra.common.kernel.prover.Label;
 import org.geogebra.common.plugin.Operation;
 import org.geogebra.common.util.DoubleUtil;
@@ -120,7 +118,7 @@ public class CNIThesisDefinition {
 		GeoLine g = (GeoLine) input[0];
 		GeoLine h = (GeoLine) input[1];
 		c.realRelation = commandFactory.perppar(g, h);
-		c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
+		c.warning = Constants.WARNING_PERPENDICULAR_OR_PARALLEL;
 		return c;
 	}
 
@@ -244,7 +242,7 @@ public class CNIThesisDefinition {
 					GeoPoint B = (GeoPoint) ((AlgoAnglePoints) gae).getB();
 					GeoPoint C = (GeoPoint) ((AlgoAnglePoints) gae).getC();
 					c.realRelation = commandFactory.anglex(A, B, B, C, rot);
-					c.warning = WARNING_ANGLE;
+					c.warning = Constants.WARNING_ANGLE;
 					return c;
 				}
 				return null; // Unimplemented.
@@ -260,7 +258,7 @@ public class CNIThesisDefinition {
 		} else if (o == Operation.PERPENDICULAR) {
 			Log.debug("Warning: Testing perpendicularity AND parallelism simultaneously");
 			c.realRelation = commandFactory.perppar((GeoLine) ge1, (GeoLine) ge2);
-			c.warning = WARNING_PERPENDICULAR_OR_PARALLEL;
+			c.warning = Constants.WARNING_PERPENDICULAR_OR_PARALLEL;
 			return c;
 		} else if (o == Operation.IS_ELEMENT_OF) {
 			if (ge1 instanceof GeoPoint && ge2 instanceof GeoLine) {
