@@ -13,18 +13,10 @@ import static org.geogebra.common.kernel.prover.CNIMethod.ProverCNIMethod.PRIME;
 public class Prover {
 
 	public static <T extends ProverMethod> ProofResult prove(org.geogebra.common.util.Prover prover, Function<ProverContext, T> methodFactory) {
-		ProverContext context = new ProverContext();
-
-		context.prover = prover;
-		context.statement = prover.getStatement();
-		context.kernel = context.statement.getKernel();
-		context.loc = context.kernel.getLocalization();
-
 		// All predecessors:
-		TreeSet<GeoElement> allPredecessors = context.statement.getAllPredecessors();
+		TreeSet<GeoElement> allPredecessors = prover.getStatement().getAllPredecessors();
 		// prime labels
 		TreeSet<String> primeLabels = new TreeSet<>();
-
 
 		// Keep only points:
 		TreeSet<GeoPoint> allPredecessorPoints = new TreeSet<>();
@@ -35,8 +27,7 @@ public class Prover {
 			}
 		}
 
-		context.allPredecessorPoints = allPredecessorPoints;
-		context.primeLabels = primeLabels;
+		ProverContext context = new ProverContext(prover, allPredecessorPoints,primeLabels );
 
 		// inform user that variables sucha as A' will cause issues when the proof is displayed
 		if (context.prover.getShowproof() && containsPrimedPointLabel(primeLabels)) {
