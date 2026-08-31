@@ -57,7 +57,7 @@ public class ProverCNIMethod implements ProverMethod {
 		// Real-relational points. We need them to eliminate the variables according to them too.
 		TreeSet<GeoElement> realRelationalPoints = new TreeSet<>();
 
-		String extraVariables = "";
+		List<String> extraVariables = new ArrayList<>();
 
 		String thesisDefinitionPrimed = null;
 
@@ -109,7 +109,8 @@ public class ProverCNIMethod implements ProverMethod {
 					}
 				}
 				if (def.extraVariable != null) {
-					extraVariables = def.extraVariable + ",";
+					Log.debug("def extra var: "+ def.extraVariable);
+					extraVariables.add(def.extraVariable);
 				}
 				if (def.realRelation != null) {
 					String[] CASrealRelations = def.realRelation.split("\n");
@@ -180,7 +181,8 @@ public class ProverCNIMethod implements ProverMethod {
 		}
 
 		if (def.extraVariable != null) {
-			extraVariables = def.extraVariable + ",";
+			Log.debug("def extra var: "+ def.extraVariable);
+			extraVariables.add(def.extraVariable);
 		}
 
 		if (def.realRelation != null) {
@@ -321,8 +323,7 @@ public class ProverCNIMethod implements ProverMethod {
 		for (GeoElement ge : realRelationalPoints) {
 			toEliminate += getUniqueLabel(ge) + ",";
 		}
-		toEliminate += extraVariables;
-		toEliminate = removeTail(toEliminate, 1);
+		toEliminate += String.join(",",extraVariables);
 		rest += "[" + toEliminate + "]";
 
 		// Add third parameter for the eliminate command.
@@ -825,7 +826,7 @@ public class ProverCNIMethod implements ProverMethod {
 			ArrayList<String> lhsList,
 			ArrayList<String> rhsVars,
 			TreeSet<String> pointLabels,
-			String extraVariables,
+			List<String> extraVariables,
 			String extraEq0,
 			ArrayList<String> specEqList
 	) {
@@ -840,7 +841,7 @@ public class ProverCNIMethod implements ProverMethod {
 		}
 
 		// prime all variables to avoid issues in CAS with defined points
-		StringBuilder vars = new StringBuilder();
+		StringBuilder vars = new StringBuilder(); // TODO: Repalce with list?
 		for (String lab : pointLabels) {
 			if (vars.length() > 0) {
 				vars.append(",");
@@ -861,14 +862,8 @@ public class ProverCNIMethod implements ProverMethod {
 		}
 
 		// handle extraVariables
-		if (extraVariables != null && !extraVariables.trim().isEmpty()) {
-			String ev = extraVariables.trim();
-			if (ev.endsWith(",")) {
-				ev = ev.substring(0, ev.length() - 1);
-			}
-			if (!ev.isEmpty()) {
-				vars.append(",").append(ev);
-			}
+		if (extraVariables != null && !extraVariables.isEmpty()) {
+			vars.append(",").append(String.join(",",extraVariables));
 		}
 
 		return "Eliminate({" + String.join(",", eqs) + "},{" + vars + "})";

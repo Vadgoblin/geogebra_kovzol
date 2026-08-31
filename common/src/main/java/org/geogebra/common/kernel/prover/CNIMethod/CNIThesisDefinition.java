@@ -49,7 +49,7 @@ public class CNIThesisDefinition {
 	 */
 	public CNIDefinition create(GeoElement ge) {
 		AlgoElement ae = ge.getParentAlgorithm();
-		
+
 		if (ae instanceof AlgoAreCollinear) {
 			return handleAAlgoAreCollinear((AlgoAreCollinear)ae);
 		}
