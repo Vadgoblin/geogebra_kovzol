@@ -10,6 +10,7 @@ import java.util.TreeSet;
 import org.geogebra.common.kernel.StringTemplate;
 import org.geogebra.common.kernel.geos.GeoElement;
 import org.geogebra.common.kernel.geos.GeoPoint;
+import org.geogebra.common.kernel.prover.Label;
 import org.geogebra.common.kernel.prover.ProverContext;
 import org.geogebra.common.kernel.prover.ProverMethod;
 import org.geogebra.common.kernel.scripting.CmdShowProof;
@@ -278,9 +279,9 @@ public class ProverCNIMethod implements ProverMethod {
 		ArrayList<String> specEqList = new ArrayList<>();
 		for (GeoElement ge : freePoints) {
 			if (i == 0 && maxSpecRestriction < 2) {
-				String spec1 = getUniqueLabel(ge) + ":=0";
+				String spec1 = Label.makeUnique(ge) + ":=0";
 				if (context.prover.getShowproof() && context.prover.getShowEliminate()) {
-					specEqList.add(getUniqueLabel(ge) + PRIME + "=0");
+					specEqList.add(Label.makeUnique(ge) + PRIME + "=0");
 				}
 				specCode.add(spec1);
 				if (context.prover.getShowproof()) {
@@ -289,9 +290,9 @@ public class ProverCNIMethod implements ProverMethod {
 				specialized.add(ge);
 			}
 			if (i == 1 && maxSpecRestriction < 1) {
-				String spec2 = getUniqueLabel(ge) + ":=1";
+				String spec2 = Label.makeUnique(ge) + ":=1";
 				if (context.prover.getShowproof() && context.prover.getShowEliminate()) {
-					specEqList.add(getUniqueLabel(ge) + PRIME + "=1");
+					specEqList.add(Label.makeUnique(ge) + PRIME + "=1");
 				}
 				specCode.add(spec2);
 				if (context.prover.getShowproof()) {
@@ -318,10 +319,10 @@ public class ProverCNIMethod implements ProverMethod {
 		rest += "],";
 		String toEliminate = "";
 		for (GeoElement ge : freePoints) {
-			toEliminate += getUniqueLabel(ge) + ",";
+			toEliminate += Label.makeUnique(ge) + ",";
 		}
 		for (GeoElement ge : realRelationalPoints) {
-			toEliminate += getUniqueLabel(ge) + ",";
+			toEliminate += Label.makeUnique(ge) + ",";
 		}
 		toEliminate += String.join(",",extraVariables);
 		rest += "[" + toEliminate + "]";
@@ -707,7 +708,7 @@ public class ProverCNIMethod implements ProverMethod {
 
 	private void explainPrimedNotation(GeoPoint ge){
 		if (!primedNotationExplained) {
-			String exampleLabel = getUniqueLabel(ge);
+			String exampleLabel = Label.makeUnique(ge);
 			context.prover.addProofLine(context.loc.getPlainDefault("CNIPrimedSymbols",
 					"Denote point %0 by %1 in a symbolic manner.",
 					exampleLabel, exampleLabel + PRIME));
@@ -725,14 +726,6 @@ public class ProverCNIMethod implements ProverMethod {
 		}
 	}
 
-	/**
-	 * Return a label that is unique and can be inserted in a Giac code.
-	 * @param ge the input GeoElement
-	 * @return the label as String
-	 */
-	static String getUniqueLabel(GeoElement ge) { // FIXME: move to an appropriate location
-		return ge.getLabelSimple().replace("_{","").replace("}", "");
-	}
 
 	// This is already present in the class Compute. TODO: Unify the code.
 	private static String removeHeadTail(String input, int length) {
@@ -741,7 +734,6 @@ public class ProverCNIMethod implements ProverMethod {
 		}
 		return input;
 	}
-
 
 	private static String lhs(String eq) {
 		int eqIndex = eq.indexOf("=");

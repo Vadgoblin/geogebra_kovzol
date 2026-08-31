@@ -1,7 +1,5 @@
 package org.geogebra.common.kernel.prover.CNIMethod;
 
-import static org.geogebra.common.kernel.prover.CNIMethod.ProverCNIMethod.getUniqueLabel;
-
 import java.util.ArrayList;import java.util.List;import java.util.TreeSet;
 
 import org.geogebra.common.kernel.algos.AlgoAnglePoints;
@@ -18,7 +16,7 @@ import org.geogebra.common.kernel.geos.GeoConic;
 import org.geogebra.common.kernel.geos.GeoElement;
 import org.geogebra.common.kernel.geos.GeoLine;
 import org.geogebra.common.kernel.geos.GeoPoint;
-import org.geogebra.common.kernel.geos.GeoSegment;
+import org.geogebra.common.kernel.geos.GeoSegment;import org.geogebra.common.kernel.prover.Label;
 
 import static org.geogebra.common.kernel.prover.ProverMethod.VARIABLE_CYCLOTOMIC;
 import static org.geogebra.common.kernel.prover.ProverMethod.WARNING_EQUALITY_OR_COLLINEAR; // FIXME
@@ -38,7 +36,7 @@ public class GiacCommandFactory {
 
 		List<String> labels = new ArrayList<>();
 		for (GeoElement cp : collPoints) {
-			labels.add(getUniqueLabel(cp));
+			labels.add(Label.makeUnique(cp));
 		}
 
 		return "coll("+String.join(",",labels) + ")";
@@ -53,7 +51,7 @@ public class GiacCommandFactory {
 
 		List<String> labels = new ArrayList<>();
 		for (GeoElement cp : concPoints) {
-			labels.add(getUniqueLabel(cp));
+			labels.add(Label.makeUnique(cp));
 		}
 
 		return "conc(" + String.join(",", labels) + ")";
@@ -66,10 +64,10 @@ public class GiacCommandFactory {
 	}
 
 	String parallel(GeoPoint ge1, GeoPoint ge2, GeoPoint ge3, GeoPoint ge4) {
-		String ge1l = getUniqueLabel(ge1);
-		String ge2l = getUniqueLabel(ge2);
-		String ge3l = getUniqueLabel(ge3);
-		String ge4l = getUniqueLabel(ge4);
+		String ge1l = Label.makeUnique(ge1);
+		String ge2l = Label.makeUnique(ge2);
+		String ge3l = Label.makeUnique(ge3);
+		String ge4l = Label.makeUnique(ge4);
 
 		int i1 = ge1.getConstructionIndex();
 		int i2 = ge2.getConstructionIndex();
@@ -129,10 +127,10 @@ public class GiacCommandFactory {
 	}
 
 	String perppar(GeoPoint ge1, GeoPoint ge2, GeoPoint ge3, GeoPoint ge4) {
-		String ge1l = getUniqueLabel(ge1);
-		String ge2l = getUniqueLabel(ge2);
-		String ge3l = getUniqueLabel(ge3);
-		String ge4l = getUniqueLabel(ge4);
+		String ge1l = Label.makeUnique(ge1);
+		String ge2l = Label.makeUnique(ge2);
+		String ge3l = Label.makeUnique(ge3);
+		String ge4l = Label.makeUnique(ge4);
 
 		int i1 = ge1.getConstructionIndex();
 		int i2 = ge2.getConstructionIndex();
@@ -160,48 +158,48 @@ public class GiacCommandFactory {
 	}
 
 	String isosc(GeoPoint ge1, GeoPoint ge2, GeoPoint ge3) {
-		String ge1l = getUniqueLabel(ge1);
-		String ge2l = getUniqueLabel(ge2);
-		String ge3l = getUniqueLabel(ge3);
+		String ge1l = Label.makeUnique(ge1);
+		String ge2l = Label.makeUnique(ge2);
+		String ge3l = Label.makeUnique(ge3);
 		return "isosc(" + ge1l + "," + ge2l + "," + ge3l + ")";
 	}
 
 	// |AB|=|CD|
 	String equal(GeoPoint A, GeoPoint B, GeoPoint C, GeoPoint D) {
-		String Al = getUniqueLabel(A);
-		String Bl = getUniqueLabel(B);
-		String Cl = getUniqueLabel(C);
-		String Dl = getUniqueLabel(D);
+		String Al = Label.makeUnique(A);
+		String Bl = Label.makeUnique(B);
+		String Cl = Label.makeUnique(C);
+		String Dl = Label.makeUnique(D);
 		return "isosc(" + Dl + "," + Bl + "+" + Dl + "-" + Al + "," + Cl + ")";
 	}
 
 	String eqangle(GeoElement ge1, GeoElement ge2, GeoElement ge3, GeoElement ge4,
 			GeoElement ge5, GeoElement ge6) {
-		String ge1l = getUniqueLabel(ge1);
-		String ge2l = getUniqueLabel(ge2);
-		String ge3l = getUniqueLabel(ge3);
-		String ge4l = getUniqueLabel(ge4);
-		String ge5l = getUniqueLabel(ge5);
-		String ge6l = getUniqueLabel(ge6);
+		String ge1l = Label.makeUnique(ge1);
+		String ge2l = Label.makeUnique(ge2);
+		String ge3l = Label.makeUnique(ge3);
+		String ge4l = Label.makeUnique(ge4);
+		String ge5l = Label.makeUnique(ge5);
+		String ge6l = Label.makeUnique(ge6);
 		return "eqangle(" + ge1l + "," + ge2l + "," + ge3l + "," + ge4l + "," + ge5l + "," + ge6l + ")";
 	}
 
 	String eqanglemul(GeoElement ge1, GeoElement ge2, GeoElement ge3, GeoElement ge4,
 			GeoElement ge5, GeoElement ge6, int n) {
-		String ge1l = getUniqueLabel(ge1);
-		String ge2l = getUniqueLabel(ge2);
-		String ge3l = getUniqueLabel(ge3);
-		String ge4l = getUniqueLabel(ge4);
-		String ge5l = getUniqueLabel(ge5);
-		String ge6l = getUniqueLabel(ge6);
+		String ge1l = Label.makeUnique(ge1);
+		String ge2l = Label.makeUnique(ge2);
+		String ge3l = Label.makeUnique(ge3);
+		String ge4l = Label.makeUnique(ge4);
+		String ge5l = Label.makeUnique(ge5);
+		String ge6l = Label.makeUnique(ge6);
 		return "eqanglemul(" + ge1l + "," + ge2l + "," + ge3l + "," + ge4l + "," + ge5l + "," + ge6l + "," + n + ")";
 	}
 
 	String anglex(GeoElement ge1, GeoElement ge2, GeoElement ge3, GeoElement ge4, long n) {
-		String ge1l = getUniqueLabel(ge1);
-		String ge2l = getUniqueLabel(ge2);
-		String ge3l = getUniqueLabel(ge3);
-		String ge4l = getUniqueLabel(ge4);
+		String ge1l = Label.makeUnique(ge1);
+		String ge2l = Label.makeUnique(ge2);
+		String ge3l = Label.makeUnique(ge3);
+		String ge4l = Label.makeUnique(ge4);
 		return "anglex(" + ge1l + "," + ge2l + "," + ge3l + "," + ge4l + "," + n + ")";
 	}
 
@@ -287,8 +285,8 @@ public class GiacCommandFactory {
 		if (ge1 instanceof GeoPoint && ge2 instanceof GeoPoint) {
 			GeoPoint P = (GeoPoint) ge1;
 			GeoPoint Q = (GeoPoint) ge2;
-			String Pl = getUniqueLabel(P);
-			String Ql = getUniqueLabel(Q);
+			String Pl = Label.makeUnique(P);
+			String Ql = Label.makeUnique(Q);
 			c.realRelation = Pl + "-" + Ql;
 			c.rMustBe0 = true;
 			c.specRestriction = 1; // the second free point cannot be fixed

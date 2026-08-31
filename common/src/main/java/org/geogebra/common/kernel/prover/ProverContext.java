@@ -18,6 +18,7 @@ public class ProverContext {
 		this.allPredecessorPoints = allPredecessorPoints;
 		this.primeLabels = primeLabels;
 	}
+
 	public Prover prover;
 	public TreeSet<GeoPoint> allPredecessorPoints;
 	public GeoElement statement;

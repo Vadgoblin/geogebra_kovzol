@@ -23,7 +23,7 @@ public class Prover {
 		for (GeoElement p : allPredecessors) {
 			if (p instanceof GeoPoint) {
 				allPredecessorPoints.add((GeoPoint) p);
-				primeLabels.add(getUniqueLabel(p));
+				primeLabels.add(Label.makeUnique(p));
 			}
 		}
 
@@ -38,15 +38,6 @@ public class Prover {
 
 		ProverMethod method = methodFactory.apply(context);
 		return method.execute();
-	}
-
-	/**
-	 * Return a label that is unique and can be inserted in a Giac code.
-	 * @param ge the input GeoElement
-	 * @return the label as String
-	 */
-	static String getUniqueLabel(GeoElement ge) {
-		return ge.getLabelSimple().replace("_{", "").replace("}", "");
 	}
 
 	private static boolean containsPrimedPointLabel(TreeSet<String> labels) {

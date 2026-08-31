@@ -1,6 +1,5 @@
 package org.geogebra.common.kernel.prover.CNIMethod;
 
-import static org.geogebra.common.kernel.prover.CNIMethod.ProverCNIMethod.getUniqueLabel;
 import static org.geogebra.common.kernel.prover.ProverMethod.VARIABLE_CYCLOTOMIC;
 import static org.geogebra.common.kernel.prover.ProverMethod.WARNING_EQUALITY_OR_COLLINEAR;
 import static org.geogebra.common.kernel.prover.ProverMethod.WARNING_PERPENDICULAR_OR_PARALLEL;
@@ -27,6 +26,7 @@ import org.geogebra.common.kernel.geos.GeoLine;
 import org.geogebra.common.kernel.geos.GeoNumeric;
 import org.geogebra.common.kernel.geos.GeoPoint;
 import org.geogebra.common.kernel.geos.GeoVector;
+import org.geogebra.common.kernel.prover.Label;
 import org.geogebra.common.util.DoubleUtil;
 
 public class CNIHypothesisDefinition {
@@ -47,7 +47,7 @@ public class CNIHypothesisDefinition {
 	 */
 	public CNIDefinition create(GeoElement ge) {
 		AlgoElement ae = ge.getParentAlgorithm();
-		String gel = getUniqueLabel(ge);
+		String gel = Label.makeUnique(ge);
 
 		// Declarations:
 		if (ae instanceof AlgoDependentPoint) {
@@ -108,8 +108,8 @@ public class CNIHypothesisDefinition {
 
 		GeoElement P = am.getP();
 		GeoElement Q = am.getQ();
-		String Pl = getUniqueLabel(P);
-		String Ql = getUniqueLabel(Q);
+		String Pl = Label.makeUnique(P);
+		String Ql = Label.makeUnique(Q);
 		c.declaration = gel + ":=(" + Pl + "+" + Ql + ")/2";
 		return c;
 	}
@@ -119,8 +119,8 @@ public class CNIHypothesisDefinition {
 
 		GeoElement P = ams.getP();
 		GeoElement Q = ams.getQ();
-		String Pl = getUniqueLabel(P);
-		String Ql = getUniqueLabel(Q);
+		String Pl = Label.makeUnique(P);
+		String Ql = Label.makeUnique(Q);
 		c.declaration = gel + ":=(" + Pl + "+" + Ql + ")/2";
 		return c;
 	}
@@ -220,9 +220,9 @@ public class CNIHypothesisDefinition {
 			AlgoElement gvAe = gv.getParentAlgorithm();
 			GeoElement A = (GeoElement) gvAe.getInput(0);
 			GeoElement B = (GeoElement) gvAe.getInput(1);
-			String Pl = getUniqueLabel(P);
-			String Al = getUniqueLabel(A);
-			String Bl = getUniqueLabel(B);
+			String Pl = Label.makeUnique(P);
+			String Al = Label.makeUnique(A);
+			String Bl = Label.makeUnique(B);
 			c.declaration = gel + ":=" + Pl + "+" + Bl + "-" + Al;
 			return c;
 		}
@@ -253,8 +253,8 @@ public class CNIHypothesisDefinition {
 			// Create the minimal polynomial. E.g.: "expand(r2e(cyclotomic(8)))", for 135 degrees.
 			String minpoly = commandFactory.cyclotomicPolynomial((int) prim);
 			// Now we create the declaration:
-			String Pl = getUniqueLabel(P);
-			String Cl = getUniqueLabel(C);
+			String Pl = Label.makeUnique(P);
+			String Cl = Label.makeUnique(C);
 			String ctVar = VARIABLE_CYCLOTOMIC + prim;
 			c.declaration =
 					gel + ":=" + Cl + "+(" + Pl + "-" + Cl + ")*" + ctVar; // complex rotation
@@ -271,8 +271,8 @@ public class CNIHypothesisDefinition {
 		GeoElement P = (GeoElement) am.getInput(0);
 		GeoElement M = (GeoElement) am.getInput(1);
 		if (P instanceof GeoPoint && M instanceof GeoPoint) {
-			String Pl = getUniqueLabel(P);
-			String Ml = getUniqueLabel(M);
+			String Pl = Label.makeUnique(P);
+			String Ml = Label.makeUnique(M);
 			c.declaration = gel + ":=" + Ml + "-(" + Pl + "-" + Ml + ")";
 			return c;
 		}
@@ -285,8 +285,8 @@ public class CNIHypothesisDefinition {
 
 		GeoPoint A = (GeoPoint) ap.getInput(0);
 		GeoPoint B = (GeoPoint) ap.getInput(1);
-		String Al = getUniqueLabel(A);
-		String Bl = getUniqueLabel(B);
+		String Al = Label.makeUnique(A);
+		String Bl = Label.makeUnique(B);
 		int num = (int) ((GeoNumeric) ap.getInput(2)).getValue(); // number of sides
 		// The sum of external angles in a regular polygon is 360 degrees.
 		// When computing C from A and B, C=B+(B-A)*CT_num,

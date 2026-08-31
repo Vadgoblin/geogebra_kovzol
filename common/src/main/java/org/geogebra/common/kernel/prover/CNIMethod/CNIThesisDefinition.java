@@ -1,6 +1,5 @@
 package org.geogebra.common.kernel.prover.CNIMethod;
 
-import static org.geogebra.common.kernel.prover.CNIMethod.ProverCNIMethod.getUniqueLabel;
 import static org.geogebra.common.kernel.prover.ProverMethod.WARNING_ANGLE;
 import static org.geogebra.common.kernel.prover.ProverMethod.WARNING_PERPENDICULAR_OR_PARALLEL;
 
@@ -28,6 +27,7 @@ import org.geogebra.common.kernel.prover.AlgoAreCongruent;
 import org.geogebra.common.kernel.prover.AlgoAreEqual;
 import org.geogebra.common.kernel.prover.AlgoAreParallel;
 import org.geogebra.common.kernel.prover.AlgoArePerpendicular;
+import org.geogebra.common.kernel.prover.Label;
 import org.geogebra.common.plugin.Operation;
 import org.geogebra.common.util.DoubleUtil;
 import org.geogebra.common.util.debug.Log;
@@ -174,7 +174,7 @@ public class CNIThesisDefinition {
 		String h2 = commandFactory.online(X, l2);
 		String t = commandFactory.online(X, l3);
 		c.realRelation = h1 + "\n" + h2 + "\n" + t;
-		c.extraVariable = getUniqueLabel(X);
+		c.extraVariable = Label.makeUnique(X);
 		return c;
 	}
 
