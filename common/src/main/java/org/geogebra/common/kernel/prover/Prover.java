@@ -5,15 +5,14 @@ import java.util.TreeSet;import java.util.function.Function;
 import org.geogebra.common.kernel.geos.GeoElement;
 import org.geogebra.common.kernel.geos.GeoPoint;
 import org.geogebra.common.kernel.scripting.CmdShowProof;
-import org.geogebra.common.util.Prover;import org.geogebra.common.util.Prover.ProofResult;
+import org.geogebra.common.util.Prover.ProofResult;
 
 import static org.geogebra.common.kernel.prover.CNIMethod.ProverCNIMethod.PRIME;
 
 
-public class ProveIdk {
+public class Prover {
 
-
-	public static <T extends ProverMethod> ProofResult prove(Prover prover, Function<ProverContext, T> methodFactory) {
+	public static <T extends ProverMethod> ProofResult prove(org.geogebra.common.util.Prover prover, Function<ProverContext, T> methodFactory) {
 		ProverContext context = new ProverContext();
 
 		context.prover = prover;
