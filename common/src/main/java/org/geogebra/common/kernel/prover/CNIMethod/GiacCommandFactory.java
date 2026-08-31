@@ -281,6 +281,7 @@ public class GiacCommandFactory {
 		return null; // Unimplemented.
 	}
 
+	// Does it need to be CNIDefinition?
 	CNIDefinition equal(GeoElement ge1, GeoElement ge2) {
 		CNIDefinition c = new CNIDefinition();;
 		if (ge1 instanceof GeoPoint && ge2 instanceof GeoPoint) {

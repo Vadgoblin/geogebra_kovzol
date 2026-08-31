@@ -15,8 +15,5 @@ public class ProverContext {
 	public Kernel kernel;
 	public Localization loc;
 
-	public String[] predefinitions;
-	public String predefs = "";
-
 	public TreeSet<String> primeLabels;
 }

@@ -118,7 +118,7 @@ public class ProverCNIMethod implements ProverMethod {
 						String expression = CASrealRelation + "=" + VARIABLE_R_STRING + (realRelations.size()+1);
 						realRelations.add(expression);
 						if (context.prover.getShowproof()) {
-							String rewriteProgram = "[" + context.predefs + expression + "][" + context.predefinitions.length + "]";
+							String rewriteProgram = "[" + Predefinitions.get() + expression + "][" + Predefinitions.count() + "]";
 							String expression2 = giac.execute(rewriteProgram);
 							context.prover.addProofLine(CmdShowProof.TEXT_EQUATION, lhs(expression) + "=" + expression2
 									+ com.himamis.retex.editor.share.util.Unicode.IS_ELEMENT_OF + "\u211D");
@@ -198,7 +198,7 @@ public class ProverCNIMethod implements ProverMethod {
 				String expression = CASrealRelation + "=" + VARIABLE_R_STRING + (realRelations.size()+1);
 				realRelations.add(expression);
 				if (context.prover.getShowproof()) {
-					String rewriteProgram = "[" + context.predefs + expression + "][" + context.predefinitions.length + "]";
+					String rewriteProgram = "[" + Predefinitions.get() + expression + "][" + Predefinitions.count() + "]";
 					String expression2 = giac.execute(rewriteProgram);
 
 					context.prover.addProofLine(CmdShowProof.TEXT_EQUATION, lhs(expression) + "=" + expression2
@@ -219,7 +219,7 @@ public class ProverCNIMethod implements ProverMethod {
 			String thesis = CASrealRelations[nrRels - 1] + "=" + VARIABLE_R_STRING;
 			realRelations.add(thesis);
 			if (context.prover.getShowproof()) {
-				String rewriteProgram = "[" + context.predefs + thesis + "][" + context.predefinitions.length + "]";
+				String rewriteProgram = "[" + Predefinitions.get() + thesis + "][" + Predefinitions.count() + "]";
 				String thesis2 = giac.execute(rewriteProgram);
 				context.prover.addProofLine(CmdShowProof.TEXT_EQUATION, lhs(thesis) + "=" + thesis2);
 
@@ -308,7 +308,7 @@ public class ProverCNIMethod implements ProverMethod {
 		// Putting the code together...
 		String program = "";
 		program = "[";
-		program += context.predefs;
+		program += Predefinitions.get();
 		for (String declaration : declarations) {
 			program += "[" + declaration + "],";
 		}
@@ -345,7 +345,7 @@ public class ProverCNIMethod implements ProverMethod {
 		rest += remVars;
 
 		rest += ")]";
-		int codeLengthLines = context.predefinitions.length + declarations.size() + 1;
+		int codeLengthLines = Predefinitions.count() + declarations.size() + 1;
 		rest += "][" + (codeLengthLines - 1) + "]";
 		program += rest;
 		String elimIdeal = giac.execute(program);
