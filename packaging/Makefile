@@ -42,7 +42,7 @@ HOST_GID := $(shell id -g)
 ###########################################
 # Architecture handling
 ###########################################
-ARCH ?= $(shell uname -m) # defaults to current host machine
+ARCH ?= $(strip $(shell uname -m)) # defaults to current host machine
 
 ifeq ($(ARCH),aarch64)
   DOCKER_PLATFORM := linux/arm64
