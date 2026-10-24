@@ -5,6 +5,8 @@ MAKEFILE_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 REPO_ROOT    := $(abspath $(MAKEFILE_DIR)/..)
 
 
+$(info VERSION = $(VERSION))
+
 ###########################################
 # Version number
 ###########################################
@@ -22,7 +24,7 @@ _COMPUTED_VERSION := $(shell echo "$(_SAFE_BASE)" | sed -E 's/-([0-9]+)-g([a-f0-
 VERSION ?= $(_COMPUTED_VERSION)
 
 # Strip leading 'v' if supplied from environment or CLI
-VERSION := $(patsubst v%,%,$(VERSION))
+override VERSION := $(patsubst v%,%,$(VERSION))
 
 ifeq ($(shell echo "$(VERSION)" | grep -Eq '^[0-9]' && echo yes),)
     $(error Invalid VERSION '$(VERSION)': must start with a digit)
