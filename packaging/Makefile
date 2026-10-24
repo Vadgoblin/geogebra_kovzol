@@ -5,6 +5,8 @@ MAKEFILE_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 REPO_ROOT    := $(abspath $(MAKEFILE_DIR)/..)
 
 
+$(info VERSION = $(VERSION))
+
 ###########################################
 # Version number
 ###########################################
