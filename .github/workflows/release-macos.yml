@@ -6,8 +6,17 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-macos-x86_64:
-    runs-on: macos-14
+  build-macos:
+    strategy:
+      matrix:
+        include:
+          - arch: arm64
+            runner: macos-14
+          - arch: x86_64
+            runner: macos-13
+      fail-fast: false
+
+    runs-on: ${{ matrix.runner }}
     permissions:
       contents: write
 
@@ -17,8 +26,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Build macOS Package via Makefile
+      - name: Build macOS Application Bundle
         run: make -C packaging macos VERSION=${{ github.ref_name }}
+
+      - name: Verify generated macOS package
+        run: ls -lh dist/*.zip
 
       - name: Upload to Release
         if: github.event_name == 'release'

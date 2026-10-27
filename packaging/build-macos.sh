@@ -7,7 +7,24 @@ if [ "$(uname -s)" != "Darwin" ]; then
   exit 1
 fi
 
-VERSION="${APP_VERSION//_/-}"
+_HOST_ARCH="$(uname -m)"
+case "$_HOST_ARCH" in
+  x86_64)
+    ARCH="x86_64"
+    KEEP_MACOS_NATIVE="x86_64"
+    ;;
+  arm64|aarch64)
+    ARCH="arm64"
+    KEEP_MACOS_NATIVE="aarch64"
+    ;;
+  *)
+    echo "Unsupported architecture: $_HOST_ARCH" >&2
+    exit 1
+    ;;
+esac
+
+VERSION="${APP_VERSION:-1.0.0}"
+VERSION="${VERSION//_/-}"
 SRC_DIR="${SRC_DIR:-$(pwd)}"
 OUT_DIR="${OUT_DIR:-${SRC_DIR}/dist}"
 GGD_SRC_SHADOW="/tmp/ggd-src"
@@ -15,9 +32,9 @@ PACKAGE_DIR="/tmp/ggd-macos-package"
 APP_NAME="GeoGebra Discovery"
 APP_BUNDLE="${PACKAGE_DIR}/${APP_NAME}.app"
 
-echo ">>> Target version: ${VERSION}"
+echo ">>> Target version: ${VERSION} (${ARCH})"
 
-# 1. Install build tools and dependencies if missing
+# 1. Ensure build tools and JDK 11 are present
 if ! command -v brew >/dev/null 2>&1; then
   echo "Error: Homebrew is required to install dependencies." >&2
   exit 1
@@ -31,51 +48,52 @@ fi
 export JAVA_HOME="$(/usr/libexec/java_home -v 11)"
 export PATH="${JAVA_HOME}/bin:${PATH}"
 
-# 2. Copy source files to shadow directory
+# 2. Shadow source files
 echo ">>> Copying project source files..."
 rm -rf "${GGD_SRC_SHADOW}"
 mkdir -p "${GGD_SRC_SHADOW}"
 
-cp -RP "${SRC_DIR}/desktop" "${GGD_SRC_SHADOW}/"
-cp -RP "${SRC_DIR}/gradle" "${GGD_SRC_SHADOW}/"
-cp -RP "${SRC_DIR}/gradlew" "${GGD_SRC_SHADOW}/"
-cp -RP "${SRC_DIR}/build.gradle" "${GGD_SRC_SHADOW}/"
-cp -RP "${SRC_DIR}/init.gradle" "${GGD_SRC_SHADOW}/"
-cp -RP "${SRC_DIR}/presettings.gradle" "${GGD_SRC_SHADOW}/"
-cp -RP "${SRC_DIR}/settings.gradle" "${GGD_SRC_SHADOW}/"
-cp -RP "${SRC_DIR}/retex" "${GGD_SRC_SHADOW}/"
-cp -RP "${SRC_DIR}/gradle-scripts" "${GGD_SRC_SHADOW}/"
-cp -RP "${SRC_DIR}/carota-web" "${GGD_SRC_SHADOW}/"
-cp -RP "${SRC_DIR}/common" "${GGD_SRC_SHADOW}/"
-cp -RP "${SRC_DIR}/common-jre" "${GGD_SRC_SHADOW}/"
-cp -RP "${SRC_DIR}/jogl2" "${GGD_SRC_SHADOW}/"
-cp -RP "${SRC_DIR}/input3D" "${GGD_SRC_SHADOW}/"
-cp -RP "${SRC_DIR}/giac-jni" "${GGD_SRC_SHADOW}/"
-cp -RP "${SRC_DIR}/tarski-jni" "${GGD_SRC_SHADOW}/"
-cp -RP "${SRC_DIR}/web" "${GGD_SRC_SHADOW}/"
-cp -RP "${SRC_DIR}/ggbjdk" "${GGD_SRC_SHADOW}/"
-cp -RP "${SRC_DIR}/keyboard-base" "${GGD_SRC_SHADOW}/"
-cp -RP "${SRC_DIR}/keyboard-scientific" "${GGD_SRC_SHADOW}/"
-cp -RP "${SRC_DIR}/keyboard-web" "${GGD_SRC_SHADOW}/"
-cp -RP "${SRC_DIR}/test" "${GGD_SRC_SHADOW}/"
-cp -RP "${SRC_DIR}/xr-base" "${GGD_SRC_SHADOW}/"
+for item in desktop gradle gradlew build.gradle init.gradle presettings.gradle \
+            settings.gradle retex gradle-scripts carota-web common common-jre \
+            jogl2 input3D giac-jni tarski-jni web ggbjdk keyboard-base \
+            keyboard-scientific keyboard-web test xr-base; do
+  if [ -e "${SRC_DIR}/${item}" ]; then
+    cp -RP "${SRC_DIR}/${item}" "${GGD_SRC_SHADOW}/"
+  fi
+done
 
-# 3. Build with Gradle
+# 3. Build project
 echo ">>> Building Geogebra-discovery..."
 cd "${GGD_SRC_SHADOW}"
 ./gradlew :desktop:installDist
 
-# 4. Assemble macOS .app Bundle Structure
+# 4. Generate a stripped-down bundled JRE using jlink
+BUNDLED_RUNTIME="${PACKAGE_DIR}/runtime"
+rm -rf "${BUNDLED_RUNTIME}"
+
+echo ">>> Creating bundled Java runtime with jlink..."
+"$JAVA_HOME/bin/jlink" \
+  --add-modules java.base,java.desktop,java.logging,java.management,java.naming,java.net.http,java.prefs,java.scripting,java.sql,java.xml,jdk.unsupported \
+  --strip-debug \
+  --no-man-pages \
+  --no-header-files \
+  --compress=2 \
+  --output "${BUNDLED_RUNTIME}"
+
+# 5. Assemble standard macOS .app directory structure
 echo ">>> Packaging application bundle..."
-rm -rf "${PACKAGE_DIR}"
+rm -rf "${PACKAGE_DIR}/${APP_NAME}.app"
 mkdir -p "${APP_BUNDLE}/Contents/MacOS"
 mkdir -p "${APP_BUNDLE}/Contents/Resources/Java"
 
-# Copy distribution artifacts into bundle
+# Move the stripped JRE inside the bundle
+mv "${BUNDLED_RUNTIME}" "${APP_BUNDLE}/Contents/runtime"
+
+# Copy desktop build outputs (lib and scripts)
 cp -r "${GGD_SRC_SHADOW}/desktop/build/install/desktop/lib" "${APP_BUNDLE}/Contents/Resources/Java/"
 cp -r "${GGD_SRC_SHADOW}/desktop/build/install/desktop/bin" "${APP_BUNDLE}/Contents/Resources/"
 
-# 5. Clean up non-macOS native libraries and extraneous platforms
+# 6. Remove cross-platform native libraries
 LIB_DIR="${APP_BUNDLE}/Contents/Resources/Java/lib"
 rm -f "$LIB_DIR"/*-windows-* \
       "$LIB_DIR"/*-linux-* \
@@ -84,25 +102,20 @@ rm -f "$LIB_DIR"/*-windows-* \
       "$LIB_DIR"/zspace* \
       "$LIB_DIR"/libpxcclr*
 
-# 6. Create Launch Executable
+# 7. Create launcher pointing to bundled JRE
 cat << 'EOF' > "${APP_BUNDLE}/Contents/MacOS/geogebra-discovery"
 #!/usr/bin/env bash
-DIR="$(cd "$(dirname "$0")/../Resources" && pwd)"
+BUNDLE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
-# Resolve system Java
-if [ -z "${JAVA_HOME:-}" ]; then
-  if /usr/libexec/java_home -v 11 >/dev/null 2>&1; then
-    export JAVA_HOME="$(/usr/libexec/java_home -v 11)"
-  elif /usr/libexec/java_home >/dev/null 2>&1; then
-    export JAVA_HOME="$(/usr/libexec/java_home)"
-  fi
-fi
+# Force launcher to use the bundled Java runtime
+export JAVA_HOME="${BUNDLE_DIR}/runtime"
+export PATH="${JAVA_HOME}/bin:${PATH}"
 
-exec "${DIR}/bin/desktop" "$@"
+exec "${BUNDLE_DIR}/Resources/bin/desktop" "$@"
 EOF
 chmod +x "${APP_BUNDLE}/Contents/MacOS/geogebra-discovery"
 
-# 7. Generate Info.plist metadata
+# 8. Create Info.plist
 cat << EOF > "${APP_BUNDLE}/Contents/Info.plist"
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -128,18 +141,15 @@ cat << EOF > "${APP_BUNDLE}/Contents/Info.plist"
 </plist>
 EOF
 
-# Optional: Convert or copy icon if present
 if [ -f "${SRC_DIR}/flatpak/gd-512.png" ]; then
   cp "${SRC_DIR}/flatpak/gd-512.png" "${APP_BUNDLE}/Contents/Resources/app.png"
 fi
 
-# 8. Archive Output
+# 9. Output Archive
 mkdir -p "${OUT_DIR}"
-OUTPUT_ARCHIVE="${OUT_DIR}/geogebra-discovery-${VERSION}-macos.zip"
+OUTPUT_ARCHIVE="${OUT_DIR}/geogebra-discovery-${VERSION}-macos-${ARCH}.zip"
 
-echo ">>> Creating ZIP distribution: ${OUTPUT_ARCHIVE}"
+echo ">>> Creating ZIP archive: ${OUTPUT_ARCHIVE}"
 (cd "${PACKAGE_DIR}" && zip -qyr "${OUTPUT_ARCHIVE}" "${APP_NAME}.app")
 
-ls OUTPUT_ARCHIVE
-
-echo ">>> Build completed successfully."
+echo ">>> Done."
