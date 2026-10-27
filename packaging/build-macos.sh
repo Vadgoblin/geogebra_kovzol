@@ -54,6 +54,9 @@ echo ">>> Building..."
 cd "${GGD_SRC_SHADOW}/"
 ./gradlew :desktop:installDist
 
+
+rm -rf "$PACKAGE_DIR"
+mkdir -p "$PACKAGE_DIR"
 cp -r "${GGD_SRC_SHADOW}/desktop/build/install/desktop"/* "$PACKAGE_DIR"
 
 # remove unneeded jars
