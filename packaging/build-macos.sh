@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ensure running on macOS
+if [ "$(uname -s)" != "Darwin" ]; then
+  echo "Error: This script must be run on macOS (detected: $(uname -s))." >&2
+  exit 1
+fi
+
+
+
+VERSION="${APP_VERSION//_/-}"
+SRC_DIR="."
+OUT_DIR="/out"
+GGD_SRC_SHADOW="/tmp/ggd-src"
+
+echo ">>> Target version: ${VERSION}"
+
+echo ">>> Installing java"
+brew install --cask temurin@11 tree
+
+pwd
+tree
+
+echo ">>> Copying project source files..."
+rm -rf "${GGD_SRC_SHADOW}"
+mkdir -p "${GGD_SRC_SHADOW}"
+
+cp -r "${SRC_DIR}/desktop" "${GGD_SRC_SHADOW}/"
+cp -r "${SRC_DIR}/gradle" "${GGD_SRC_SHADOW}/"
+cp -r "${SRC_DIR}/gradlew" "${GGD_SRC_SHADOW}/"
+cp -r "${SRC_DIR}/build.gradle" "${GGD_SRC_SHADOW}/"
+cp -r "${SRC_DIR}/init.gradle" "${GGD_SRC_SHADOW}/"
+cp -r "${SRC_DIR}/presettings.gradle" "${GGD_SRC_SHADOW}/"
+cp -r "${SRC_DIR}/settings.gradle" "${GGD_SRC_SHADOW}/"
+cp -r "${SRC_DIR}/retex" "${GGD_SRC_SHADOW}/"
+cp -r "${SRC_DIR}/gradle-scripts" "${GGD_SRC_SHADOW}/"
+cp -r "${SRC_DIR}/carota-web" "${GGD_SRC_SHADOW}/"
+cp -r "${SRC_DIR}/common" "${GGD_SRC_SHADOW}/"
+cp -r "${SRC_DIR}/common-jre" "${GGD_SRC_SHADOW}/"
+cp -r "${SRC_DIR}/jogl2" "${GGD_SRC_SHADOW}/"
+cp -r "${SRC_DIR}/input3D" "${GGD_SRC_SHADOW}/"
+cp -r "${SRC_DIR}/giac-jni" "${GGD_SRC_SHADOW}/"
+cp -r "${SRC_DIR}/tarski-jni" "${GGD_SRC_SHADOW}/"
+cp -r "${SRC_DIR}/web" "${GGD_SRC_SHADOW}/"
+cp -r "${SRC_DIR}/ggbjdk" "${GGD_SRC_SHADOW}/"
+cp -r "${SRC_DIR}/keyboard-base" "${GGD_SRC_SHADOW}/"
+cp -r "${SRC_DIR}/keyboard-scientific" "${GGD_SRC_SHADOW}/"
+cp -r "${SRC_DIR}/keyboard-web" "${GGD_SRC_SHADOW}/"
+cp -r "${SRC_DIR}/test" "${GGD_SRC_SHADOW}/"
+cp -r "${SRC_DIR}/xr-base" "${GGD_SRC_SHADOW}/"
+
+echo ">>> Building..."
+cd "${GGD_SRC_SHADOW}/"
+./gradlew :desktop:installDist
