@@ -7,14 +7,14 @@ if [ "$(uname -s)" != "Darwin" ]; then
   exit 1
 fi
 
-
-
 VERSION="${APP_VERSION//_/-}"
 SRC_DIR="${SRC_DIR:-$(pwd)}"
 OUT_DIR="${OUT_DIR:-${SRC_DIR}/dist}"
 GGD_SRC_SHADOW="/tmp/ggd-src"
 
 echo ">>> Target version: ${VERSION}"
+
+brew install tree
 
 echo ">>> Copying project source files..."
 rm -rf "${GGD_SRC_SHADOW}"
@@ -52,3 +52,14 @@ export PATH="${JAVA_HOME}/bin:${PATH}"
 echo ">>> Building..."
 cd "${GGD_SRC_SHADOW}/"
 ./gradlew :desktop:installDist
+
+cp -r "${GGD_SRC_SHADOW}/desktop/build/install/desktop"/* "$PACKAGE_DIR"
+
+# remove unneeded jars
+LIB_DIR="$PACKAGE_DIR/lib"
+rm -f "$LIB_DIR"/*-windows-* \
+      "$LIB_DIR"/*-linux-* \
+      "$LIB_DIR"/zspace* \
+      "$LIB_DIR"/libpxcclr*
+
+tree "${GGD_SRC_SHADOW}/"
