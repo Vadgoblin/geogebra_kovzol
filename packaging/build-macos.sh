@@ -46,6 +46,8 @@ cp -RP "${SRC_DIR}/xr-base" "${GGD_SRC_SHADOW}/"
 
 echo ">>> Installing java"
 brew install --cask temurin@11
+export JAVA_HOME="$(/usr/libexec/java_home -v 11)"
+export PATH="${JAVA_HOME}/bin:${PATH}"
 
 echo ">>> Building..."
 cd "${GGD_SRC_SHADOW}/"
