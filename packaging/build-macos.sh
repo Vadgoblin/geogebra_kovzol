@@ -90,8 +90,9 @@ mkdir -p "${APP_BUNDLE}/Contents/Resources/Java"
 mv "${BUNDLED_RUNTIME}" "${APP_BUNDLE}/Contents/runtime"
 
 # Copy desktop build outputs (lib and scripts)
-cp -r "${GGD_SRC_SHADOW}/desktop/build/install/desktop/lib" "${APP_BUNDLE}/Contents/Resources/Java/"
+cp -r "${GGD_SRC_SHADOW}/desktop/build/install/desktop/lib" "${APP_BUNDLE}/Contents/Resources/"
 cp -r "${GGD_SRC_SHADOW}/desktop/build/install/desktop/bin" "${APP_BUNDLE}/Contents/Resources/"
+rm -f "${APP_BUNDLE}/Contents/Resources/bin/desktop.bat"
 
 # 6. Remove cross-platform native libraries
 LIB_DIR="${APP_BUNDLE}/Contents/Resources/Java/lib"
@@ -137,13 +138,26 @@ cat << EOF > "${APP_BUNDLE}/Contents/Info.plist"
     <string>APPL</string>
     <key>NSHighResolutionCapable</key>
     <true/>
+    <key>CFBundleIconFile</key>
+    <string>app</string>
 </dict>
 </plist>
 EOF
 
-if [ -f "${SRC_DIR}/flatpak/gd-512.png" ]; then
-  cp "${SRC_DIR}/flatpak/gd-512.png" "${APP_BUNDLE}/Contents/Resources/app.png"
-fi
+mkdir -p /tmp/AppIcon.iconset
+sips -z 16 16     "${SRC_DIR}/flatpak/gd-512.png" --out /tmp/AppIcon.iconset/icon_16x16.png
+sips -z 32 32     "${SRC_DIR}/flatpak/gd-512.png" --out /tmp/AppIcon.iconset/icon_16x16@2x.png
+sips -z 32 32     "${SRC_DIR}/flatpak/gd-512.png" --out /tmp/AppIcon.iconset/icon_32x32.png
+sips -z 64 64     "${SRC_DIR}/flatpak/gd-512.png" --out /tmp/AppIcon.iconset/icon_32x32@2x.png
+sips -z 128 128   "${SRC_DIR}/flatpak/gd-512.png" --out /tmp/AppIcon.iconset/icon_128x128.png
+sips -z 256 256   "${SRC_DIR}/flatpak/gd-512.png" --out /tmp/AppIcon.iconset/icon_128x128@2x.png
+sips -z 256 256   "${SRC_DIR}/flatpak/gd-512.png" --out /tmp/AppIcon.iconset/icon_256x256.png
+sips -z 512 512   "${SRC_DIR}/flatpak/gd-512.png" --out /tmp/AppIcon.iconset/icon_256x256@2x.png
+sips -z 512 512   "${SRC_DIR}/flatpak/gd-512.png" --out /tmp/AppIcon.iconset/icon_512x512.png
+sips -z 1024 1024 "${SRC_DIR}/flatpak/gd-512.png" --out /tmp/AppIcon.iconset/icon_512x512@2x.png
+iconutil -c icns /tmp/AppIcon.iconset -o "${APP_BUNDLE}/Contents/Resources/app.icns"
+rm -rf /tmp/AppIcon.iconset
+
 
 # 9. Output Archive
 mkdir -p "${OUT_DIR}"
