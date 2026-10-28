@@ -100,6 +100,9 @@ rm -f "$LIB_DIR"/*-linux-* \
       "$LIB_DIR"/libpxcclr* \
       "$LIB_DIR"/zspace*
 
+sed -i '' 's|^DEFAULT_JVM_OPTS=""|DEFAULT_JVM_OPTS='\''"-Dapple.laf.useScreenMenuBar=true" "--add-exports=java.desktop/com.apple.eawt=ALL-UNNAMED" "--add-exports=java.desktop/com.apple.eawt.event=ALL-UNNAMED" "--add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED" "--add-opens=java.desktop/com.apple.eawt.event=ALL-UNNAMED"'\''|' \
+  "${APP_BUNDLE}/Contents/Resources/bin/desktop"
+
 # Create launcher pointing to bundled JRE
 cat << 'EOF' > "${APP_BUNDLE}/Contents/MacOS/geogebra-discovery"
 #!/usr/bin/env bash
@@ -108,12 +111,6 @@ BUNDLE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 # Force launcher to use the bundled Java runtime
 export JAVA_HOME="${BUNDLE_DIR}/runtime"
 export PATH="${JAVA_HOME}/bin:${PATH}"
-
-## Export and open internal Apple EAWT packages to GeoGebra
-#export JAVA_OPTS="${JAVA_OPTS:-} \
-#  --add-exports=java.desktop/com.apple.eawt=ALL-UNNAMED \
-#  --add-exports=java.desktop/com.apple.eawt.event=ALL-UNNAMED \
-#  --add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED"
 
 exec "${BUNDLE_DIR}/Resources/bin/desktop" "$@"
 EOF
