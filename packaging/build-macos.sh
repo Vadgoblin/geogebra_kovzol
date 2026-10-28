@@ -92,8 +92,6 @@ mv "${BUNDLED_RUNTIME}" "${APP_BUNDLE}/Contents/runtime"
 
 # Copy desktop build outputs (lib and scripts)
 cp -r "${GGD_SRC_SHADOW}/desktop/build/install/desktop/lib/"* "${APP_BUNDLE}/Contents/Resources/lib/"
-cp -r "${GGD_SRC_SHADOW}/desktop/build/install/desktop/bin/"* "${APP_BUNDLE}/Contents/Resources/bin/"
-rm -f "${APP_BUNDLE}/Contents/Resources/bin/desktop.bat"
 
 # Remove cross-platform native libraries
 LIB_DIR="${APP_BUNDLE}/Contents/Resources/lib"
@@ -102,20 +100,25 @@ rm -f "$LIB_DIR"/*-linux-* \
       "$LIB_DIR"/libpxcclr* \
       "$LIB_DIR"/zspace*
 
-sed -i '' 's|^DEFAULT_JVM_OPTS=""|DEFAULT_JVM_OPTS='\''"-Dapple.laf.useScreenMenuBar=true" "--add-exports=java.desktop/com.apple.eawt=ALL-UNNAMED" "--add-exports=java.desktop/com.apple.eawt.event=ALL-UNNAMED" "--add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED" "--add-opens=java.desktop/com.apple.eawt.event=ALL-UNNAMED"'\''|' \
-  "${APP_BUNDLE}/Contents/Resources/bin/desktop"
-
 # Create launcher pointing to bundled JRE
 cat << 'EOF' > "${APP_BUNDLE}/Contents/MacOS/geogebra-discovery"
 #!/usr/bin/env bash
+set -eu
+
 BUNDLE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+RUNTIME="${BUNDLE_DIR}/runtime"
+APP_HOME="${BUNDLE_DIR}/Resources"
 
-# Force launcher to use the bundled Java runtime
-export JAVA_HOME="${BUNDLE_DIR}/runtime"
-export PATH="${JAVA_HOME}/bin:${PATH}"
-
-exec "${BUNDLE_DIR}/Resources/bin/desktop" "$@"
+exec "${RUNTIME}/bin/java" \
+  -Dapple.laf.useScreenMenuBar=true \
+  --add-exports=java.desktop/com.apple.eawt=ALL-UNNAMED \
+  --add-exports=java.desktop/com.apple.eawt.event=ALL-UNNAMED \
+  --add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED \
+  --add-opens=java.desktop/com.apple.eawt.event=ALL-UNNAMED \
+  -cp "${APP_HOME}/lib/*" \
+  org.geogebra.desktop.GeoGebra3D "$@"
 EOF
+
 chmod +x "${APP_BUNDLE}/Contents/MacOS/geogebra-discovery"
 
 # Create Info.plist
