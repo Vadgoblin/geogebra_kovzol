@@ -89,8 +89,8 @@ mkdir -p "${APP_BUNDLE}/Contents/MacOS"
 mv "${BUNDLED_RUNTIME}" "${APP_BUNDLE}/Contents/runtime"
 
 # Copy desktop build outputs (lib and scripts)
-cp -r "${GGD_SRC_SHADOW}/desktop/build/install/desktop/lib" "${APP_BUNDLE}/Contents/Resources/"
-cp -r "${GGD_SRC_SHADOW}/desktop/build/install/desktop/bin" "${APP_BUNDLE}/Contents/Resources/"
+cp -r "${GGD_SRC_SHADOW}/desktop/build/install/desktop/lib" "${APP_BUNDLE}/Contents/Resources/lib"
+cp -r "${GGD_SRC_SHADOW}/desktop/build/install/desktop/bin" "${APP_BUNDLE}/Contents/Resources/bin"
 rm -f "${APP_BUNDLE}/Contents/Resources/bin/desktop.bat"
 
 # Remove cross-platform native libraries
@@ -109,11 +109,11 @@ BUNDLE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 export JAVA_HOME="${BUNDLE_DIR}/runtime"
 export PATH="${JAVA_HOME}/bin:${PATH}"
 
-# Export and open internal Apple EAWT packages to GeoGebra
-export JAVA_OPTS="${JAVA_OPTS:-} \
-  --add-exports=java.desktop/com.apple.eawt=ALL-UNNAMED \
-  --add-exports=java.desktop/com.apple.eawt.event=ALL-UNNAMED \
-  --add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED"
+## Export and open internal Apple EAWT packages to GeoGebra
+#export JAVA_OPTS="${JAVA_OPTS:-} \
+#  --add-exports=java.desktop/com.apple.eawt=ALL-UNNAMED \
+#  --add-exports=java.desktop/com.apple.eawt.event=ALL-UNNAMED \
+#  --add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED"
 
 exec "${BUNDLE_DIR}/Resources/bin/desktop" "$@"
 EOF
