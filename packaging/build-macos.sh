@@ -84,13 +84,15 @@ echo ">>> Creating bundled Java runtime with jlink..."
 echo ">>> Packaging application bundle..."
 rm -rf "${PACKAGE_DIR}/${APP_NAME}.app"
 mkdir -p "${APP_BUNDLE}/Contents/MacOS"
+mkdir -p "${APP_BUNDLE}/Contents/Resources/bin"
+mkdir -p "${APP_BUNDLE}/Contents/Resources/lib"
 
 # Move the stripped JRE inside the bundle
 mv "${BUNDLED_RUNTIME}" "${APP_BUNDLE}/Contents/runtime"
 
 # Copy desktop build outputs (lib and scripts)
-cp -r "${GGD_SRC_SHADOW}/desktop/build/install/desktop/lib" "${APP_BUNDLE}/Contents/Resources/"
-cp -r "${GGD_SRC_SHADOW}/desktop/build/install/desktop/bin" "${APP_BUNDLE}/Contents/Resources/"
+cp -r "${GGD_SRC_SHADOW}/desktop/build/install/desktop/lib/"* "${APP_BUNDLE}/Contents/Resources/lib/"
+cp -r "${GGD_SRC_SHADOW}/desktop/build/install/desktop/bin/"* "${APP_BUNDLE}/Contents/Resources/bin/"
 rm -f "${APP_BUNDLE}/Contents/Resources/bin/desktop.bat"
 
 # Remove cross-platform native libraries
@@ -100,8 +102,8 @@ rm -f "$LIB_DIR"/*-linux-* \
       "$LIB_DIR"/libpxcclr* \
       "$LIB_DIR"/zspace*
 
-#sed -i '' 's|^DEFAULT_JVM_OPTS=""|DEFAULT_JVM_OPTS='\''"-Dapple.laf.useScreenMenuBar=true" "--add-exports=java.desktop/com.apple.eawt=ALL-UNNAMED" "--add-exports=java.desktop/com.apple.eawt.event=ALL-UNNAMED" "--add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED" "--add-opens=java.desktop/com.apple.eawt.event=ALL-UNNAMED"'\''|' \
-#  "${APP_BUNDLE}/Contents/Resources/bin/desktop"
+sed -i '' 's|^DEFAULT_JVM_OPTS=""|DEFAULT_JVM_OPTS='\''"-Dapple.laf.useScreenMenuBar=true" "--add-exports=java.desktop/com.apple.eawt=ALL-UNNAMED" "--add-exports=java.desktop/com.apple.eawt.event=ALL-UNNAMED" "--add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED" "--add-opens=java.desktop/com.apple.eawt.event=ALL-UNNAMED"'\''|' \
+  "${APP_BUNDLE}/Contents/Resources/bin/desktop"
 
 # Create launcher pointing to bundled JRE
 cat << 'EOF' > "${APP_BUNDLE}/Contents/MacOS/geogebra-discovery"
