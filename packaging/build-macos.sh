@@ -95,13 +95,11 @@ cp -r "${GGD_SRC_SHADOW}/desktop/build/install/desktop/bin" "${APP_BUNDLE}/Conte
 rm -f "${APP_BUNDLE}/Contents/Resources/bin/desktop.bat"
 
 # 6. Remove cross-platform native libraries
-LIB_DIR="${APP_BUNDLE}/Contents/Resources/Java/lib"
-rm -f "$LIB_DIR"/*-windows-* \
-      "$LIB_DIR"/*-linux-* \
-      "$LIB_DIR"/*-solaris-* \
-      "$LIB_DIR"/*-android-* \
-      "$LIB_DIR"/zspace* \
-      "$LIB_DIR"/libpxcclr*
+LIB_DIR="${APP_BUNDLE}/Contents/Resources/lib"
+rm -f "$LIB_DIR"/*-linux-* \
+      "$LIB_DIR"/*-windows-* \
+      "$LIB_DIR"/libpxcclr* \
+      "$LIB_DIR"/zspace*
 
 # 7. Create launcher pointing to bundled JRE
 cat << 'EOF' > "${APP_BUNDLE}/Contents/MacOS/geogebra-discovery"
