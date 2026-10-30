@@ -108,14 +108,15 @@ set -eu
 BUNDLE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 RUNTIME="${BUNDLE_DIR}/runtime"
 APP_HOME="${BUNDLE_DIR}/Resources"
+LIB_DIR="${APP_HOME}/lib"
 
 exec "${RUNTIME}/bin/java" \
+  --patch-module java.desktop="${LIB_DIR}/mac_extensions-20040714.jar" \
+  --add-exports java.desktop/com.apple.eawt=ALL-UNNAMED \
+  --add-exports java.desktop/com.apple.eawt.event=ALL-UNNAMED \
+  --add-opens java.desktop/com.apple.eawt=ALL-UNNAMED \
   -Dapple.laf.useScreenMenuBar=true \
-  --add-exports=java.desktop/com.apple.eawt=ALL-UNNAMED \
-  --add-exports=java.desktop/com.apple.eawt.event=ALL-UNNAMED \
-  --add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED \
-  --add-opens=java.desktop/com.apple.eawt.event=ALL-UNNAMED \
-  -cp "${APP_HOME}/lib/*" \
+  -cp "${LIB_DIR}/*" \
   org.geogebra.desktop.GeoGebra3D "$@"
 EOF
 
