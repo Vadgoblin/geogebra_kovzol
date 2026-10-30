@@ -11,11 +11,9 @@ _HOST_ARCH="$(uname -m)"
 case "$_HOST_ARCH" in
   x86_64)
     ARCH="x86_64"
-    KEEP_MACOS_NATIVE="x86_64"
     ;;
   arm64|aarch64)
     ARCH="arm64"
-    KEEP_MACOS_NATIVE="aarch64"
     ;;
   *)
     echo "Unsupported architecture: $_HOST_ARCH" >&2
