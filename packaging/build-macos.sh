@@ -100,55 +100,10 @@ rm -f "$LIB_DIR"/*-linux-* \
       "$LIB_DIR"/libpxcclr* \
       "$LIB_DIR"/zspace*
 
-# Create launcher pointing to bundled JRE
-cat << 'EOF' > "${APP_BUNDLE}/Contents/MacOS/geogebra-discovery"
-#!/usr/bin/env bash
-set -eu
-
-BUNDLE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-RUNTIME="${BUNDLE_DIR}/runtime"
-APP_HOME="${BUNDLE_DIR}/Resources"
-LIB_DIR="${APP_HOME}/lib"
-
-exec "${RUNTIME}/bin/java" \
-  --patch-module java.desktop="${LIB_DIR}/mac_extensions-20040714.jar" \
-  --add-exports java.desktop/com.apple.eawt=ALL-UNNAMED \
-  --add-exports java.desktop/com.apple.eawt.event=ALL-UNNAMED \
-  --add-opens java.desktop/com.apple.eawt=ALL-UNNAMED \
-  -Dapple.laf.useScreenMenuBar=true \
-  -cp "${LIB_DIR}/*" \
-  org.geogebra.desktop.GeoGebra3D "$@"
-EOF
-
+cp "${SRC_DIR}/packaging/mac/geogebra-discovery" "${APP_BUNDLE}/Contents/MacOS/geogebra-discovery"
 chmod +x "${APP_BUNDLE}/Contents/MacOS/geogebra-discovery"
 
-# Create Info.plist
-cat << EOF > "${APP_BUNDLE}/Contents/Info.plist"
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>CFBundleExecutable</key>
-    <string>geogebra-discovery</string>
-    <key>CFBundleIdentifier</key>
-    <string>org.geogebra.discovery</string>
-    <key>CFBundleName</key>
-    <string>GeoGebra Discovery</string>
-    <key>CFBundleDisplayName</key>
-    <string>GeoGebra Discovery</string>
-    <key>CFBundleVersion</key>
-    <string>${VERSION}</string>
-    <key>CFBundleShortVersionString</key>
-    <string>${VERSION}</string>
-    <key>CFBundlePackageType</key>
-    <string>APPL</string>
-    <key>NSHighResolutionCapable</key>
-    <true/>
-    <key>CFBundleIconFile</key>
-    <string>app</string>
-</dict>
-</plist>
-EOF
+cp "${SRC_DIR}/packaging/mac/Info.plist" "${APP_BUNDLE}/Contents/Info.plist"
 
 mkdir -p /tmp/AppIcon.iconset
 sips -z 16 16     "${SRC_DIR}/flatpak/gd-512.png" --out /tmp/AppIcon.iconset/icon_16x16.png
@@ -163,7 +118,6 @@ sips -z 512 512   "${SRC_DIR}/flatpak/gd-512.png" --out /tmp/AppIcon.iconset/ico
 sips -z 1024 1024 "${SRC_DIR}/flatpak/gd-512.png" --out /tmp/AppIcon.iconset/icon_512x512@2x.png
 iconutil -c icns /tmp/AppIcon.iconset -o "${APP_BUNDLE}/Contents/Resources/app.icns"
 rm -rf /tmp/AppIcon.iconset
-
 
 # Create APP
 mkdir -p "${OUT_DIR}"
