@@ -2,7 +2,7 @@ name: Build macOS Package for Release
 
 on:
   release:
-    types: [published]
+    types: [ published ]
   workflow_dispatch:
 
 jobs:
@@ -12,8 +12,8 @@ jobs:
         include:
           - arch: x86_64
             runner: macos-15-intel
-#          - arch: arm64
-#            runner: macos-15
+          - arch: arm64
+            runner: macos-15
       fail-fast: false
 
     runs-on: ${{ matrix.runner }}
