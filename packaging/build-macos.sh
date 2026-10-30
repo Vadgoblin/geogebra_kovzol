@@ -80,7 +80,7 @@ echo ">>> Creating bundled Java runtime with jlink..."
   --compress=2 \
   --output "${BUNDLED_RUNTIME}"
 
-# 5. Assemble standard macOS .app directory structure
+# Assemble standard macOS .app directory structure
 echo ">>> Packaging application bundle..."
 rm -rf "${PACKAGE_DIR}/${APP_NAME}.app"
 mkdir -p "${APP_BUNDLE}/Contents/MacOS"
@@ -165,11 +165,35 @@ iconutil -c icns /tmp/AppIcon.iconset -o "${APP_BUNDLE}/Contents/Resources/app.i
 rm -rf /tmp/AppIcon.iconset
 
 
-# 9. Output Archive
+# Create APP
 mkdir -p "${OUT_DIR}"
 OUTPUT_ARCHIVE="${OUT_DIR}/geogebra-discovery-${VERSION}-macos-${ARCH}.zip"
 
 echo ">>> Creating ZIP archive: ${OUTPUT_ARCHIVE}"
 (cd "${PACKAGE_DIR}" && zip -qyr "${OUTPUT_ARCHIVE}" "${APP_NAME}.app")
+
+# Create DMG
+DMG_STAGING="/tmp/ggd-dmg-staging"
+OUTPUT_DMG="${OUT_DIR}/geogebra-discovery-${VERSION}-macos-${ARCH}.dmg"
+
+echo ">>> Creating DMG distribution: ${OUTPUT_DMG}"
+rm -rf "${DMG_STAGING}" "${OUTPUT_DMG}"
+mkdir -p "${DMG_STAGING}"
+
+# Copy the .app into the staging directory
+cp -RP "${APP_BUNDLE}" "${DMG_STAGING}/"
+
+# Create a symlink to /Applications for standard drag-and-drop install
+ln -s /Applications "${DMG_STAGING}/Applications"
+
+# Create compressed read-only DMG (UDZO format)
+hdiutil create \
+  -volname "${APP_NAME}" \
+  -srcfolder "${DMG_STAGING}" \
+  -ov \
+  -format UDZO \
+  "${OUTPUT_DMG}"
+
+rm -rf "${DMG_STAGING}"
 
 echo ">>> Done."
